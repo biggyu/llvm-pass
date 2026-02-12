@@ -13,8 +13,22 @@ void visitor(Function &F) {
     for (Instruction &I : BB) {
       for (int i = 0; i < I.getNumOperands(); i++) {
         llvm::Value* operand = I.getOperand(i);
-        if (operand->getType()->isFloatTy() || operand->getType()->isDoubleTy()) {
-          errs() << "(llvm-pass) This is a floating point inside " << F.getName() << "\n";
+        if (operand->getType()->isFloatTy()) {
+          errs() << "(llvm-pass) Float type detected in " << F.getName() << "\n";
+          operand->print(errs());
+          errs() << " (type = ";
+          operand->getType()->print(errs());
+          errs() << ") \n";
+        }
+        else if (operand->getType()->isDoubleTy()) {
+          errs() << "(llvm-pass) Double type detected in " << F.getName() << "\n";
+          operand->print(errs());
+          errs() << " (type = ";
+          operand->getType()->print(errs());
+          errs() << ") \n";
+        }
+        else if (operand->getType()->isIntegerTy()) {
+          errs() << "(llvm-pass) Integer type detected in " << F.getName() << "\n";
           operand->print(errs());
           errs() << " (type = ";
           operand->getType()->print(errs());
