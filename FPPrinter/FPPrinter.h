@@ -5,6 +5,7 @@
 // #include "llvm/ADT/SmallPtrSet.h"
 // #include "llvm/IR/BasicBlock.h"
 // #include "llvm/IR/Dominators.h"
+#include "llvm/IR/Module.h"
 #include "llvm/IR/PassManager.h"
 #include "llvm/Pass.h"
 
@@ -26,38 +27,14 @@
 class FPPrinter : public llvm::PassInfoMixin<FPPrinter> {
 public:
   llvm::PreservedAnalyses run(llvm::Function &Func, llvm::FunctionAnalysisManager &FAM);
+  llvm::PreservedAnalyses run(llvm::Module &M, llvm::ModuleAnalysisManager &);
   static bool isRequired() { return true; }
 };
 #endif
 
 
-// struct RIV : public llvm::AnalysisInfoMixin<RIV> {
-//   // A map that for every basic block holds a set of pointers to reachable
-//   // integer values for that block.
-//   using Result = llvm::MapVector<llvm::BasicBlock const *,
-//                                  llvm::SmallPtrSet<llvm::Value *, 8>>;
-//   Result run(llvm::Function &F, llvm::FunctionAnalysisManager &);
-//   Result buildRIV(llvm::Function &F,
-//                   llvm::DomTreeNodeBase<llvm::BasicBlock> *CFGRoot);
-
-// private:
-//   // A special type used by analysis passes to provide an address that
-//   // identifies that particular analysis pass type.
-//   static llvm::AnalysisKey Key;
-//   friend struct llvm::AnalysisInfoMixin<RIV>;
-// };
-
-// //------------------------------------------------------------------------------
-// // New PM interface for the printer pass
-// //------------------------------------------------------------------------------
-// class RIVPrinter : public llvm::PassInfoMixin<RIVPrinter> {
-// public:
-//   explicit RIVPrinter(llvm::raw_ostream &OutS) : OS(OutS) {}
-//   llvm::PreservedAnalyses run(llvm::Function &F,
-//                               llvm::FunctionAnalysisManager &FAM);
-
-// private:
-//   llvm::raw_ostream &OS;
-// };
-
-// #endif // LLVM_TUTOR_RIV_H
+// struct InjectFPPrinter : public llvm::PassInfoMixin<InjectFPPRinter> {
+//   llvm::PreservedAnalyses run(llvm::Function &Func, llvm::FunctionAnalysisManager &FAM);
+//   bool runOnModule(llvm::Module &M);
+//   static bool isRequired() { return true; }
+// }
