@@ -23,6 +23,7 @@ void runOnModule(llvm::Module &M) {
   std::vector<Type*> dparamTy = {Type::getDoubleTy(Ctx), Type::getDoubleTy(Ctx)};
   std::vector<Type*> TSDparamTy = {Type::getDoubleTy(Ctx), Type::getDoubleTy(Ctx), PointerType::getUnqual(Ctx), PointerType::getUnqual(Ctx)};
   std::vector<Type*> TSFparamTy = {Type::getFloatTy(Ctx), Type::getDoubleTy(Ctx), PointerType::getUnqual(Ctx), PointerType::getUnqual(Ctx)};
+  std::vector<Type*> TPDparamTy = {Type::getDoubleTy(Ctx), Type::getDoubleTy(Ctx), PointerType::getUnqual(Ctx), PointerType::getUnqual(Ctx)};
 
   FunctionType *PrintfTy = FunctionType::get(
     IntegerType::getInt32Ty(Ctx),
@@ -44,17 +45,25 @@ void runOnModule(llvm::Module &M) {
     TSretTy,
     TSFparamTy,
     false);
+  FunctionType *TwoProdDTy = FunctionType::get(
+    TSretTy,
+    TPDparamTy,
+    false);
   
   FunctionCallee Printf = M.getOrInsertFunction("printf", PrintfTy);
   FunctionCallee addf = M.getOrInsertFunction("addf", FAddTy);
   FunctionCallee addd = M.getOrInsertFunction("addd", DAddTy);
   FunctionCallee TwoSumD = M.getOrInsertFunction("TwoSum_D", TwoSumDTy);
   FunctionCallee TwoSumF = M.getOrInsertFunction("TwoSum_F", TwoSumFTy);
+  FunctionCallee TwoProdD = M.getOrInsertFunction("TwoProd", TwoProdDTy);
 
   IRBuilder<> GlobalB(Ctx);
   
-  Value *FloatFormatPtr = 
+  Value *TwoSumFormatPtr = 
   GlobalB.CreateGlobalStringPtr("(llvm-pass) TwoSum result\nx = %f dx = %f\n",
+                                "fmt.float", 0, &M);
+  Value *TwoProdFormatPtr = 
+  GlobalB.CreateGlobalStringPtr("(llvm-pass) TwoProd result\nx = %f dx = %f\n",
                                 "fmt.float", 0, &M);
   // Value *FloatFormatPtr = GlobalB.CreateGlobalStringPtr("(llvm-pass) TwoSum result:\nx=%f dx=%f\n");
 
@@ -93,7 +102,7 @@ void runOnModule(llvm::Module &M) {
             Value *xval = Builder.CreateLoad(dretTy, x, "twosum.xval");
             Value *dxval = Builder.CreateLoad(dretTy, dx, "twosum.dxval");
             // Value *FloatFormatPtr = GlobalB.CreateGlobalStringPtr("(llvm-pass) TwoSum result:\nx=%f dx=%f\n");
-            Builder.CreateCall(Printf, {FloatFormatPtr, xval, dxval});
+            Builder.CreateCall(Printf, {TwoSumFormatPtr, xval, dxval});
           }
         }
         else if (I.getOpcode() == Instruction::FSub) {
@@ -108,7 +117,19 @@ void runOnModule(llvm::Module &M) {
             Value *xval = Builder.CreateLoad(dretTy, x, "twosum.xval");
             Value *dxval = Builder.CreateLoad(dretTy, dx, "twosum.dxval");
             // Value *FloatFormatPtr = GlobalB.CreateGlobalStringPtr("(llvm-pass) TwoSum result:\nx=%f dx=%f\n");
-            Builder.CreateCall(Printf, {FloatFormatPtr, xval, dxval});
+            Builder.CreateCall(Printf, {TwoSumFormatPtr, xval, dxval});
+          }
+        }
+        else if (I.getOpcode() == Instruction::FMul) {
+          if (I.getOperand(0)->getType()->isDoubleTy()) {
+            Value *opr0 = I.getOperand(0);
+            Value *opr1 = I.getOperand(1);
+            AllocaInst *x = Builder.CreateAlloca(Type::getDoubleTy(Ctx), nullptr, "twoprod.x");
+            AllocaInst *dx = Builder.CreateAlloca(Type::getDoubleTy(Ctx), nullptr, "twoprod.dx");
+            Builder.CreateCall(TwoProdD, {opr0, opr1, x, dx});
+            Value *xval = Builder.CreateLoad(dretTy, x, "twoprod.xval");
+            Value *dxval = Builder.CreateLoad(dretTy, dx, "twoprod.dxval");
+            Builder.CreateCall(Printf, {TwoProdFormatPtr, xval, dxval});
           }
         }
         

@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <math.h>
 
 float addf(float a, float b) {
     float x = a + b;
@@ -27,4 +28,10 @@ void TwoSum_F(float a, float b, float *x, float *dx) {
     float da = a - ap;
     float db = b - bp;
     *dx = da + db;
+}
+
+void TwoProd(double a, double b, double *x, double *dx) {
+    *x = a * b;
+    *dx = fma(a, b, -(*x));
+    // *dx = std::fma(a, b, -x);
 }
