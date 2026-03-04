@@ -69,7 +69,7 @@ void runOnModule(llvm::Module &M) {
 
   for (Function &F : M) {
     if (F.isDeclaration()) continue;
-    if (F.getName() == "addf" || F.getName() == "addd" || F.getName() == "TwoSum") continue;
+    if (F.getName() == "addf" || F.getName() == "addd" || F.getName() == "TwoSum" || F.getName() == "TwoProd") continue;
 
     for (BasicBlock &BB : F) {
       for(Instruction &I : BB) {

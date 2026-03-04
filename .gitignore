@@ -1,4 +1,7 @@
 build/
+/**/*.bc
+/**/*.o
+/**/*.out
 *.ll
 # Prerequisites
 *.d
