@@ -1,9 +1,10 @@
 cmake_minimum_required(VERSION 3.20)
-project(llvm_study LANGUAGES C CXX)
+project(llvm_pass LANGUAGES C CXX)
 
 find_package(LLVM REQUIRED CONFIG)
-list(APPEND CMAKE_MODULE_PATH "${LLVM_CMAKE_DIR}")
+list(APPEND CMAKE_MODULE_PATH "${LLVM_CMAKE_DIR}" "${CMAKE_SOURCE_DIR}/cmake")
 include(AddLLVM)
+include(LLVMPass)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)

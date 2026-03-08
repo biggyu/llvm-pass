@@ -1,5 +1,5 @@
-#include <stdio.h>
-#include <math.h>
+#include "fp_runtime.h"
+#include <cmath>
 
 float addf(float a, float b) {
     float x = a + b;
