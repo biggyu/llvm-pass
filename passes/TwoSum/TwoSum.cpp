@@ -22,7 +22,7 @@ void runOnModule(llvm::Module &M) {
   std::vector<Type*> fparamTy = {Type::getFloatTy(Ctx), Type::getFloatTy(Ctx)};
   std::vector<Type*> dparamTy = {Type::getDoubleTy(Ctx), Type::getDoubleTy(Ctx)};
   std::vector<Type*> TSDparamTy = {Type::getDoubleTy(Ctx), Type::getDoubleTy(Ctx), PointerType::getUnqual(Ctx), PointerType::getUnqual(Ctx)};
-  std::vector<Type*> TSFparamTy = {Type::getFloatTy(Ctx), Type::getDoubleTy(Ctx), PointerType::getUnqual(Ctx), PointerType::getUnqual(Ctx)};
+  // std::vector<Type*> TSFparamTy = {Type::getFloatTy(Ctx), Type::getDoubleTy(Ctx), PointerType::getUnqual(Ctx), PointerType::getUnqual(Ctx)};
   std::vector<Type*> TPDparamTy = {Type::getDoubleTy(Ctx), Type::getDoubleTy(Ctx), PointerType::getUnqual(Ctx), PointerType::getUnqual(Ctx)};
 
   FunctionType *PrintfTy = FunctionType::get(
@@ -41,10 +41,10 @@ void runOnModule(llvm::Module &M) {
     TSretTy,
     TSDparamTy,
     false);
-  FunctionType *TwoSumFTy = FunctionType::get(
-    TSretTy,
-    TSFparamTy,
-    false);
+  // FunctionType *TwoSumFTy = FunctionType::get(
+  //   TSretTy,
+  //   TSFparamTy,
+  //   false);
   FunctionType *TwoProdDTy = FunctionType::get(
     TSretTy,
     TPDparamTy,
@@ -53,8 +53,8 @@ void runOnModule(llvm::Module &M) {
   FunctionCallee Printf = M.getOrInsertFunction("printf", PrintfTy);
   FunctionCallee addf = M.getOrInsertFunction("addf", FAddTy);
   FunctionCallee addd = M.getOrInsertFunction("addd", DAddTy);
-  FunctionCallee TwoSumD = M.getOrInsertFunction("TwoSum_D", TwoSumDTy);
-  FunctionCallee TwoSumF = M.getOrInsertFunction("TwoSum_F", TwoSumFTy);
+  FunctionCallee TwoSumD = M.getOrInsertFunction("TwoSum", TwoSumDTy);
+  // FunctionCallee TwoSumF = M.getOrInsertFunction("TwoSum_F", TwoSumFTy);
   FunctionCallee TwoProdD = M.getOrInsertFunction("TwoProd", TwoProdDTy);
 
   IRBuilder<> GlobalB(Ctx);

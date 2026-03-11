@@ -13,7 +13,7 @@ double addd(double a, double b) {
     return t;
 }
 
-void TwoSum_D(double a, double b, double *x, double *dx) {
+void TwoSum(double a, double b, double *x, double *dx) {
     *x = a + b;
     double bp = *x - a;
     double ap = *x - bp;
@@ -21,14 +21,14 @@ void TwoSum_D(double a, double b, double *x, double *dx) {
     double db = b - bp;
     *dx = da + db;
 }
-void TwoSum_F(float a, float b, float *x, float *dx) {
-    *x = a + b;
-    float bp = *x - a;
-    float ap = *x - bp;
-    float da = a - ap;
-    float db = b - bp;
-    *dx = da + db;
-}
+// void TwoSum_F(float a, float b, float *x, float *dx) {
+//     *x = a + b;
+//     float bp = *x - a;
+//     float ap = *x - bp;
+//     float da = a - ap;
+//     float db = b - bp;
+//     *dx = da + db;
+// }
 
 void TwoProd(double a, double b, double *x, double *dx) {
     *x = a * b;
