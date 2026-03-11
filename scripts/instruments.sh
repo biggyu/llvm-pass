@@ -17,5 +17,5 @@ mkdir -p "$OUTDIR"
 $LLVM_CLANG -O0 -g -S -emit-llvm $SRC -o $OUTDIR/input.ll
 $LLVM_OPT -load-pass-plugin ./build/passes/$PASS/$PASS.so --passes="$PLUGIN" -S $OUTDIR/input.ll -o $OUTDIR/instrumented.ll
 $LLVM_CLANGXX -c $OUTDIR/instrumented.ll -o $OUTDIR/instrumented.o
-g++ $OUTDIR/instrumented.o ./build/runtime/libfp_runtime.a -o $OUTDIR/a.out -lm
+g++ $OUTDIR/instrumented.o ./build/runtime/libpass_runtime.a -o $OUTDIR/a.out -lm
 $OUTDIR/a.out
