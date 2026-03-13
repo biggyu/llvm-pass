@@ -4,3 +4,4 @@
 # add_subdirectory(OpCode)
 # add_subdirectory(RIV)
 add_subdirectory(TwoSum)
+add_subdirectory(ShadowMem)
