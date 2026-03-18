@@ -1,5 +1,5 @@
 add_library(pass_runtime STATIC 
-    fp_runtime.cpp 
+    fp_runtime.cpp
     smem_runtime.cpp
 )
 target_include_directories(pass_runtime PUBLIC 
