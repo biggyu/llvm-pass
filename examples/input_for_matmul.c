@@ -8,8 +8,6 @@ int main() {
     double mat1[dim][dim];
     double mat2[dim][dim];
     double result[dim][dim];
-    int* ptr;
-    printf("%ld\n", sizeof(ptr));
 
     for (int i = 0; i < dim; i++) {
         for (int j = 0; j < dim; j++) {

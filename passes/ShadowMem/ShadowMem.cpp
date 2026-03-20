@@ -96,27 +96,49 @@ void runOnModule(llvm::Module &M) {
                 }
                 if (auto *SI = dyn_cast<StoreInst>(&I)) {
                     llvm::Value *val = SI->getValueOperand();
-                    llvm::Value *ptr = SI->getPointerOperand();
-                    llvm::Value *dx = nullptr;
-                    auto it = errof.find(val);
-                    if (it != errof.end()) {
-                        dx = it->second;
-                    }
-                    else {
-                        dx = llvm::ConstantFP::get(llvm::Type::getDoubleTy(Ctx), 0.0);
-                    }
+                    // llvm::Value *ptr = SI->getPointerOperand();
+                    // llvm::Value *dx = nullptr;
+                    // auto it = errof.find(val);
+                    // if (it != errof.end()) {
+                    //     dx = it->second;
+                    // }
+                    // else {
+                    //     dx = llvm::ConstantFP::get(llvm::Type::getDoubleTy(Ctx), 0.0);
+                    // }
+                    // if (val->getType()->isDoubleTy()) {
+                    //     Builder.CreateCall(ShadowStore, {ptr, val, dx});
+                    // }
+                    // else if (val->getType()->isFloatTy()) {
+                    //     llvm::Value *valD = Builder.CreateFPExt(val, llvm::Type::getDoubleTy(Ctx));
+                    //     Builder.CreateCall(ShadowStore, {ptr, valD, dx});
+                    // }
                     if (val->getType()->isDoubleTy()) {
-                        Builder.CreateCall(ShadowStore, {ptr, val, dx});
-                    }
-                    else if (val->getType()->isFloatTy()) {
-                        llvm::Value *valD = Builder.CreateFPExt(val, llvm::Type::getDoubleTy(Ctx));
-                        Builder.CreateCall(ShadowStore, {ptr, valD, dx});
+                        llvm::Value *ptr = SI->getPointerOperand();
+                        llvm::Value *dx = nullptr;
+                        auto it = errof.find(val);
+                        if (it != errof.end()) {
+                            dx = it->second;
+                        }
+                        else {
+                            dx = llvm::ConstantFP::get(llvm::Type::getDoubleTy(Ctx), 0.0);
+                        }
+                        if (val->getType()->isDoubleTy()) {
+                            Builder.CreateCall(ShadowStore, {ptr, val, dx});
+                        }
+                        else if (val->getType()->isFloatTy()) {
+                            llvm::Value *valD = Builder.CreateFPExt(val, llvm::Type::getDoubleTy(Ctx));
+                            Builder.CreateCall(ShadowStore, {ptr, valD, dx});
+                        }
                     }
                 }
                 else if (auto *LI = dyn_cast<LoadInst>(&I)) {
                     llvm::Value *ptr = LI->getPointerOperand();
-                    llvm::Value *dx = Builder.CreateCall(ShadowLoad, {ptr});
-                    errof[&I] = dx;
+                    if (LI->getType()->isDoubleTy()) {
+                        llvm::Value *dx = Builder.CreateCall(ShadowLoad, {ptr});
+                        errof[&I] = dx;
+                    }
+                    // llvm::Value *dx = Builder.CreateCall(ShadowLoad, {ptr});
+                    // errof[&I] = dx;
                 }
             }
         }
