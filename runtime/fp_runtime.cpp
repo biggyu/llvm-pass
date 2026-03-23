@@ -13,7 +13,15 @@ double addd(double a, double b) {
     return t;
 }
 
-void TwoSum(double a, double b, double *x, double *dx) {
+void TwoSumF(float a, float b, float *x, float *dx) {
+    *x = a + b;
+    float bp = *x - a;
+    float ap = *x - bp;
+    float da = a - ap;
+    float db = b - bp;
+    *dx = da + db;
+}
+void TwoSumD(double a, double b, double *x, double *dx) {
     *x = a + b;
     double bp = *x - a;
     double ap = *x - bp;
@@ -30,7 +38,12 @@ void TwoSum(double a, double b, double *x, double *dx) {
 //     *dx = da + db;
 // }
 
-void TwoProd(double a, double b, double *x, double *dx) {
+void TwoProdF(float a, float b, float *x, float *dx) {
+    *x = a * b;
+    *dx = fma(a, b, -(*x));
+    // *dx = std::fma(a, b, -x);
+}
+void TwoProdD(double a, double b, double *x, double *dx) {
     *x = a * b;
     *dx = fma(a, b, -(*x));
     // *dx = std::fma(a, b, -x);

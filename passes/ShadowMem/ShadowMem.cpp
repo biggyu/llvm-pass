@@ -42,6 +42,15 @@ void runOnModule(llvm::Module &M) {
     // GlobalB.CreateGlobalStringPtr("()")
     for (Function &F: M) {
         if (F.isDeclaration()) continue;
+        // BasicBlock EntryBlock = F.getEntryBlock();
+        IRBuilder<> EntryBuilder(&F.getEntryBlock(), F.getEntryBlock().getFirstNonPHIOrDbgOrAlloca());
+
+        //Store values, errors of twosum, twoprods
+        AllocaInst *valuef = EntryBuilder.CreateAlloca(rt.FloatTy, nullptr, "value.f");
+        AllocaInst *errorf = EntryBuilder.CreateAlloca(rt.FloatTy, nullptr, "error.f");
+        AllocaInst *valued = EntryBuilder.CreateAlloca(rt.DoubleTy, nullptr, "value.d");
+        AllocaInst *errord = EntryBuilder.CreateAlloca(rt.DoubleTy, nullptr, "error.d");
+
         if (F.getName() == "shadow_store" || F.getName() == "shadow_load") continue;
         for (BasicBlock &BB : F) {
             for (Instruction &I : BB) {
@@ -52,46 +61,73 @@ void runOnModule(llvm::Module &M) {
                     if (I.getOperand(0)->getType()->isDoubleTy()) {
                         Value *opr0 = I.getOperand(0);
                         Value *opr1 = I.getOperand(1);
-                        AllocaInst *x = Builder.CreateAlloca(rt.DoubleTy, nullptr, "twosum.x");
-                        AllocaInst *dx = Builder.CreateAlloca(rt.DoubleTy, nullptr, "twosum.dx");
-                        Builder.CreateCall(rt.TwoSum, {opr0, opr1, x, dx});
-                        Value *xval = Builder.CreateLoad(rt.DoubleTy, x, "twosum.val");
-                        Value *dxval = Builder.CreateLoad(rt.DoubleTy, dx, "twosum.err");
+                        // AllocaInst *x = Builder.CreateAlloca(rt.DoubleTy, nullptr, "twosumd.x");
+                        // AllocaInst *dx = Builder.CreateAlloca(rt.DoubleTy, nullptr, "twosumd.dx");
+                        
+                        Builder.CreateCall(rt.TwoSumD, {opr0, opr1, valued, errord});
+                        Value *xval = Builder.CreateLoad(rt.DoubleTy, valued, "twosum.double_val");
+                        Value *dxval = Builder.CreateLoad(rt.DoubleTy, errord, "twosum.double_err");
+                        errof[&I] = dxval;
+
+                        // Value *fmt = Builder.CreateGlobalStringPtr("TwoSumD: x=%f, dx=%e\n");
+                        // Builder.CreateCall(rt.Printf, {fmt, xval, dxval});
+                    }
+                    else if (I.getOperand(0)->getType()->isFloatTy()) {
+                        Value *opr0 = I.getOperand(0);
+                        Value *opr1 = I.getOperand(1);
+                        // AllocaInst *x = Builder.CreateAlloca(rt.FloatTy, nullptr, "twosumf.x");
+                        // AllocaInst *dx = Builder.CreateAlloca(rt.FloatTy, nullptr, "twosumf.dx");
+                        Builder.CreateCall(rt.TwoSumF, {opr0, opr1, valuef, errorf});
+                        Value *xval = Builder.CreateLoad(rt.FloatTy, valuef, "twosum.float_val");
+                        Value *dxval = Builder.CreateLoad(rt.FloatTy, errorf, "twosum.float_err");
                         errof[&I] = dxval;
                         
-                        Value *fmt = Builder.CreateGlobalStringPtr("TwoSum: x=%f, dx=%e\n");
-                        Builder.CreateCall(rt.Printf, {fmt, xval, dxval});
+                        // Value *fmt = Builder.CreateGlobalStringPtr("TwoSumF: x=%f, dx=%e\n");
+                        // Builder.CreateCall(rt.Printf, {fmt, xval, dxval});
                     }
                 }
                 else if (I.getOpcode() == Instruction::FSub) {
                     if (I.getOperand(0)->getType()->isDoubleTy()) {
                         Value *opr0 = I.getOperand(0);
                         Value *opr1 = I.getOperand(1);
-                        AllocaInst *x = Builder.CreateAlloca(rt.DoubleTy, nullptr, "twosum.x");
-                        AllocaInst *dx = Builder.CreateAlloca(rt.DoubleTy, nullptr, "twosum.dx");
+                        // AllocaInst *x = Builder.CreateAlloca(rt.DoubleTy, nullptr, "twosumd.x");
+                        // AllocaInst *dx = Builder.CreateAlloca(rt.DoubleTy, nullptr, "twosumd.dx");
                         Value *invopr1 = Builder.CreateFNeg(opr1, "inv");
-                        Builder.CreateCall(rt.TwoSum, {opr0, invopr1, x, dx});
-                        Value *xval = Builder.CreateLoad(rt.DoubleTy, x, "twosum.val");
-                        Value *dxval = Builder.CreateLoad(rt.DoubleTy, dx, "twosum.err");
+                        Builder.CreateCall(rt.TwoSumD, {opr0, invopr1, valued, errord});
+                        Value *xval = Builder.CreateLoad(rt.DoubleTy, valued, "twosum.double_val");
+                        Value *dxval = Builder.CreateLoad(rt.DoubleTy, errord, "twosum.double_err");
                         errof[&I] = dxval;
                         
-                        Value *fmt = Builder.CreateGlobalStringPtr("TwoSum: x=%f, dx=%e\n");
-                        Builder.CreateCall(rt.Printf, {fmt, xval, dxval});
+                        // Value *fmt = Builder.CreateGlobalStringPtr("TwoSum: x=%f, dx=%e\n");
+                        // Builder.CreateCall(rt.Printf, {fmt, xval, dxval});
                     }
                 }
                 else if (I.getOpcode() == Instruction::FMul) {
                     if (I.getOperand(0)->getType()->isDoubleTy()) {
                         Value *opr0 = I.getOperand(0);
                         Value *opr1 = I.getOperand(1);
-                        AllocaInst *x = Builder.CreateAlloca(rt.DoubleTy, nullptr, "twoprod.x");
-                        AllocaInst *dx = Builder.CreateAlloca(rt.DoubleTy, nullptr, "twoprod.dx");
-                        Builder.CreateCall(rt.TwoProd, {opr0, opr1, x, dx});
-                        Value *xval = Builder.CreateLoad(rt.DoubleTy, x, "twoprod.val");
-                        Value *dxval = Builder.CreateLoad(rt.DoubleTy, dx, "twoprod.err");
+                        // AllocaInst *x = Builder.CreateAlloca(rt.DoubleTy, nullptr, "twoprodd.x");
+                        // AllocaInst *dx = Builder.CreateAlloca(rt.DoubleTy, nullptr, "twoprodd.dx");
+                        Builder.CreateCall(rt.TwoProdD, {opr0, opr1, valued, errord});
+                        Value *xval = Builder.CreateLoad(rt.DoubleTy, valued, "twoprod.double_val");
+                        Value *dxval = Builder.CreateLoad(rt.DoubleTy, errord, "twoprod.double_err");
                         errof[&I] = dxval;
 
-                        Value *fmt = Builder.CreateGlobalStringPtr("TwoProd: x=%f, dx=%e\n");
-                        Builder.CreateCall(rt.Printf, {fmt, xval, dxval});
+                        // Value *fmt = Builder.CreateGlobalStringPtr("TwoProdf: x=%f, dx=%e\n");
+                        // Builder.CreateCall(rt.Printf, {fmt, xval, dxval});
+                    }
+                    else if (I.getOperand(0)->getType()->isFloatTy()) {
+                        Value *opr0 = I.getOperand(0);
+                        Value *opr1 = I.getOperand(1);
+                        // AllocaInst *x = Builder.CreateAlloca(rt.FloatTy, nullptr, "twoprodf.x");
+                        // AllocaInst *dx = Builder.CreateAlloca(rt.FloatTy, nullptr, "twoprodf.dx");
+                        Builder.CreateCall(rt.TwoProdF, {opr0, opr1, valuef, errorf});
+                        Value *xval = Builder.CreateLoad(rt.FloatTy, valuef, "twoprod.float_val");
+                        Value *dxval = Builder.CreateLoad(rt.FloatTy, errorf, "twoprod.float_err");
+                        errof[&I] = dxval;
+
+                        // Value *fmt = Builder.CreateGlobalStringPtr("TwoProdf: x=%f, dx=%e\n");
+                        // Builder.CreateCall(rt.Printf, {fmt, xval, dxval});
                     }
                 }
                 if (auto *SI = dyn_cast<StoreInst>(&I)) {

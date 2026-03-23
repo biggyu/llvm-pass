@@ -5,42 +5,53 @@
 int main() {
     srand(time(NULL));
     int dim = 100;
-    double mat1[dim][dim];
-    double mat2[dim][dim];
-    double result[dim][dim];
+    double matd1[dim][dim];
+    double matd2[dim][dim];
+    double resultd[dim][dim];
+
+    float matf1[dim][dim];
+    float matf2[dim][dim];
+    float resultdf[dim][dim];
 
     for (int i = 0; i < dim; i++) {
         for (int j = 0; j < dim; j++) {
-            mat1[i][j] = ((double)rand()) / ((double)RAND_MAX + 1);
-            mat2[i][j] = ((double)rand()) / ((double)RAND_MAX + 1);
+            matd1[i][j] = ((double)rand()) / ((double)RAND_MAX + 1);
+            matd2[i][j] = ((double)rand()) / ((double)RAND_MAX + 1);
         }
     }
 
     clock_t start = clock();
     for (int i = 0; i < dim; i++) {
         for (int j = 0; j < dim; j++) {
-            result[i][j] = 0;
+            resultd[i][j] = 0;
             for (int k = 0; k < dim; k++) {
-                result[i][j] += mat1[i][k] * mat2[k][j];
+                resultd[i][j] += matd1[i][k] * matd2[k][j];
             }
         }
     }
     clock_t end = clock();
 
     double total_time = (double)(end - start) / CLOCKS_PER_SEC;
-    printf("Execution time: %f\n", total_time);
-    
-    // for (int i = 0; i < 4; i++) {
-    //     for (int j = 0; j < 4; j++) {
-    //         printf("%f ", mat1[i][j]);
+    printf("Double type matmul execution time: %f\n", total_time);
+
+    // for (int i = 0; i < dim; i++) {
+    //     for (int j = 0; j < dim; j++) {
+    //         matd1[i][j] = ((float)rand()) / ((float)RAND_MAX + 1);
+    //         matd2[i][j] = ((float)rand()) / ((float)RAND_MAX + 1);
     //     }
-    //     printf("\n");
     // }
-    // printf("\n");
-    // for (int i = 0; i < 4; i++) {
-    //     for (int j = 0; j < 4; j++) {
-    //         printf("%f ", mat2[i][j]);
+
+    // start = clock();
+    // for (int i = 0; i < dim; i++) {
+    //     for (int j = 0; j < dim; j++) {
+    //         resultd[i][j] = 0;
+    //         for (int k = 0; k < dim; k++) {
+    //             resultd[i][j] += matd1[i][k] * matd2[k][j];
+    //         }
     //     }
-    //     printf("\n");
     // }
+    // end = clock();
+
+    // total_time = (double)(end - start) / CLOCKS_PER_SEC;
+    // printf("Float type matmul execution time: %f\n", total_time);
 }

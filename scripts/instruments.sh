@@ -14,7 +14,9 @@ fi
 OUTDIR=build/out/$PASS
 mkdir -p "$OUTDIR"
 
-$LLVM_CLANG -O0 -g -S -emit-llvm $SRC -o $OUTDIR/input.ll
+# -ffp-contract=off prevents llvm.fmuladd instructions
+# $LLVM_CLANG -O0 -g -S -emit-llvm $SRC -o $OUTDIR/input.ll
+$LLVM_CLANG -O0 -g -S -emit-llvm -ffp-contract=off $SRC -o $OUTDIR/input.ll
 $LLVM_OPT -load-pass-plugin ./build/passes/$PASS/$PASS.so --passes="$PLUGIN" -S $OUTDIR/input.ll -o $OUTDIR/instrumented.ll
 $LLVM_CLANGXX -c $OUTDIR/instrumented.ll -o $OUTDIR/instrumented.o
 g++ $OUTDIR/instrumented.o ./build/runtime/libpass_runtime.a -o $OUTDIR/a.out -lm

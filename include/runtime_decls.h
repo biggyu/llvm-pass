@@ -17,12 +17,16 @@ namespace utils {
         llvm::Type *PtrTy;
 
         llvm::FunctionCallee Printf;
-        llvm::FunctionCallee TwoSum;
-        llvm::FunctionCallee TwoProd;
+        llvm::FunctionCallee TwoSumF;
+        llvm::FunctionCallee TwoSumD;
+        llvm::FunctionCallee TwoProdF;
+        llvm::FunctionCallee TwoProdD;
 
         llvm::FunctionType *PrintfTy;
-        llvm::FunctionType *TwoSumTy;
-        llvm::FunctionType *TwoProdTy;
+        llvm::FunctionType *TwoSumFTy;
+        llvm::FunctionType *TwoSumDTy;
+        llvm::FunctionType *TwoProdFTy;
+        llvm::FunctionType *TwoProdDTy;
 
         explicit RuntimeFns(llvm::Module &Mod) : M(Mod), Ctx(Mod.getContext()) {
             VoidTy = llvm::Type::getVoidTy(Ctx);
@@ -36,20 +40,32 @@ namespace utils {
                 {PtrTy},
                 true
             );
-            TwoSumTy = llvm::FunctionType::get(
+            TwoSumFTy = llvm::FunctionType::get(
+                VoidTy,
+                {FloatTy, FloatTy, PtrTy, PtrTy},
+                false
+            );
+            TwoSumDTy = llvm::FunctionType::get(
                 VoidTy,
                 {DoubleTy, DoubleTy, PtrTy, PtrTy},
                 false
             );
-            TwoProdTy = llvm::FunctionType::get(
+            TwoProdFTy = llvm::FunctionType::get(
+                VoidTy,
+                {FloatTy, FloatTy, PtrTy, PtrTy},
+                false
+            );
+            TwoProdDTy = llvm::FunctionType::get(
                 VoidTy,
                 {DoubleTy, DoubleTy, PtrTy, PtrTy},
                 false
             );
 
             Printf = M.getOrInsertFunction("printf", PrintfTy);
-            TwoSum = M.getOrInsertFunction("TwoSum", TwoSumTy);
-            TwoProd = M.getOrInsertFunction("TwoProd", TwoProdTy);
+            TwoSumF = M.getOrInsertFunction("TwoSumF", TwoSumFTy);
+            TwoSumD = M.getOrInsertFunction("TwoSumD", TwoSumDTy);
+            TwoProdF = M.getOrInsertFunction("TwoProdF", TwoProdFTy);
+            TwoProdD = M.getOrInsertFunction("TwoProdD", TwoProdDTy);
 
 
             // llvm::IRBuilder<> GlobalB(Ctx);
