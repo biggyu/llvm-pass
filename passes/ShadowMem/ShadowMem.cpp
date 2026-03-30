@@ -12,11 +12,14 @@ void runOnModule(llvm::Module &M) {
     auto &Ctx = M.getContext();
     DenseMap<const Value*, Value*> errof;
     Type* StoreretTy = Type::getVoidTy(Ctx);
-    Type* LoadretTy = Type::getDoubleTy(Ctx);
+    Type* LoadDretTy = Type::getDoubleTy(Ctx);
+    Type* LoadFretTy = Type::getDoubleTy(Ctx);
     
     // PointerType *PrintfArgTy = PointerType::getUnqual(Ctx);
-    std::vector<Type*> StoreparamTy = {PointerType::getUnqual(Ctx), Type::getDoubleTy(Ctx), Type::getDoubleTy(Ctx)};
-    std::vector<Type*> LoadparamTy = {PointerType::getUnqual(Ctx)};
+    std::vector<Type*> StoreDparamTy = {PointerType::getUnqual(Ctx), Type::getDoubleTy(Ctx), Type::getDoubleTy(Ctx)};
+    std::vector<Type*> LoadDparamTy = {PointerType::getUnqual(Ctx)};
+    std::vector<Type*> StoreFparamTy = {PointerType::getUnqual(Ctx), Type::getFloatTy(Ctx), Type::getFloatTy(Ctx)};
+    std::vector<Type*> LoadFparamTy = {PointerType::getUnqual(Ctx)};
     // std::vector<Type*> StoreparamTy = {PointerType::getUnqual(Ctx), Type::getDoubleTy(Ctx)};
     // PointerType *LoadparamTy = PointerType::getUnqual(Ctx);
 
@@ -24,18 +27,28 @@ void runOnModule(llvm::Module &M) {
     //     IntegerType::getInt32Ty(Ctx),
     //     PrintfArgTy,
     //     true);
-    FunctionType *StoreTy = FunctionType::get(
+    FunctionType *StoreDTy = FunctionType::get(
         StoreretTy,
-        StoreparamTy,
+        StoreDparamTy,
         false);
-    FunctionType *LoadTy = FunctionType::get(
-        LoadretTy,
-        LoadparamTy,
+    FunctionType *LoadDTy = FunctionType::get(
+        LoadDretTy,
+        LoadDparamTy,
+        false);
+    FunctionType *StoreFTy = FunctionType::get(
+        StoreretTy,
+        StoreFparamTy,
+        false);
+    FunctionType *LoadFTy = FunctionType::get(
+        LoadFretTy,
+        LoadFparamTy,
         false);
 
     // FunctionCallee Printf = M.getOrInsertFunction("printf", PrintfTy);
-    FunctionCallee ShadowStore = M.getOrInsertFunction("shadow_store", StoreTy);
-    FunctionCallee ShadowLoad = M.getOrInsertFunction("shadow_load", LoadTy);
+    FunctionCallee ShadowStoreD = M.getOrInsertFunction("shadow_store_double", StoreDTy);
+    FunctionCallee ShadowLoadD = M.getOrInsertFunction("shadow_load_double", LoadDTy);
+    FunctionCallee ShadowStoreF = M.getOrInsertFunction("shadow_store_float", StoreFTy);
+    FunctionCallee ShadowLoadF = M.getOrInsertFunction("shadow_load_float", LoadFTy);
 
     IRBuilder<> GlobalB(Ctx);
 
@@ -57,6 +70,21 @@ void runOnModule(llvm::Module &M) {
                 if (isa<PHINode>(&I)) continue;
                 IRBuilder<> Builder(&I);
                 
+                //! Implement for fmuladd
+                if (auto *II = dyn_cast<IntrinsicInst>(&I)) {
+                    if (II->getIntrinsicID() == Intrinsic::fmuladd) {
+                        // llvm::errs() << "fmuladd\n";
+                        Value *a = II->getArgOperand(0);
+                        Value *b = II->getArgOperand(1);
+                        Value *c = II->getArgOperand(2);
+                        if (II->getArgOperand(0)->getType()->isDoubleTy()) {
+                            llvm::errs() << "double\n";
+                        }
+                        if (II->getArgOperand(0)->getType()->isFloatTy()) {
+                            llvm::errs() << "Float\n";
+                        }
+                    }
+                }
                 if (I.getOpcode() == Instruction::FAdd) {
                     if (I.getOperand(0)->getType()->isDoubleTy()) {
                         Value *opr0 = I.getOperand(0);
@@ -158,21 +186,32 @@ void runOnModule(llvm::Module &M) {
                         else {
                             dx = llvm::ConstantFP::get(llvm::Type::getDoubleTy(Ctx), 0.0);
                         }
-                        if (val->getType()->isDoubleTy()) {
-                            Builder.CreateCall(ShadowStore, {ptr, val, dx});
+                        Builder.CreateCall(ShadowStoreD, {ptr, val, dx});
+                    }
+                    else if (val->getType()->isFloatTy()) {
+                        llvm::Value *ptr = SI->getPointerOperand();
+                        llvm::Value *dx = nullptr;
+                        auto it = errof.find(val);
+                        if (it != errof.end()) {
+                            dx = it->second;
                         }
-                        else if (val->getType()->isFloatTy()) {
-                            llvm::Value *valD = Builder.CreateFPExt(val, llvm::Type::getDoubleTy(Ctx));
-                            Builder.CreateCall(ShadowStore, {ptr, valD, dx});
+                        else {
+                            dx = llvm::ConstantFP::get(llvm::Type::getFloatTy(Ctx), 0.0);
                         }
+                        Builder.CreateCall(ShadowStoreF, {ptr, val, dx});
                     }
                 }
                 else if (auto *LI = dyn_cast<LoadInst>(&I)) {
                     llvm::Value *ptr = LI->getPointerOperand();
                     if (LI->getType()->isDoubleTy()) {
-                        llvm::Value *dx = Builder.CreateCall(ShadowLoad, {ptr});
+                        llvm::Value *dx = Builder.CreateCall(ShadowLoadD, {ptr});
                         errof[&I] = dx;
                     }
+                    else if (LI->getType()->isFloatTy()) {
+                        llvm::Value *dx = Builder.CreateCall(ShadowLoadF, {ptr});
+                        errof[&I] = dx;
+                    }
+                    
                     // llvm::Value *dx = Builder.CreateCall(ShadowLoad, {ptr});
                     // errof[&I] = dx;
                 }

@@ -12,7 +12,7 @@ public:
         bool used;
     };
 private:
-    static const int TABLE_SIZE = 1 << 21;
+    static const int TABLE_SIZE = 1 << 22;
     ShadowEntry table[TABLE_SIZE];
 
     static inline uint64_t mix64(uint64_t x) {
@@ -53,11 +53,14 @@ public:
             idx = (idx + 1) & (TABLE_SIZE - 1); 
         }
     }
-    double get(void* key) {
+    void insert(void* key, float x, double dx) {
+        insert(key, (double)x, dx);
+    }
+    double getDouble(void* key) {
         uintptr_t k = (uintptr_t)key;
         size_t idx = hashPtr(key);
         
-        for (size_t probe; probe < TABLE_SIZE; probe++) {
+        for (size_t probe = 0; probe < TABLE_SIZE; probe++) {
             ShadowEntry &entry = table[idx];
 
             if (!entry.used) {
@@ -66,8 +69,11 @@ public:
             if (entry.key == k) {
                 return entry.error;
             }
-            idx = (idx + 1) % (TABLE_SIZE - 1); 
+            idx = (idx + 1) & (TABLE_SIZE - 1); 
         }
         return 0.0;
+    }
+    float getFloat(void* key) {
+        return (float)getDouble(key);
     }
 };

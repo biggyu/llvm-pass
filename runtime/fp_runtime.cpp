@@ -29,14 +29,6 @@ void TwoSumD(double a, double b, double *x, double *dx) {
     double db = b - bp;
     *dx = da + db;
 }
-// void TwoSum_F(float a, float b, float *x, float *dx) {
-//     *x = a + b;
-//     float bp = *x - a;
-//     float ap = *x - bp;
-//     float da = a - ap;
-//     float db = b - bp;
-//     *dx = da + db;
-// }
 
 void TwoProdF(float a, float b, float *x, float *dx) {
     *x = a * b;

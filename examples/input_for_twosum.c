@@ -1,19 +1,25 @@
 #include <stdio.h>
 
 int main(void) {
-    // float  f1 = 1.0f, f2 = 1e-7f;
+    float  f1 = 1.0f, f2 = 1e-7f;
     double a = 10.5, b = 3.2;
 
-    double add = a + b;
-    double sub = a - b;
-    double mul = a * b;
-    double result1 = mul - add - sub;
-    double result2 = -1 * a * b;
+    double addd = a + b;
+    double subd = a - b;
+    double muld = a * b;
+    double result1d = muld - addd - subd;
+    double result2d = -1 * a * b;
 
-    printf("add = %f\n", add);
-    printf("sub = %f\n", sub);
-    printf("mul = %f\n", mul);
-    printf("result1 = %f\n", result1);
-    printf("result2 = %f\n", result2);
+    float addf = f1 + f2;
+    float subf = f1 - f2;
+    float mulf = f1 * f2;
+    float result1f = mulf - addf - subf;
+    float result2f = -1 * f1 * f2;
+
+    // printf("add = %f\n", add);
+    // printf("sub = %f\n", sub);
+    // printf("mul = %f\n", mul);
+    // printf("result1 = %f\n", result1);
+    // printf("result2 = %f\n", result2);
     return 0;
 }

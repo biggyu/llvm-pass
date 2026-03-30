@@ -4,8 +4,10 @@
 extern "C" {
 #endif
 
-void shadow_store(void* addr, double x, double dx);
-double shadow_load(void* addr);
+void shadow_store_double(void* addr, double x, double dx);
+double shadow_load_double(void* addr);
+void shadow_store_float(void* addr, float x, float dx);
+float shadow_load_float(void* addr);
 
 #ifdef __cplusplus
 }
