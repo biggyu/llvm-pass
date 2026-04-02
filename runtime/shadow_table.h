@@ -31,7 +31,6 @@ public:
     ShadowTable() {
         std::memset(table, 0, sizeof(table));
     }
-    //TODO: addr collision
     void insert(void* key, double x, double dx) {
         uintptr_t k = (uintptr_t)key;
         size_t idx = hashPtr(key);

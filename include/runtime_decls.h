@@ -21,12 +21,21 @@ namespace utils {
         llvm::FunctionCallee TwoSumD;
         llvm::FunctionCallee TwoProdF;
         llvm::FunctionCallee TwoProdD;
+        llvm::FunctionCallee ShadowStoreD;
+        llvm::FunctionCallee ShadowStoreF;
+        llvm::FunctionCallee ShadowLoadD;
+        llvm::FunctionCallee ShadowLoadF;
+
 
         llvm::FunctionType *PrintfTy;
         llvm::FunctionType *TwoSumFTy;
         llvm::FunctionType *TwoSumDTy;
         llvm::FunctionType *TwoProdFTy;
         llvm::FunctionType *TwoProdDTy;
+        llvm::FunctionType *ShadowStoreFTy;
+        llvm::FunctionType *ShadowStoreDTy;
+        llvm::FunctionType *ShadowLoadFTy;
+        llvm::FunctionType *ShadowLoadDTy;
 
         explicit RuntimeFns(llvm::Module &Mod) : M(Mod), Ctx(Mod.getContext()) {
             VoidTy = llvm::Type::getVoidTy(Ctx);
@@ -60,13 +69,36 @@ namespace utils {
                 {DoubleTy, DoubleTy, PtrTy, PtrTy},
                 false
             );
+            ShadowStoreDTy = llvm::FunctionType::get(
+                VoidTy,
+                {PtrTy, DoubleTy, DoubleTy},
+                false
+            );
+            ShadowStoreFTy = llvm::FunctionType::get(
+                VoidTy,
+                {PtrTy, FloatTy, FloatTy},
+                false
+            );
+            ShadowLoadDTy = llvm::FunctionType::get(
+                DoubleTy,
+                {PtrTy},
+                false
+            );
+            ShadowLoadFTy = llvm::FunctionType::get(
+                FloatTy,
+                {PtrTy},
+                false
+            );
 
             Printf = M.getOrInsertFunction("printf", PrintfTy);
             TwoSumF = M.getOrInsertFunction("TwoSumF", TwoSumFTy);
             TwoSumD = M.getOrInsertFunction("TwoSumD", TwoSumDTy);
             TwoProdF = M.getOrInsertFunction("TwoProdF", TwoProdFTy);
             TwoProdD = M.getOrInsertFunction("TwoProdD", TwoProdDTy);
-
+            ShadowStoreF = M.getOrInsertFunction("shadow_store_float", ShadowStoreFTy);
+            ShadowStoreD = M.getOrInsertFunction("shadow_store_double", ShadowStoreDTy);
+            ShadowLoadF = M.getOrInsertFunction("shadow_load_float", ShadowLoadFTy);
+            ShadowLoadD = M.getOrInsertFunction("shadow_load_double", ShadowLoadDTy);
 
             // llvm::IRBuilder<> GlobalB(Ctx);
             // llvm::Value *TwoSumFormatPtr = GlobalB.CreateGlobalStringPtr(
