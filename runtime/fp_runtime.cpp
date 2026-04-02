@@ -13,6 +13,23 @@ double addd(double a, double b) {
     return t;
 }
 
+void PropSumFError(float a, float da, float b, float db, float *x, float *dx) {
+    TwoSumF(a, b, x, dx);
+    dx = dx + da + db;
+}
+void PropSumDError(double a, double da, double b, double db, double *x, double *dx) {
+    TwoSumD(a, b, x, dx);
+    dx = dx + da + db;
+}
+void PropProdFError(float a, float da, float b, float db, float *x, float *dx) {
+    TwoProdF(a, b, x, dx);
+    dx = dx + a * db + b * da;
+}
+void PropProdDError(double a, double da, double b, double db, double *x, double *dx) {
+    TwoProdD(a, b, x, dx);
+    dx = dx + a * db + b * da;
+}
+
 void TwoSumF(float a, float b, float *x, float *dx) {
     *x = a + b;
     float bp = *x - a;

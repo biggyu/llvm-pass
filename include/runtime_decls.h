@@ -17,10 +17,14 @@ namespace utils {
         llvm::Type *PtrTy;
 
         llvm::FunctionCallee Printf;
-        llvm::FunctionCallee TwoSumF;
-        llvm::FunctionCallee TwoSumD;
-        llvm::FunctionCallee TwoProdF;
-        llvm::FunctionCallee TwoProdD;
+        llvm::FunctionCallee PropSumFError;
+        llvm::FunctionCallee PropSumDError;
+        llvm::FunctionCallee PropProdFError;
+        llvm::FunctionCallee PropProdDError;
+        // llvm::FunctionCallee TwoSumF;
+        // llvm::FunctionCallee TwoSumD;
+        // llvm::FunctionCallee TwoProdF;
+        // llvm::FunctionCallee TwoProdD;
         llvm::FunctionCallee ShadowStoreD;
         llvm::FunctionCallee ShadowStoreF;
         llvm::FunctionCallee ShadowLoadD;
@@ -28,10 +32,14 @@ namespace utils {
 
 
         llvm::FunctionType *PrintfTy;
-        llvm::FunctionType *TwoSumFTy;
-        llvm::FunctionType *TwoSumDTy;
-        llvm::FunctionType *TwoProdFTy;
-        llvm::FunctionType *TwoProdDTy;
+        llvm::FunctionType *PropSumFErrorTy;
+        llvm::FunctionType *PropSumDErrorTy;
+        llvm::FunctionType *PropProdFErrorTy;
+        llvm::FunctionType *PropProdDErrorTy;
+        // llvm::FunctionType *TwoSumFTy;
+        // llvm::FunctionType *TwoSumDTy;
+        // llvm::FunctionType *TwoProdFTy;
+        // llvm::FunctionType *TwoProdDTy;
         llvm::FunctionType *ShadowStoreFTy;
         llvm::FunctionType *ShadowStoreDTy;
         llvm::FunctionType *ShadowLoadFTy;
@@ -49,26 +57,46 @@ namespace utils {
                 {PtrTy},
                 true
             );
-            TwoSumFTy = llvm::FunctionType::get(
+            PropSumFErrorTy = llvm::FunctionType::get(
                 VoidTy,
                 {FloatTy, FloatTy, PtrTy, PtrTy},
                 false
             );
-            TwoSumDTy = llvm::FunctionType::get(
+            PropSumDErrorTy = llvm::FunctionType::get(
                 VoidTy,
                 {DoubleTy, DoubleTy, PtrTy, PtrTy},
                 false
             );
-            TwoProdFTy = llvm::FunctionType::get(
+            PropProdFErrorTy = llvm::FunctionType::get(
                 VoidTy,
                 {FloatTy, FloatTy, PtrTy, PtrTy},
                 false
             );
-            TwoProdDTy = llvm::FunctionType::get(
+            PropProdDErrorTy = llvm::FunctionType::get(
                 VoidTy,
                 {DoubleTy, DoubleTy, PtrTy, PtrTy},
                 false
             );
+            // TwoSumFTy = llvm::FunctionType::get(
+            //     VoidTy,
+            //     {FloatTy, FloatTy, PtrTy, PtrTy},
+            //     false
+            // );
+            // TwoSumDTy = llvm::FunctionType::get(
+            //     VoidTy,
+            //     {DoubleTy, DoubleTy, PtrTy, PtrTy},
+            //     false
+            // );
+            // TwoProdFTy = llvm::FunctionType::get(
+            //     VoidTy,
+            //     {FloatTy, FloatTy, PtrTy, PtrTy},
+            //     false
+            // );
+            // TwoProdDTy = llvm::FunctionType::get(
+            //     VoidTy,
+            //     {DoubleTy, DoubleTy, PtrTy, PtrTy},
+            //     false
+            // );
             ShadowStoreDTy = llvm::FunctionType::get(
                 VoidTy,
                 {PtrTy, DoubleTy, DoubleTy},
@@ -91,10 +119,14 @@ namespace utils {
             );
 
             Printf = M.getOrInsertFunction("printf", PrintfTy);
-            TwoSumF = M.getOrInsertFunction("TwoSumF", TwoSumFTy);
-            TwoSumD = M.getOrInsertFunction("TwoSumD", TwoSumDTy);
-            TwoProdF = M.getOrInsertFunction("TwoProdF", TwoProdFTy);
-            TwoProdD = M.getOrInsertFunction("TwoProdD", TwoProdDTy);
+            PropSumFError = M.getOrInsertFunction("PropSumFError", PropSumFErrorTy);
+            PropSumDError = M.getOrInsertFunction("PropSumDError", PropSumDErrorTy);
+            PropProdFError = M.getOrInsertFunction("PropProdFError", PropProdFErrorTy);
+            PropProdDError = M.getOrInsertFunction("PropProdDError", PropProdDErrorTy);
+            // TwoSumF = M.getOrInsertFunction("TwoSumF", TwoSumFTy);
+            // TwoSumD = M.getOrInsertFunction("TwoSumD", TwoSumDTy);
+            // TwoProdF = M.getOrInsertFunction("TwoProdF", TwoProdFTy);
+            // TwoProdD = M.getOrInsertFunction("TwoProdD", TwoProdDTy);
             ShadowStoreF = M.getOrInsertFunction("shadow_store_float", ShadowStoreFTy);
             ShadowStoreD = M.getOrInsertFunction("shadow_store_double", ShadowStoreDTy);
             ShadowLoadF = M.getOrInsertFunction("shadow_load_float", ShadowLoadFTy);
