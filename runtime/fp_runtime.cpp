@@ -1,5 +1,6 @@
 #include "fp_runtime.h"
 #include <cmath>
+#include <iostream>
 #ifdef ENABLE_RUNTIME_TIME
 #include <iostream>
 #include <chrono>
@@ -98,7 +99,7 @@ void PropSqrtFError(float a, float da, float *x, float *dx) {
         if (ap < 0.0) {
             *dx = std::numeric_limits<float>::quiet_NaN();
         }
-        *dx = sqrt(ap) - *x;
+        *dx = sqrtf(ap) - *x;
     }
 }
 void PropSqrtDError(double a, double da, double *x, double *dx) {
@@ -152,12 +153,12 @@ void TwoDivD(double a, double b, double *x, double *dx) {
 }
 
 void SquareRootF(float a, float *x, float *dx) {
-    *x = sqrt(a);
-    *dx = std::fma(-*x, *x, a);
+    *x = sqrtf(a);
+    *dx = fma(-(*x), *x, a);
 }
 void SquareRootD(double a, double *x, double *dx) {
     *x = sqrt(a);
-    *dx = std::fma(-*x, *x, a);
+    *dx = fma(-(*x), *x, a);
 }
 
 extern "C" void report_fp_profile() {

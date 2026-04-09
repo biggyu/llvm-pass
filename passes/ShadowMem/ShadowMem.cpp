@@ -31,8 +31,10 @@ static bool isRuntimeFunction(const Function &F) {
            N == "shadow_load_double"  ||
            N == "shadow_store_float"  ||
            N == "shadow_load_float"   ||
-           N == "TwoSumD" || N == "TwoSumF" ||
-           N == "TwoProdD" || N == "TwoProdF";
+           N == "PropSumDError" || N == "PropSumFError" ||
+           N == "PropProdDError" || N == "PropProdFError" ||
+           N == "PropDivDError" || N == "PropDivFError" ||
+           N == "PropSqrtDError" || N == "PropProdFError";
 }
 
 void handleStore(StoreInst *SI, IRBuilder<> &Builder, utils::RuntimeFns &rt,
@@ -79,6 +81,64 @@ void handleLoad(LoadInst *LI, IRBuilder<> &Builder, utils::RuntimeFns &rt,
     // ErrorMap[&I] = dx;
 }
 
+bool handleIntrinsic(IntrinsicInst *II, IRBuilder<> &Builder, utils::RuntimeFns &rt, 
+                AllocaInst *valuef, AllocaInst *errorf, 
+                AllocaInst *valued, AllocaInst *errord,
+                DenseMap<const Value*, Value*> &ErrorMap) {
+    if (II->getIntrinsicID() != Intrinsic::sqrt) {
+        return false;
+    }
+    Value *arg0 = II->getArgOperand(0);
+    Value *arg0_err = getError(arg0, rt, ErrorMap);
+    if(II->getType()->isDoubleTy()) {
+        Builder.CreateCall(rt.PropSqrtDError, {arg0, arg0_err, valued, errord});
+        Value *xval = Builder.CreateLoad(rt.DoubleTy, valued, "sqrt.double_val");
+        Value *dxval = Builder.CreateLoad(rt.DoubleTy, errord, "sqrt.double_err");
+        ErrorMap[II] = dxval;
+        // Value *fmt = Builder.CreateGlobalStringPtr("sqrtD: x=%f, dx=%e\n");
+        // Builder.CreateCall(rt.Printf, {fmt, xval, dxval});
+    }
+    else if(II->getType()->isFloatTy()) {
+        Builder.CreateCall(rt.PropSqrtFError, {arg0, arg0_err, valuef, errorf});
+        Value *xval = Builder.CreateLoad(rt.FloatTy, valuef, "sqrt.float_val");
+        Value *dxval = Builder.CreateLoad(rt.FloatTy, errorf, "sqrt.float_err");
+        ErrorMap[II] = dxval;
+        // Value *fmt = Builder.CreateGlobalStringPtr("sqrtD: x=%f, dx=%e\n");
+        // Builder.CreateCall(rt.Printf, {fmt, xval, dxval});
+    }
+    return true;
+}
+bool handleExternal(CallInst *CI, IRBuilder<> &Builder, utils::RuntimeFns &rt, 
+                AllocaInst *valuef, AllocaInst *errorf, 
+                AllocaInst *valued, AllocaInst *errord,
+                DenseMap<const Value*, Value*> &ErrorMap) {
+    if (Function *Callee = CI->getCalledFunction()) {
+        StringRef N = Callee->getName();
+        if (N != "sqrt" && N != "sqrtf") {
+            return false;
+        }
+    }
+    Value *arg0 = CI->getArgOperand(0);
+    Value *arg0_err = getError(arg0, rt, ErrorMap);
+    if(CI->getType()->isDoubleTy()) {
+        Builder.CreateCall(rt.PropSqrtDError, {arg0, arg0_err, valued, errord});
+        Value *xval = Builder.CreateLoad(rt.DoubleTy, valued, "sqrt.double_val");
+        Value *dxval = Builder.CreateLoad(rt.DoubleTy, errord, "sqrt.double_err");
+        ErrorMap[CI] = dxval;
+        // Value *fmt = Builder.CreateGlobalStringPtr("sqrtD: x=%f, dx=%e\n");
+        // Builder.CreateCall(rt.Printf, {fmt, xval, dxval});
+    }
+    else if(CI->getType()->isFloatTy()) {
+        Builder.CreateCall(rt.PropSqrtFError, {arg0, arg0_err, valuef, errorf});
+        Value *xval = Builder.CreateLoad(rt.FloatTy, valuef, "sqrt.float_val");
+        Value *dxval = Builder.CreateLoad(rt.FloatTy, errorf, "sqrt.float_err");
+        ErrorMap[CI] = dxval;
+        // Value *fmt = Builder.CreateGlobalStringPtr("sqrtD: x=%f, dx=%e\n");
+        // Builder.CreateCall(rt.Printf, {fmt, xval, dxval});
+    }
+    return true;
+}
+
 void handleBinary(Instruction *BO, IRBuilder<> &Builder, utils::RuntimeFns &rt,
                 AllocaInst *valuef, AllocaInst *errorf, 
                 AllocaInst *valued, AllocaInst *errord,
@@ -90,10 +150,10 @@ void handleBinary(Instruction *BO, IRBuilder<> &Builder, utils::RuntimeFns &rt,
     }
     Value *opr0 = BO->getOperand(0);
     Value *opr1 = BO->getOperand(1);
-    Value *opr0_err = nullptr;
-    Value *opr1_err = nullptr;
-    opr0_err = getError(opr0, rt, ErrorMap);
-    opr1_err = getError(opr1, rt, ErrorMap);
+    Value *opr0_err = getError(opr0, rt, ErrorMap);
+    Value *opr1_err = getError(opr1, rt, ErrorMap);
+    // opr0_err = getError(opr0, rt, ErrorMap);
+    // opr1_err = getError(opr1, rt, ErrorMap);
     // opr0_err = getError(opr0, ZeroF, ZeroD, ErrorMap);
     // opr1_err = getError(opr1, ZeroF, ZeroD, ErrorMap);
     switch (BO->getOpcode()) {
@@ -217,11 +277,16 @@ void runOnModule(llvm::Module &M) {
                 // handleStore(SI, Builder, rt, ZeroF, ZeroD, ErrorMap);
                 continue;
             }
-            // if (auto *II = dyn_cast<IntrinsicInst>(I)) {
-            //     if(handleIntrinsic(II)) {
-            //         continue;
-            //     }
-            // }
+            if (auto *II = dyn_cast<IntrinsicInst>(I)) {
+                if(handleIntrinsic(II, Builder, rt, valuef, errorf, valued, errord, ErrorMap)) {
+                    continue;
+                }
+            }
+            if (auto *CI = dyn_cast<CallInst>(I)) {
+                if(handleExternal(CI, Builder, rt, valuef, errorf, valued, errord, ErrorMap)) {
+                    continue;
+                }
+            }
             if (auto *BI = dyn_cast<BinaryOperator>(I)) {
                 handleBinary(BI, Builder, rt, valuef, errorf, valued, errord, ErrorMap);
                 // handleBinary(BI, Builder, rt, valuef, errorf, valued, errord, ZeroF, ZeroD, ErrorMap);
