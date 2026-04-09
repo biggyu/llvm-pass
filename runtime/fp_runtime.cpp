@@ -1,5 +1,21 @@
 #include "fp_runtime.h"
 #include <cmath>
+#ifdef ENABLE_RUNTIME_TIME
+#include <iostream>
+#include <chrono>
+using Clock = std::chrono::steady_clock;
+using ns = std::chrono::nanoseconds;
+
+static uint64_t  propsumf_calls = 0;
+static uint64_t  propsumd_calls = 0;
+static uint64_t  propprodf_calls = 0;
+static uint64_t  propprodd_calls = 0;
+static uint64_t  propsumf_ns = 0;
+static uint64_t  propsumd_ns = 0;
+static uint64_t  propprodf_ns = 0;
+static uint64_t  propprodd_ns = 0;
+
+#endif
 
 float addf(float a, float b) {
     float x = a + b;
