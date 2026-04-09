@@ -16,6 +16,9 @@ namespace utils {
         llvm::Type *DoubleTy;
         llvm::Type *PtrTy;
 
+        llvm::Constant *ZeroF;
+        llvm::Constant *ZeroD;
+
         llvm::FunctionCallee Printf;
         llvm::FunctionCallee PropSumFError;
         llvm::FunctionCallee PropSumDError;
@@ -52,6 +55,9 @@ namespace utils {
             DoubleTy = llvm::Type::getDoubleTy(Ctx);
             PtrTy = llvm::PointerType::getUnqual(Ctx);
 
+            ZeroD = llvm::ConstantFP::get(DoubleTy, 0.0);
+            ZeroF = llvm::ConstantFP::get(FloatTy, 0.0);
+
             PrintfTy = llvm::FunctionType::get(
                 I32Ty,
                 {PtrTy},
@@ -59,22 +65,22 @@ namespace utils {
             );
             PropSumFErrorTy = llvm::FunctionType::get(
                 VoidTy,
-                {FloatTy, FloatTy, PtrTy, PtrTy},
+                {FloatTy, FloatTy, FloatTy, FloatTy, PtrTy, PtrTy},
                 false
             );
             PropSumDErrorTy = llvm::FunctionType::get(
                 VoidTy,
-                {DoubleTy, DoubleTy, PtrTy, PtrTy},
+                {DoubleTy, DoubleTy, DoubleTy, DoubleTy, PtrTy, PtrTy},
                 false
             );
             PropProdFErrorTy = llvm::FunctionType::get(
                 VoidTy,
-                {FloatTy, FloatTy, PtrTy, PtrTy},
+                {FloatTy, FloatTy, FloatTy, FloatTy, PtrTy, PtrTy},
                 false
             );
             PropProdDErrorTy = llvm::FunctionType::get(
                 VoidTy,
-                {DoubleTy, DoubleTy, PtrTy, PtrTy},
+                {DoubleTy, DoubleTy, DoubleTy, DoubleTy, PtrTy, PtrTy},
                 false
             );
             // TwoSumFTy = llvm::FunctionType::get(
