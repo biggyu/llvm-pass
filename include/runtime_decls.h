@@ -24,6 +24,10 @@ namespace utils {
         llvm::FunctionCallee PropSumDError;
         llvm::FunctionCallee PropProdFError;
         llvm::FunctionCallee PropProdDError;
+        llvm::FunctionCallee PropDivFError;
+        llvm::FunctionCallee PropDivDError;
+        llvm::FunctionCallee PropSqrtFError;
+        llvm::FunctionCallee PropSqrtDError;
         // llvm::FunctionCallee TwoSumF;
         // llvm::FunctionCallee TwoSumD;
         // llvm::FunctionCallee TwoProdF;
@@ -39,6 +43,10 @@ namespace utils {
         llvm::FunctionType *PropSumDErrorTy;
         llvm::FunctionType *PropProdFErrorTy;
         llvm::FunctionType *PropProdDErrorTy;
+        llvm::FunctionType *PropDivFErrorTy;
+        llvm::FunctionType *PropDivDErrorTy;
+        llvm::FunctionType *PropSqrtFErrorTy;
+        llvm::FunctionType *PropSqrtDErrorTy;
         // llvm::FunctionType *TwoSumFTy;
         // llvm::FunctionType *TwoSumDTy;
         // llvm::FunctionType *TwoProdFTy;
@@ -81,6 +89,26 @@ namespace utils {
             PropProdDErrorTy = llvm::FunctionType::get(
                 VoidTy,
                 {DoubleTy, DoubleTy, DoubleTy, DoubleTy, PtrTy, PtrTy},
+                false
+            );
+            PropDivFErrorTy = llvm::FunctionType::get(
+                VoidTy,
+                {FloatTy, FloatTy, FloatTy, FloatTy, PtrTy, PtrTy},
+                false
+            );
+            PropDivDErrorTy = llvm::FunctionType::get(
+                VoidTy,
+                {DoubleTy, DoubleTy, DoubleTy, DoubleTy, PtrTy, PtrTy},
+                false
+            );
+            PropSqrtFErrorTy = llvm::FunctionType::get(
+                VoidTy,
+                {FloatTy, FloatTy, PtrTy, PtrTy},
+                false
+            );
+            PropSqrtDErrorTy = llvm::FunctionType::get(
+                VoidTy,
+                {DoubleTy, DoubleTy, PtrTy, PtrTy},
                 false
             );
             // TwoSumFTy = llvm::FunctionType::get(
@@ -129,6 +157,10 @@ namespace utils {
             PropSumDError = M.getOrInsertFunction("PropSumDError", PropSumDErrorTy);
             PropProdFError = M.getOrInsertFunction("PropProdFError", PropProdFErrorTy);
             PropProdDError = M.getOrInsertFunction("PropProdDError", PropProdDErrorTy);
+            PropDivFError = M.getOrInsertFunction("PropDivFError", PropDivFErrorTy);
+            PropDivDError = M.getOrInsertFunction("PropDivDError", PropDivDErrorTy);
+            PropSqrtFError = M.getOrInsertFunction("PropSqrtFError", PropSqrtFErrorTy);
+            PropSqrtDError = M.getOrInsertFunction("PropSqrtDError", PropSqrtDErrorTy);
             // TwoSumF = M.getOrInsertFunction("TwoSumF", TwoSumFTy);
             // TwoSumD = M.getOrInsertFunction("TwoSumD", TwoSumDTy);
             // TwoProdF = M.getOrInsertFunction("TwoProdF", TwoProdFTy);

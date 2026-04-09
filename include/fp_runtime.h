@@ -11,12 +11,22 @@ void PropSumFError(float a, float da, float b, float db, float *x, float *dx);
 void PropSumDError(double a, double da, double b, double db, double *x, double *dx);
 void PropProdFError(float a, float da, float b, float db, float *x, float *dx);
 void PropProdDError(double a, double da, double b, double db, double *x, double *dx);
+void PropDivFError(float a, float da, float b, float db, float *x, float *dx);
+void PropDivDError(double a, double da, double b, double db, double *x, double *dx);
+void PropSqrtFError(float a, float da, float *x, float *dx);
+void PropSqrtDError(double a, double da, double *x, double *dx);
 
 void TwoSumF(float a, float b, float *x, float *dx);
 void TwoSumD(double a, double b, double *x, double *dx);
 
 void TwoProdF(float a, float b, float *x, float *dx);
 void TwoProdD(double a, double b, double *x, double *dx);
+
+void TwoDivF(float a, float b, float *x, float *dx);
+void TwoDivD(double a, double b, double *x, double *dx);
+
+void SquareRootF(float a, float *x, float *dx);
+void SquareRootD(double a, double *x, double *dx);
 
 void report_fp_profile();
 

@@ -79,6 +79,41 @@ void PropProdDError(double a, double da, double b, double db, double *x, double 
 #endif
 }
 
+void PropDivFError(float a, float da, float b, float db, float *x, float *dx) {
+    TwoDivF(a, b, x, dx);
+    *dx = (da - *dx - *x * db) / (b + db);
+}
+void PropDivDError(double a, double da, double b, double db, double *x, double *dx) {
+    TwoDivD(a, b, x, dx);
+    *dx = (da - *dx - *x * db) / (b + db);
+}
+
+void PropSqrtFError(float a, float da, float *x, float *dx) {
+    SquareRootF(a, x, dx);
+    if (*x != 0.0) {
+        *dx = (da + *dx) / (2.0 * *x);
+    }
+    else {
+        double ap = a + da;
+        if (ap < 0.0) {
+            *dx = std::numeric_limits<float>::quiet_NaN();
+        }
+        *dx = sqrt(ap) - *x;
+    }
+}
+void PropSqrtDError(double a, double da, double *x, double *dx) {
+    SquareRootD(a, x, dx);
+    if (*x != 0.0) {
+        *dx = (da + *dx) / (2.0 * *x);
+    }
+    else {
+        double ap = a + da;
+        if (ap < 0.0) {
+            *dx = std::numeric_limits<double>::quiet_NaN();
+        }
+        *dx = sqrt(ap) - *x;
+    }
+}
 void TwoSumF(float a, float b, float *x, float *dx) {
     *x = a + b;
     float bp = *x - a;
@@ -105,6 +140,24 @@ void TwoProdD(double a, double b, double *x, double *dx) {
     *x = a * b;
     *dx = fma(a, b, -(*x));
     // *dx = std::fma(a, b, -x);
+}
+
+void TwoDivF(float a, float b, float *x, float *dx) {
+    *x = a / b;
+    *dx = std::fma(*x, b, -a);
+}
+void TwoDivD(double a, double b, double *x, double *dx) {
+    *x = a / b;
+    *dx = std::fma(*x, b, -a);
+}
+
+void SquareRootF(float a, float *x, float *dx) {
+    *x = sqrt(a);
+    *dx = std::fma(-*x, *x, a);
+}
+void SquareRootD(double a, double *x, double *dx) {
+    *x = sqrt(a);
+    *dx = std::fma(-*x, *x, a);
 }
 
 extern "C" void report_fp_profile() {

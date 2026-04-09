@@ -154,6 +154,26 @@ void handleBinary(Instruction *BO, IRBuilder<> &Builder, utils::RuntimeFns &rt,
                 // Builder.CreateCall(rt.Printf, {fmt, xval, dxval});
             }
             break;
+        case Instruction::FDiv:
+            if (BO->getType()->isDoubleTy()) {
+                // Builder.CreateCall(rt.TwoProdD, {opr0, opr1, valued, errord});
+                Builder.CreateCall(rt.PropDivDError, {opr0, opr0_err, opr1, opr1_err, valued, errord});
+                // Value *xval = Builder.CreateLoad(rt.DoubleTy, valued, "twoprod.double_val");
+                Value *dxval = Builder.CreateLoad(rt.DoubleTy, errord, "twodiv.double_err");
+                ErrorMap[BO] = dxval;
+                // Value *fmt = Builder.CreateGlobalStringPtr("TwoProdD: x=%f, dx=%e\n");
+                // Builder.CreateCall(rt.Printf, {fmt, xval, dxval});
+            }
+            else {
+                // Builder.CreateCall(rt.TwoProdF, {opr0, opr1, valuef, errorf});
+                Builder.CreateCall(rt.PropDivFError, {opr0, opr0_err, opr1, opr1_err, valuef, errorf});
+                // Value *xval = Builder.CreateLoad(rt.FloatTy, valuef, "twoprod.float_val");
+                Value *dxval = Builder.CreateLoad(rt.FloatTy, errorf, "twodiv.float_err");
+                ErrorMap[BO] = dxval;
+                // Value *fmt = Builder.CreateGlobalStringPtr("TwoProdF: x=%f, dx=%e\n");
+                // Builder.CreateCall(rt.Printf, {fmt, xval, dxval});
+            }
+            break;
         default:
             break;
     }
