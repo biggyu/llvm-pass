@@ -3,8 +3,8 @@
 #include "llvm/Passes/PassPlugin.h"
 #include "llvm/Support/raw_ostream.h"
 #include "ShadowMem.h"
-#include "runtime_decls.h"
-#include "runtime_mpfr.h"
+#include "decls_fp.h"
+#include "decls_mpfr.h"
 
 using namespace llvm;
 
@@ -124,6 +124,9 @@ bool handleIntrinsic(IntrinsicInst *II, IRBuilder<> &Builder, utils::RuntimeFns 
         }
         return true;
     }
+    else {
+        return false;
+    }
 }
 bool handleExternal(CallInst *CI, IRBuilder<> &Builder, utils::RuntimeFns &rt, utils::RuntimeMPFRFns &rt_mpfr,
                 AllocaInst *valuef, AllocaInst *errorf, 
@@ -131,9 +134,9 @@ bool handleExternal(CallInst *CI, IRBuilder<> &Builder, utils::RuntimeFns &rt, u
                 DenseMap<const Value*, Value*> &ErrorMap) {
     if (Function *Callee = CI->getCalledFunction()) {
         StringRef N = Callee->getName();
-        Value *arg0 = CI->getArgOperand(0);
-        Value *arg0_err = getError(arg0, rt, ErrorMap);
         if (N == "sqrtf") {
+            Value *arg0 = CI->getArgOperand(0);
+            Value *arg0_err = getError(arg0, rt, ErrorMap);
             Builder.CreateCall(rt.PropSqrtFError, {arg0, arg0_err, valuef, errorf});
             Value *xval = Builder.CreateLoad(rt.FloatTy, valuef, "sqrtf.val");
             Value *dxval = Builder.CreateLoad(rt.FloatTy, errorf, "sqrtf.err");
@@ -143,6 +146,8 @@ bool handleExternal(CallInst *CI, IRBuilder<> &Builder, utils::RuntimeFns &rt, u
             // return true;
         }
         else if (N == "sqrt") {
+            Value *arg0 = CI->getArgOperand(0);
+            Value *arg0_err = getError(arg0, rt, ErrorMap);
             Builder.CreateCall(rt.PropSqrtDError, {arg0, arg0_err, valued, errord});
             Value *xval = Builder.CreateLoad(rt.DoubleTy, valued, "sqrt.val");
             Value *dxval = Builder.CreateLoad(rt.DoubleTy, errord, "sqrt.err");
@@ -152,6 +157,8 @@ bool handleExternal(CallInst *CI, IRBuilder<> &Builder, utils::RuntimeFns &rt, u
             // return true;
         }
         else if (N == "expf") {
+            Value *arg0 = CI->getArgOperand(0);
+            Value *arg0_err = getError(arg0, rt, ErrorMap);
             Builder.CreateCall(rt_mpfr.PropExpFError, {arg0, arg0_err, valuef, errorf});
             Value *xval = Builder.CreateLoad(rt.FloatTy, valuef, "expf.val");
             Value *dxval = Builder.CreateLoad(rt.FloatTy, errorf, "expf.err");
@@ -159,6 +166,8 @@ bool handleExternal(CallInst *CI, IRBuilder<> &Builder, utils::RuntimeFns &rt, u
             // return true;
         }
         else if (N == "exp") {
+            Value *arg0 = CI->getArgOperand(0);
+            Value *arg0_err = getError(arg0, rt, ErrorMap);
             Builder.CreateCall(rt_mpfr.PropExpDError, {arg0, arg0_err, valued, errord});
             Value *xval = Builder.CreateLoad(rt.DoubleTy, valued, "exp.val");
             Value *dxval = Builder.CreateLoad(rt.DoubleTy, errord, "exp.err");
@@ -339,15 +348,15 @@ void runOnModule(llvm::Module &M) {
 
             IRBuilder<> Builder(I);
 
-            // if (auto *LI = dyn_cast<LoadInst>(I)) {
-            //     handleLoad(LI, Builder, rt, ErrorMap);
-            //     continue;
-            // }
-            // if (auto *SI = dyn_cast<StoreInst>(I)) {
-            //     handleStore(SI, Builder, rt, ErrorMap);
-            //     // handleStore(SI, Builder, rt, ZeroF, ZeroD, ErrorMap);
-            //     continue;
-            // }
+            if (auto *LI = dyn_cast<LoadInst>(I)) {
+                handleLoad(LI, Builder, rt, ErrorMap);
+                continue;
+            }
+            if (auto *SI = dyn_cast<StoreInst>(I)) {
+                handleStore(SI, Builder, rt, ErrorMap);
+                // handleStore(SI, Builder, rt, ZeroF, ZeroD, ErrorMap);
+                continue;
+            }
             if (auto *II = dyn_cast<IntrinsicInst>(I)) {
                 if(handleIntrinsic(II, Builder, rt, rt_mpfr, valuef, errorf, valued, errord, ErrorMap)) {
                     continue;
