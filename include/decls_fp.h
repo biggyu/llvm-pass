@@ -15,6 +15,8 @@ namespace utils {
         llvm::Type *FloatTy;
         llvm::Type *DoubleTy;
         llvm::Type *PtrTy;
+        llvm::StructType *FpEntryFTy;
+        llvm::StructType *FpEntryDTy;
 
         llvm::Constant *ZeroF;
         llvm::Constant *ZeroD;
@@ -62,6 +64,10 @@ namespace utils {
             FloatTy = llvm::Type::getFloatTy(Ctx);
             DoubleTy = llvm::Type::getDoubleTy(Ctx);
             PtrTy = llvm::PointerType::getUnqual(Ctx);
+            FpEntryFTy = llvm::StructType::create(Ctx, "fp_entry_f");
+            FpEntryFTy->setBody({FloatTy, FloatTy}, false);
+            FpEntryDTy = llvm::StructType::create(Ctx, "fp_entry_d");
+            FpEntryDTy->setBody({DoubleTy, DoubleTy}, false);
 
             ZeroD = llvm::ConstantFP::get(DoubleTy, 0.0);
             ZeroF = llvm::ConstantFP::get(FloatTy, 0.0);
@@ -72,65 +78,46 @@ namespace utils {
                 true
             );
             PropSumFErrorTy = llvm::FunctionType::get(
-                VoidTy,
-                {FloatTy, FloatTy, FloatTy, FloatTy, PtrTy, PtrTy},
+                FpEntryFTy,
+                {FloatTy, FloatTy, FloatTy, FloatTy},
                 false
             );
             PropSumDErrorTy = llvm::FunctionType::get(
-                VoidTy,
-                {DoubleTy, DoubleTy, DoubleTy, DoubleTy, PtrTy, PtrTy},
+                FpEntryDTy,
+                {DoubleTy, DoubleTy, DoubleTy, DoubleTy},
                 false
             );
             PropProdFErrorTy = llvm::FunctionType::get(
-                VoidTy,
-                {FloatTy, FloatTy, FloatTy, FloatTy, PtrTy, PtrTy},
+                FpEntryFTy,
+                {FloatTy, FloatTy, FloatTy, FloatTy},
                 false
             );
             PropProdDErrorTy = llvm::FunctionType::get(
-                VoidTy,
-                {DoubleTy, DoubleTy, DoubleTy, DoubleTy, PtrTy, PtrTy},
+                FpEntryDTy,
+                {DoubleTy, DoubleTy, DoubleTy, DoubleTy},
                 false
             );
             PropDivFErrorTy = llvm::FunctionType::get(
-                VoidTy,
-                {FloatTy, FloatTy, FloatTy, FloatTy, PtrTy, PtrTy},
+                FpEntryFTy,
+                {FloatTy, FloatTy, FloatTy, FloatTy},
                 false
             );
             PropDivDErrorTy = llvm::FunctionType::get(
-                VoidTy,
-                {DoubleTy, DoubleTy, DoubleTy, DoubleTy, PtrTy, PtrTy},
+                FpEntryDTy,
+                {DoubleTy, DoubleTy, DoubleTy, DoubleTy},
                 false
             );
             PropSqrtFErrorTy = llvm::FunctionType::get(
-                VoidTy,
-                {FloatTy, FloatTy, PtrTy, PtrTy},
+                FpEntryFTy,
+                {FloatTy, FloatTy},
                 false
             );
             PropSqrtDErrorTy = llvm::FunctionType::get(
-                VoidTy,
-                {DoubleTy, DoubleTy, PtrTy, PtrTy},
+                FpEntryDTy,
+                {DoubleTy, DoubleTy},
                 false
             );
-            // TwoSumFTy = llvm::FunctionType::get(
-            //     VoidTy,
-            //     {FloatTy, FloatTy, PtrTy, PtrTy},
-            //     false
-            // );
-            // TwoSumDTy = llvm::FunctionType::get(
-            //     VoidTy,
-            //     {DoubleTy, DoubleTy, PtrTy, PtrTy},
-            //     false
-            // );
-            // TwoProdFTy = llvm::FunctionType::get(
-            //     VoidTy,
-            //     {FloatTy, FloatTy, PtrTy, PtrTy},
-            //     false
-            // );
-            // TwoProdDTy = llvm::FunctionType::get(
-            //     VoidTy,
-            //     {DoubleTy, DoubleTy, PtrTy, PtrTy},
-            //     false
-            // );
+
             ShadowStoreDTy = llvm::FunctionType::get(
                 VoidTy,
                 {PtrTy, DoubleTy, DoubleTy},
@@ -161,10 +148,7 @@ namespace utils {
             PropDivDError = M.getOrInsertFunction("PropDivDError", PropDivDErrorTy);
             PropSqrtFError = M.getOrInsertFunction("PropSqrtFError", PropSqrtFErrorTy);
             PropSqrtDError = M.getOrInsertFunction("PropSqrtDError", PropSqrtDErrorTy);
-            // TwoSumF = M.getOrInsertFunction("TwoSumF", TwoSumFTy);
-            // TwoSumD = M.getOrInsertFunction("TwoSumD", TwoSumDTy);
-            // TwoProdF = M.getOrInsertFunction("TwoProdF", TwoProdFTy);
-            // TwoProdD = M.getOrInsertFunction("TwoProdD", TwoProdDTy);
+            
             ShadowStoreF = M.getOrInsertFunction("shadow_store_float", ShadowStoreFTy);
             ShadowStoreD = M.getOrInsertFunction("shadow_store_double", ShadowStoreDTy);
             ShadowLoadF = M.getOrInsertFunction("shadow_load_float", ShadowLoadFTy);

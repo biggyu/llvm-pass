@@ -15,7 +15,8 @@
 // void PropBinDoubleError(double a, double da, double b, double db, double *x, double *dx) {
 
 // }
-void PropSinFError(float a, float da, float *x, float *dx) {
+fp_entry_f PropSinFError(float a, float da) {
+    fp_entry_f result;
     mpfr_t ma, mx;
     mpfr_init2(ma, 200);
     mpfr_init2(mx, 200);
@@ -25,13 +26,15 @@ void PropSinFError(float a, float da, float *x, float *dx) {
     double hprec = mpfr_get_flt(mx, MPFR_RNDN);
     double dprec = sinf(a);
 
-    *x = dprec;
-    *dx = (hprec - dprec) + cosf(a) * da;
+    result.value = dprec;
+    result.error = (hprec - dprec) + cosf(a) * da;
 
     mpfr_clear(ma);
     mpfr_clear(mx);
+    return result;
 }
-void PropSinDError(double a, double da, double *x, double *dx) {
+fp_entry_d PropSinDError(double a, double da) {
+    fp_entry_d result;
     mpfr_t ma, mx;
     mpfr_init2(ma, 200);
     mpfr_init2(mx, 200);
@@ -41,15 +44,17 @@ void PropSinDError(double a, double da, double *x, double *dx) {
     double hprec = mpfr_get_d(mx, MPFR_RNDN);
     double dprec = sin(a);
 
-    *x = dprec;
-    *dx = (hprec - dprec) + cos(a) * da;
+    result.value = dprec;
+    result.error = (hprec - dprec) + cos(a) * da;
 
     mpfr_clear(ma);
     mpfr_clear(mx);
+    return result;
 }
 // void PropsinfFError(float a, float da, float *x, float *dx);
 // void PropsinfDError(double a, double da, double *x, double *dx);
-void PropCosFError(float a, float da, float *x, float *dx) {
+fp_entry_f PropCosFError(float a, float da) {
+    fp_entry_f result;
     mpfr_t ma, mx;
     mpfr_init2(ma, 200);
     mpfr_init2(mx, 200);
@@ -59,13 +64,15 @@ void PropCosFError(float a, float da, float *x, float *dx) {
     float hprec = mpfr_get_flt(mx, MPFR_RNDN);
     float dprec = cosf(a);
 
-    *x = dprec;
-    *dx = (hprec - dprec) - sinf(a) * da;
+    result.value = dprec;
+    result.error = (hprec - dprec) - sinf(a) * da;
 
     mpfr_clear(ma);
     mpfr_clear(mx);
+    return result;
 }
-void PropCosDError(double a, double da, double *x, double *dx) {
+fp_entry_d PropCosDError(double a, double da) {
+    fp_entry_d result;
     mpfr_t ma, mx;
     mpfr_init2(ma, 200);
     mpfr_init2(mx, 200);
@@ -75,15 +82,17 @@ void PropCosDError(double a, double da, double *x, double *dx) {
     double hprec = mpfr_get_d(mx, MPFR_RNDN);
     double dprec = cos(a);
 
-    *x = dprec;
-    *dx = (hprec - dprec) - sin(a) * da;
+    result.value = dprec;
+    result.error = (hprec - dprec) - sin(a) * da;
 
     mpfr_clear(ma);
     mpfr_clear(mx);
+    return result;
 }   
 // void PropcosfFError(float a, float da, float *x, float *dx);
 // void PropcosfDError(double a, double da, double *x, double *dx);
-void PropTanFError(float a, float da, float *x, float *dx) {
+fp_entry_f PropTanFError(float a, float da) {
+    fp_entry_f result;
     mpfr_t ma, mx;
     mpfr_init2(ma, 200);
     mpfr_init2(mx, 200);
@@ -93,13 +102,15 @@ void PropTanFError(float a, float da, float *x, float *dx) {
     float hprec = mpfr_get_flt(mx, MPFR_RNDN);
     float dprec = tanf(a);
 
-    *x = dprec;
-    *dx = (hprec - dprec) + powf((1 / cosf(a)), 2) * da;
+    result.value = dprec;
+    result.error = (hprec - dprec) + powf((1 / cosf(a)), 2) * da;
 
     mpfr_clear(ma);
     mpfr_clear(mx);
+    return result;
 }
-void PropTanDError(double a, double da, double *x, double *dx) {
+fp_entry_d PropTanDError(double a, double da) {
+    fp_entry_d result;
     mpfr_t ma, mx;
     mpfr_init2(ma, 200);
     mpfr_init2(mx, 200);
@@ -109,13 +120,15 @@ void PropTanDError(double a, double da, double *x, double *dx) {
     double hprec = mpfr_get_d(mx, MPFR_RNDN);
     double dprec = tan(a);
 
-    *x = dprec;
-    *dx = (hprec - dprec) + pow((1 / cos(a)), 2) * da;
+    result.value = dprec;
+    result.error = (hprec - dprec) + pow((1 / cos(a)), 2) * da;
 
     mpfr_clear(ma);
     mpfr_clear(mx);
+    return result;
 }   
-void PropAsinFError(float a, float da, float *x, float *dx) {
+fp_entry_f PropAsinFError(float a, float da) {
+    fp_entry_f result;
     mpfr_t ma, mx;
     mpfr_init2(ma, 200);
     mpfr_init2(mx, 200);
@@ -125,13 +138,15 @@ void PropAsinFError(float a, float da, float *x, float *dx) {
     float hprec = mpfr_get_flt(mx, MPFR_RNDN);
     float dprec = asinf(a);
 
-    *x = dprec;
-    *dx = (hprec - dprec) + 1 / sqrtf(1 - powf(a, 2)) * da;
+    result.value = dprec;
+    result.error = (hprec - dprec) + 1 / sqrtf(1 - powf(a, 2)) * da;
 
     mpfr_clear(ma);
     mpfr_clear(mx);
+    return result;
 }
-void PropAsinDError(double a, double da, double *x, double *dx) {
+fp_entry_d PropAsinDError(double a, double da) {
+    fp_entry_d result;
     mpfr_t ma, mx;
     mpfr_init2(ma, 200);
     mpfr_init2(mx, 200);
@@ -141,13 +156,15 @@ void PropAsinDError(double a, double da, double *x, double *dx) {
     double hprec = mpfr_get_d(mx, MPFR_RNDN);
     double dprec = asin(a);
 
-    *x = dprec;
-    *dx = (hprec - dprec) + 1 / sqrt(1 - pow(a, 2)) * da;
+    result.value = dprec;
+    result.error = (hprec - dprec) + 1 / sqrt(1 - pow(a, 2)) * da;
 
     mpfr_clear(ma);
     mpfr_clear(mx);
+    return result;
 }   
-void PropAcosFError(float a, float da, float *x, float *dx) {
+fp_entry_f PropAcosFError(float a, float da) {
+    fp_entry_f result;
     mpfr_t ma, mx;
     mpfr_init2(ma, 200);
     mpfr_init2(mx, 200);
@@ -157,13 +174,15 @@ void PropAcosFError(float a, float da, float *x, float *dx) {
     float hprec = mpfr_get_flt(mx, MPFR_RNDN);
     float dprec = acosf(a);
 
-    *x = dprec;
-    *dx = (hprec - dprec) - 1 / sqrtf(1 - powf(a, 2)) * da;
+    result.value = dprec;
+    result.error = (hprec - dprec) - 1 / sqrtf(1 - powf(a, 2)) * da;
 
     mpfr_clear(ma);
     mpfr_clear(mx);
+    return result;
 }
-void PropAcosDError(double a, double da, double *x, double *dx) {
+fp_entry_d PropAcosDError(double a, double da) {
+    fp_entry_d result;
     mpfr_t ma, mx;
     mpfr_init2(ma, 200);
     mpfr_init2(mx, 200);
@@ -173,13 +192,15 @@ void PropAcosDError(double a, double da, double *x, double *dx) {
     double hprec = mpfr_get_d(mx, MPFR_RNDN);
     double dprec = acos(a);
 
-    *x = dprec;
-    *dx = (hprec - dprec) - 1 / sqrt(1 - pow(a, 2)) * da;
+    result.value = dprec;
+    result.error = (hprec - dprec) - 1 / sqrt(1 - pow(a, 2)) * da;
 
     mpfr_clear(ma);
     mpfr_clear(mx);
+    return result;
 }   
-void PropAtanFError(float a, float da, float *x, float *dx) {
+fp_entry_f PropAtanFError(float a, float da) {
+    fp_entry_f result;
     mpfr_t ma, mx;
     mpfr_init2(ma, 200);
     mpfr_init2(mx, 200);
@@ -189,13 +210,15 @@ void PropAtanFError(float a, float da, float *x, float *dx) {
     float hprec = mpfr_get_flt(mx, MPFR_RNDN);
     float dprec = atanf(a);
 
-    *x = dprec;
-    *dx = (hprec - dprec) + 1 / (1 + powf(a, 2)) * da;
+    result.value = dprec;
+    result.error = (hprec - dprec) + 1 / (1 + powf(a, 2)) * da;
 
     mpfr_clear(ma);
     mpfr_clear(mx);
+    return result;
 }
-void PropAtanDError(double a, double da, double *x, double *dx) {
+fp_entry_d PropAtanDError(double a, double da) {
+    fp_entry_d result;
     mpfr_t ma, mx;
     mpfr_init2(ma, 200);
     mpfr_init2(mx, 200);
@@ -205,13 +228,15 @@ void PropAtanDError(double a, double da, double *x, double *dx) {
     double hprec = mpfr_get_d(mx, MPFR_RNDN);
     double dprec = atan(a);
 
-    *x = dprec;
-    *dx = (hprec - dprec) + 1 / (1 + pow(a, 2)) * da;
+    result.value = dprec;
+    result.error = (hprec - dprec) + 1 / (1 + pow(a, 2)) * da;
 
     mpfr_clear(ma);
     mpfr_clear(mx);
+    return result;
 }   
-void PropLogFError(float a, float da, float *x, float *dx) {
+fp_entry_f PropLogFError(float a, float da) {
+    fp_entry_f result;
     mpfr_t ma, mx;
     mpfr_init2(ma, 200);
     mpfr_init2(mx, 200);
@@ -221,13 +246,15 @@ void PropLogFError(float a, float da, float *x, float *dx) {
     float hprec = mpfr_get_flt(mx, MPFR_RNDN);
     float dprec = logf(a);
 
-    *x = dprec;
-    *dx = (hprec - dprec) + (1 / a) * da;
+    result.value = dprec;
+    result.error = (hprec - dprec) + (1 / a) * da;
 
     mpfr_clear(ma);
     mpfr_clear(mx);
+    return result;
 }
-void PropLogDError(double a, double da, double *x, double *dx) {
+fp_entry_d PropLogDError(double a, double da) {
+    fp_entry_d result;
     mpfr_t ma, mx;
     mpfr_init2(ma, 200);
     mpfr_init2(mx, 200);
@@ -237,13 +264,15 @@ void PropLogDError(double a, double da, double *x, double *dx) {
     double hprec = mpfr_get_d(mx, MPFR_RNDN);
     double dprec = log(a);
 
-    *x = dprec;
-    *dx = (hprec - dprec) + (1 / a) * da;
+    result.value = dprec;
+    result.error = (hprec - dprec) + (1 / a) * da;
 
     mpfr_clear(ma);
     mpfr_clear(mx);
+    return result;
 }   
-void PropExpFError(float a, float da, float *x, float *dx) {
+fp_entry_f PropExpFError(float a, float da) {
+    fp_entry_f result;
     mpfr_t ma, mx;
     mpfr_init2(ma, 200);
     mpfr_init2(mx, 200);
@@ -253,13 +282,15 @@ void PropExpFError(float a, float da, float *x, float *dx) {
     float hprec = mpfr_get_flt(mx, MPFR_RNDN);
     float dprec = expf(a);
 
-    *x = dprec;
-    *dx = (hprec - dprec) + expf(a) * da;
+    result.value = dprec;
+    result.error = (hprec - dprec) + expf(a) * da;
 
     mpfr_clear(ma);
     mpfr_clear(mx);
+    return result;
 }
-void PropExpDError(double a, double da, double *x, double *dx) {
+fp_entry_d PropExpDError(double a, double da) {
+    fp_entry_d result;
     mpfr_t ma, mx;
     mpfr_init2(ma, 200);
     mpfr_init2(mx, 200);
@@ -269,13 +300,15 @@ void PropExpDError(double a, double da, double *x, double *dx) {
     double hprec = mpfr_get_d(mx, MPFR_RNDN);
     double dprec = exp(a);
 
-    *x = dprec;
-    *dx = (hprec - dprec) + exp(a) * da;
+    result.value = dprec;
+    result.error = (hprec - dprec) + exp(a) * da;
 
     mpfr_clear(ma);
     mpfr_clear(mx);
+    return result;
 }   
-void PropPowFError(float a, float da, float b, float db, float *x, float *dx) {
+fp_entry_f PropPowFError(float a, float da, float b, float db) {
+    fp_entry_f result;
     mpfr_t ma, mb, mx;
     mpfr_init2(ma, 200);
     mpfr_init2(mb, 200);
@@ -287,14 +320,16 @@ void PropPowFError(float a, float da, float b, float db, float *x, float *dx) {
     float hprec = mpfr_get_flt(mx, MPFR_RNDN);
     float dprec = powf(a, b);
 
-    *x = dprec;
-    *dx = (hprec - dprec) + b * powf(a, b - 1) * da + powf(a, b) * logf(b) * db;
+    result.value = dprec;
+    result.error = (hprec - dprec) + b * powf(a, b - 1) * da + powf(a, b) * logf(b) * db;
 
     mpfr_clear(ma);
     mpfr_clear(mb);
     mpfr_clear(mx);
+    return result;
 }
-void PropPowDError(double a, double da, double b, double db, double *x, double *dx) {
+fp_entry_d PropPowDError(double a, double da, double b, double db) {
+    fp_entry_d result;
     mpfr_t ma, mb, mx;
     mpfr_init2(ma, 200);
     mpfr_init2(mb, 200);
@@ -306,36 +341,41 @@ void PropPowDError(double a, double da, double b, double db, double *x, double *
     double hprec = mpfr_get_d(mx, MPFR_RNDN);
     double dprec = pow(a, b);
 
-    *x = dprec;
-    *dx = (hprec - dprec) + b * pow(a, b - 1) * da + pow(a, b) * log(b) * db;
+    result.value = dprec;
+    result.error = (hprec - dprec) + b * pow(a, b - 1) * da + pow(a, b) * log(b) * db;
 
     mpfr_clear(ma);
     mpfr_clear(mb);
     mpfr_clear(mx);
+    return result;
 }   
 // void PropexpfFError(float a, float da, float *x, float *dx);
 // void PropexpfDError(double a, double da, double *x, double *dx);
-void PropFabsFError(float a, float da, float *x, float *dx) {
-    *x = fabsf(a);
+fp_entry_f PropFabsFError(float a, float da) {
+    fp_entry_f result;
+    result.value = fabsf(a);
     if (a > 0.0f) {
-        *dx = da;
+        result.error = da;
     }
     else if (a < 0.0f) {
-        *dx = -da;
+        result.error = -da;
     }
     else {
-        *dx = fabsf(da);
+        result.error = fabsf(da);
     }
+    return result;
 }
-void PropFabsDError(double a, double da, double *x, double *dx) {
-    *x = fabs(a);
+fp_entry_d PropFabsDError(double a, double da) {
+    fp_entry_d result;
+    result.value = fabs(a);
     if (a > 0.0) {
-        *dx = da;
+        result.error = da;
     }
     else if (a < 0.0) {
-        *dx = -da;
+        result.error = -da;
     }
     else {
-        *dx = fabs(da);
+        result.error = fabs(da);
     }
+    return result;
 }   

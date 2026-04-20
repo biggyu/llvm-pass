@@ -83,25 +83,27 @@ void handleLoad(LoadInst *LI, IRBuilder<> &Builder, utils::RuntimeFns &rt,
 }
 
 bool handleIntrinsic(IntrinsicInst *II, IRBuilder<> &Builder, utils::RuntimeFns &rt, utils::RuntimeMPFRFns &rt_mpfr,
-                AllocaInst *valuef, AllocaInst *errorf, 
-                AllocaInst *valued, AllocaInst *errord,
+                // AllocaInst *valuef, AllocaInst *errorf, 
+                // AllocaInst *valued, AllocaInst *errord,
                 DenseMap<const Value*, Value*> &ErrorMap) {
     if (II->getIntrinsicID() == Intrinsic::sqrt) {
         Value *arg0 = II->getArgOperand(0);
         Value *arg0_err = getError(arg0, rt, ErrorMap);
         if(II->getType()->isDoubleTy()) {
-            Builder.CreateCall(rt.PropSqrtDError, {arg0, arg0_err, valued, errord});
-            Value *xval = Builder.CreateLoad(rt.DoubleTy, valued, "sqrt.val");
-            Value *dxval = Builder.CreateLoad(rt.DoubleTy, errord, "sqrt.err");
-            ErrorMap[II] = dxval;
+            Value *ret = Builder.CreateCall(rt.PropSqrtDError, {arg0, arg0_err});
+            // Value *x = Builder.CreateExtractValue(ret, {0}, "sqrt.val");
+            Value *dx = Builder.CreateExtractValue(ret, {1}, "sqrt.err");
+            
+            ErrorMap[II] = dx;
             // Value *fmt = Builder.CreateGlobalStringPtr("sqrtD: x=%f, dx=%e\n");
             // Builder.CreateCall(rt.Printf, {fmt, xval, dxval});
         }
         else if(II->getType()->isFloatTy()) {
-            Builder.CreateCall(rt.PropSqrtFError, {arg0, arg0_err, valuef, errorf});
-            Value *xval = Builder.CreateLoad(rt.FloatTy, valuef, "sqrtf.val");
-            Value *dxval = Builder.CreateLoad(rt.FloatTy, errorf, "sqrtf.err");
-            ErrorMap[II] = dxval;
+            Value *ret = Builder.CreateCall(rt.PropSqrtFError, {arg0, arg0_err});
+            // Value *x = Builder.CreateExtractValue(ret, {0}, "sqrtf.val");
+            Value *dx = Builder.CreateExtractValue(ret, {1}, "sqrtf.err");
+            
+            ErrorMap[II] = dx;
             // Value *fmt = Builder.CreateGlobalStringPtr("sqrtD: x=%f, dx=%e\n");
             // Builder.CreateCall(rt.Printf, {fmt, xval, dxval});
         }
@@ -111,16 +113,18 @@ bool handleIntrinsic(IntrinsicInst *II, IRBuilder<> &Builder, utils::RuntimeFns 
         Value *arg0 = II->getArgOperand(0);
         Value *arg0_err = getError(arg0, rt, ErrorMap);
         if (II->getType()->isDoubleTy()) {
-            Builder.CreateCall(rt_mpfr.PropFabsDError, {arg0, arg0_err, valued, errord});
-            Value *xval = Builder.CreateLoad(rt_mpfr.DoubleTy, valued, "fabs.val");
-            Value *dxval = Builder.CreateLoad(rt_mpfr.DoubleTy, errord, "fabs.err");
-            ErrorMap[II] = dxval;
+            Value *ret = Builder.CreateCall(rt_mpfr.PropFabsDError, {arg0, arg0_err});
+            // Value *x = Builder.CreateExtractValue(ret, {0}, "fabs.val");
+            Value *dx = Builder.CreateExtractValue(ret, {1}, "fabs.err");
+
+            ErrorMap[II] = dx;
         }
         else if (II->getType()->isFloatTy()) {
-            Builder.CreateCall(rt_mpfr.PropFabsFError, {arg0, arg0_err, valuef, errorf});
-            Value *xval = Builder.CreateLoad(rt_mpfr.DoubleTy, valuef, "fabsf.val");
-            Value *dxval = Builder.CreateLoad(rt_mpfr.DoubleTy, errorf, "fabsf.err");
-            ErrorMap[II] = dxval;
+            Value *ret = Builder.CreateCall(rt_mpfr.PropFabsFError, {arg0, arg0_err});
+            // Value *x = Builder.CreateExtractValue(ret, {0}, "fabsf.val");
+            Value *dx = Builder.CreateExtractValue(ret, {1}, "fabsf.err");
+
+            ErrorMap[II] = dx;
         }
         return true;
     }
@@ -129,18 +133,19 @@ bool handleIntrinsic(IntrinsicInst *II, IRBuilder<> &Builder, utils::RuntimeFns 
     }
 }
 bool handleExternal(CallInst *CI, IRBuilder<> &Builder, utils::RuntimeFns &rt, utils::RuntimeMPFRFns &rt_mpfr,
-                AllocaInst *valuef, AllocaInst *errorf, 
-                AllocaInst *valued, AllocaInst *errord,
+                // AllocaInst *valuef, AllocaInst *errorf, 
+                // AllocaInst *valued, AllocaInst *errord,
                 DenseMap<const Value*, Value*> &ErrorMap) {
     if (Function *Callee = CI->getCalledFunction()) {
         StringRef N = Callee->getName();
         if (N == "sqrtf") {
             Value *arg0 = CI->getArgOperand(0);
             Value *arg0_err = getError(arg0, rt, ErrorMap);
-            Builder.CreateCall(rt.PropSqrtFError, {arg0, arg0_err, valuef, errorf});
-            Value *xval = Builder.CreateLoad(rt.FloatTy, valuef, "sqrtf.val");
-            Value *dxval = Builder.CreateLoad(rt.FloatTy, errorf, "sqrtf.err");
-            ErrorMap[CI] = dxval;
+            Value *ret = Builder.CreateCall(rt.PropSqrtFError, {arg0, arg0_err});
+            // Value *x = Builder.CreateExtractValue(ret, {0}, "sqrtf.val");
+            Value *dx = Builder.CreateExtractValue(ret, {1}, "sqrtf.err");
+            
+            ErrorMap[CI] = dx;
             // Value *fmt = Builder.CreateGlobalStringPtr("sqrtD: x=%f, dx=%e\n");
             // Builder.CreateCall(rt.Printf, {fmt, xval, dxval});
             // return true;
@@ -148,10 +153,11 @@ bool handleExternal(CallInst *CI, IRBuilder<> &Builder, utils::RuntimeFns &rt, u
         else if (N == "sqrt") {
             Value *arg0 = CI->getArgOperand(0);
             Value *arg0_err = getError(arg0, rt, ErrorMap);
-            Builder.CreateCall(rt.PropSqrtDError, {arg0, arg0_err, valued, errord});
-            Value *xval = Builder.CreateLoad(rt.DoubleTy, valued, "sqrt.val");
-            Value *dxval = Builder.CreateLoad(rt.DoubleTy, errord, "sqrt.err");
-            ErrorMap[CI] = dxval;
+            Value *ret = Builder.CreateCall(rt.PropSqrtDError, {arg0, arg0_err});
+            // Value *x = Builder.CreateExtractValue(ret, {0}, "sqrt.val");
+            Value *dx = Builder.CreateExtractValue(ret, {1}, "sqrt.err");
+            
+            ErrorMap[CI] = dx;
             // Value *fmt = Builder.CreateGlobalStringPtr("sqrtD: x=%f, dx=%e\n");
             // Builder.CreateCall(rt.Printf, {fmt, xval, dxval});
             // return true;
@@ -159,35 +165,21 @@ bool handleExternal(CallInst *CI, IRBuilder<> &Builder, utils::RuntimeFns &rt, u
         else if (N == "expf") {
             Value *arg0 = CI->getArgOperand(0);
             Value *arg0_err = getError(arg0, rt, ErrorMap);
-            Builder.CreateCall(rt_mpfr.PropExpFError, {arg0, arg0_err, valuef, errorf});
-            Value *xval = Builder.CreateLoad(rt.FloatTy, valuef, "expf.val");
-            Value *dxval = Builder.CreateLoad(rt.FloatTy, errorf, "expf.err");
-            ErrorMap[CI] = dxval;
+            Value *ret = Builder.CreateCall(rt_mpfr.PropExpFError, {arg0, arg0_err});
+            // Value *x = Builder.CreateExtractValue(ret, {0}, "expf.val");
+            Value *dx = Builder.CreateExtractValue(ret, {1}, "expf.err");
+            ErrorMap[CI] = dx;
             // return true;
         }
         else if (N == "exp") {
             Value *arg0 = CI->getArgOperand(0);
             Value *arg0_err = getError(arg0, rt, ErrorMap);
-            Builder.CreateCall(rt_mpfr.PropExpDError, {arg0, arg0_err, valued, errord});
-            Value *xval = Builder.CreateLoad(rt.DoubleTy, valued, "exp.val");
-            Value *dxval = Builder.CreateLoad(rt.DoubleTy, errord, "exp.err");
-            ErrorMap[CI] = dxval;
+            Value *ret = Builder.CreateCall(rt_mpfr.PropExpDError, {arg0, arg0_err});
+            // Value *x = Builder.CreateExtractValue(ret, {0}, "exp.val");
+            Value *dx = Builder.CreateExtractValue(ret, {1}, "exp.err");
+            ErrorMap[CI] = dx;
             // return true;
         }
-        // else if (N == "fabsf") {
-        //     Builder.CreateCall(rt_mpfr.PropFabsFError, {arg0, arg0_err, valuef, errorf});
-        //     Value *xval = Builder.CreateLoad(rt.FloatTy, valuef, "fabs.float_val");
-        //     Value *dxval = Builder.CreateLoad(rt.FloatTy, errorf, "fabs.float_err");
-        //     ErrorMap[CI] = dxval;
-        //     // return true;
-        // }
-        // else if (N == "fabs") {
-        //     Builder.CreateCall(rt_mpfr.PropFabsDError, {arg0, arg0_err, valued, errord});
-        //     Value *xval = Builder.CreateLoad(rt.DoubleTy, valued, "fabs.double_val");
-        //     Value *dxval = Builder.CreateLoad(rt.DoubleTy, errord, "fabs.double_err");
-        //     ErrorMap[CI] = dxval;
-        //     // return true;
-        // }
         else {
             return false;
         }
@@ -219,8 +211,8 @@ bool handleExternal(CallInst *CI, IRBuilder<> &Builder, utils::RuntimeFns &rt, u
 }
 
 void handleBinary(Instruction *BO, IRBuilder<> &Builder, utils::RuntimeFns &rt,
-                AllocaInst *valuef, AllocaInst *errorf, 
-                AllocaInst *valued, AllocaInst *errord,
+                // AllocaInst *valuef, AllocaInst *errorf, 
+                // AllocaInst *valued, AllocaInst *errord,
                 // Constant *ZeroF, Constant *ZeroD,
                 DenseMap<const Value*, Value*> &ErrorMap) {
     
@@ -238,38 +230,43 @@ void handleBinary(Instruction *BO, IRBuilder<> &Builder, utils::RuntimeFns &rt,
     switch (BO->getOpcode()) {
         case Instruction::FAdd: {
             if (BO->getType()->isDoubleTy()) {
-                Builder.CreateCall(rt.PropSumDError, {opr0, opr0_err, opr1, opr1_err, valued, errord});
-                // Value *xval = Builder.CreateLoad(rt.DoubleTy, valued, "twosum.double_val");
-                Value *dxval = Builder.CreateLoad(rt.DoubleTy, errord, "twosum.double_err");
-                ErrorMap[BO] = dxval;
+                Value *ret = Builder.CreateCall(rt.PropSumDError, {opr0, opr0_err, opr1, opr1_err});
+                // Value *x = Builder.CreateExtractValue(ret, {0}, "addd.val");
+                Value *dx = Builder.CreateExtractValue(ret, {1}, "addd.err");
+                ErrorMap[BO] = dx;
                 // Value *fmt = Builder.CreateGlobalStringPtr("TwoSumD: x=%f, dx=%e\n");
                 // Builder.CreateCall(rt.Printf, {fmt, xval, dxval});
             }
             else {
-                Builder.CreateCall(rt.PropSumFError, {opr0, opr0_err, opr1, opr1_err, valuef, errorf});
+                Value *ret = Builder.CreateCall(rt.PropSumFError, {opr0, opr0_err, opr1, opr1_err});
+                // Value *x = Builder.CreateExtractValue(ret, {0}, "addf.val");
+                Value *dx = Builder.CreateExtractValue(ret, {1}, "addf.err");
                 // Value *xval = Builder.CreateLoad(rt.FloatTy, valuef, "twosum.float_val");
-                Value *dxval = Builder.CreateLoad(rt.FloatTy, errorf, "twosum.float_err");
-                ErrorMap[BO] = dxval;
+                // Value *dxval = Builder.CreateLoad(rt.FloatTy, errorf, "twosum.float_err");
+                ErrorMap[BO] = dx;
                 // Value *fmt = Builder.CreateGlobalStringPtr("TwoSumF: x=%f, dx=%e\n");
                 // Builder.CreateCall(rt.Printf, {fmt, xval, dxval});
             }
             break;
         }
         case Instruction::FSub: {
-            Value *invopr1 = Builder.CreateFNeg(opr1, "inv");
+            Value *invopr1 = Builder.CreateFNeg(opr1, "inv.val");
+            Value *invopr1_err = Builder.CreateFNeg(opr1_err, "inv.err");
             if (BO->getType()->isDoubleTy()) {
-                Builder.CreateCall(rt.PropSumDError, {opr0, opr0_err, invopr1, opr1_err, valued, errord});
-                // Value *xval = Builder.CreateLoad(rt.DoubleTy, valued, "twosum.double_val");
-                Value *dxval = Builder.CreateLoad(rt.DoubleTy, errord, "twosum.double_err");
-                ErrorMap[BO] = dxval;
+                Value *ret = Builder.CreateCall(rt.PropSumDError, {opr0, opr0_err, invopr1, invopr1_err});
+                // Value *x = Builder.CreateExtractValue(ret, {0}, "subd.val");
+                Value *dx = Builder.CreateExtractValue(ret, {1}, "subd.err");
+                
+                ErrorMap[BO] = dx;
                 // Value *fmt = Builder.CreateGlobalStringPtr("InvTwoSumD: x=%f, dx=%e\n");
                 // Builder.CreateCall(rt.Printf, {fmt, xval, dxval});
             }
             else {
-                Builder.CreateCall(rt.PropSumFError, {opr0, opr0_err, invopr1, opr1_err, valuef, errorf});
-                // Value *xval = Builder.CreateLoad(rt.FloatTy, valuef, "twosum.float_val");
-                Value *dxval = Builder.CreateLoad(rt.FloatTy, errorf, "twosum.float_err");
-                ErrorMap[BO] = dxval;
+                Value *ret = Builder.CreateCall(rt.PropSumFError, {opr0, opr0_err, invopr1, invopr1_err});
+                // Value *x = Builder.CreateExtractValue(ret, {0}, "subf.val");
+                Value *dx = Builder.CreateExtractValue(ret, {1}, "subf.err");
+                
+                ErrorMap[BO] = dx;
                 // Value *fmt = Builder.CreateGlobalStringPtr("InvTwoSumF: x=%f, dx=%e\n");
                 // Builder.CreateCall(rt.Printf, {fmt, xval, dxval});
             }
@@ -277,38 +274,40 @@ void handleBinary(Instruction *BO, IRBuilder<> &Builder, utils::RuntimeFns &rt,
         }
         case Instruction::FMul:
             if (BO->getType()->isDoubleTy()) {
-                Builder.CreateCall(rt.PropProdDError, {opr0, opr0_err, opr1, opr1_err, valued, errord});
-                // Value *xval = Builder.CreateLoad(rt.DoubleTy, valued, "twoprod.double_val");
-                Value *dxval = Builder.CreateLoad(rt.DoubleTy, errord, "twoprod.double_err");
-                ErrorMap[BO] = dxval;
+                Value *ret = Builder.CreateCall(rt.PropProdDError, {opr0, opr0_err, opr1, opr1_err});
+                // Value *x = Builder.CreateExtractValue(ret, {0}, "muld.val");
+                Value *dx = Builder.CreateExtractValue(ret, {1}, "muld.err");
+                
+                ErrorMap[BO] = dx;
                 // Value *fmt = Builder.CreateGlobalStringPtr("TwoProdD: x=%f, dx=%e\n");
                 // Builder.CreateCall(rt.Printf, {fmt, xval, dxval});
             }
             else {
-                Builder.CreateCall(rt.PropProdFError, {opr0, opr0_err, opr1, opr1_err, valuef, errorf});
-                // Value *xval = Builder.CreateLoad(rt.FloatTy, valuef, "twoprod.float_val");
-                Value *dxval = Builder.CreateLoad(rt.FloatTy, errorf, "twoprod.float_err");
-                ErrorMap[BO] = dxval;
+                Value *ret = Builder.CreateCall(rt.PropProdFError, {opr0, opr0_err, opr1, opr1_err});
+                // Value *x = Builder.CreateExtractValue(ret, {0}, "mulf.val");
+                Value *dx = Builder.CreateExtractValue(ret, {1}, "mulf.err");
+                
+                ErrorMap[BO] = dx;
                 // Value *fmt = Builder.CreateGlobalStringPtr("TwoProdF: x=%f, dx=%e\n");
                 // Builder.CreateCall(rt.Printf, {fmt, xval, dxval});
             }
             break;
         case Instruction::FDiv:
             if (BO->getType()->isDoubleTy()) {
-                // Builder.CreateCall(rt.TwoProdD, {opr0, opr1, valued, errord});
-                Builder.CreateCall(rt.PropDivDError, {opr0, opr0_err, opr1, opr1_err, valued, errord});
-                // Value *xval = Builder.CreateLoad(rt.DoubleTy, valued, "twoprod.double_val");
-                Value *dxval = Builder.CreateLoad(rt.DoubleTy, errord, "twodiv.double_err");
-                ErrorMap[BO] = dxval;
+                Value *ret = Builder.CreateCall(rt.PropDivDError, {opr0, opr0_err, opr1, opr1_err});
+                // Value *x = Builder.CreateExtractValue(ret, {0}, "divd.val");
+                Value *dx = Builder.CreateExtractValue(ret, {1}, "divd.err");
+                
+                ErrorMap[BO] = dx;
                 // Value *fmt = Builder.CreateGlobalStringPtr("TwoProdD: x=%f, dx=%e\n");
                 // Builder.CreateCall(rt.Printf, {fmt, xval, dxval});
             }
             else {
-                // Builder.CreateCall(rt.TwoProdF, {opr0, opr1, valuef, errorf});
-                Builder.CreateCall(rt.PropDivFError, {opr0, opr0_err, opr1, opr1_err, valuef, errorf});
-                // Value *xval = Builder.CreateLoad(rt.FloatTy, valuef, "twoprod.float_val");
-                Value *dxval = Builder.CreateLoad(rt.FloatTy, errorf, "twodiv.float_err");
-                ErrorMap[BO] = dxval;
+                Value *ret = Builder.CreateCall(rt.PropDivFError, {opr0, opr0_err, opr1, opr1_err});
+                // Value *x = Builder.CreateExtractValue(ret, {0}, "divf.val");
+                Value *dx = Builder.CreateExtractValue(ret, {1}, "divf.err");
+                
+                ErrorMap[BO] = dx;
                 // Value *fmt = Builder.CreateGlobalStringPtr("TwoProdF: x=%f, dx=%e\n");
                 // Builder.CreateCall(rt.Printf, {fmt, xval, dxval});
             }
@@ -332,10 +331,10 @@ void runOnModule(llvm::Module &M) {
         DenseMap<const Value*, Value*> ErrorMap;
 
         IRBuilder<> EntryBuilder(&F.getEntryBlock(), F.getEntryBlock().getFirstNonPHIOrDbgOrAlloca());
-        AllocaInst *valuef = EntryBuilder.CreateAlloca(rt.FloatTy, nullptr, "value.f");
-        AllocaInst *errorf = EntryBuilder.CreateAlloca(rt.FloatTy, nullptr, "error.f");
-        AllocaInst *valued = EntryBuilder.CreateAlloca(rt.DoubleTy, nullptr, "value.d");
-        AllocaInst *errord = EntryBuilder.CreateAlloca(rt.DoubleTy, nullptr, "error.d");
+        // AllocaInst *valuef = EntryBuilder.CreateAlloca(rt.FloatTy, nullptr, "value.f");
+        // AllocaInst *errorf = EntryBuilder.CreateAlloca(rt.FloatTy, nullptr, "error.f");
+        // AllocaInst *valued = EntryBuilder.CreateAlloca(rt.DoubleTy, nullptr, "value.d");
+        // AllocaInst *errord = EntryBuilder.CreateAlloca(rt.DoubleTy, nullptr, "error.d");
 
         SmallVector<Instruction*, 128> WorkList;
         for (BasicBlock &BB : F) {
@@ -358,17 +357,20 @@ void runOnModule(llvm::Module &M) {
                 continue;
             }
             if (auto *II = dyn_cast<IntrinsicInst>(I)) {
-                if(handleIntrinsic(II, Builder, rt, rt_mpfr, valuef, errorf, valued, errord, ErrorMap)) {
+                if(handleIntrinsic(II, Builder, rt, rt_mpfr, ErrorMap)) {
+                // if(handleIntrinsic(II, Builder, rt, rt_mpfr, valuef, errorf, valued, errord, ErrorMap)) {
                     continue;
                 }
             }
             if (auto *CI = dyn_cast<CallInst>(I)) {
-                if(handleExternal(CI, Builder, rt, rt_mpfr, valuef, errorf, valued, errord, ErrorMap)) {
+                if(handleExternal(CI, Builder, rt, rt_mpfr, ErrorMap)) {
+                // if(handleExternal(CI, Builder, rt, rt_mpfr, valuef, errorf, valued, errord, ErrorMap)) {
                     continue;
                 }
             }
             if (auto *BI = dyn_cast<BinaryOperator>(I)) {
-                handleBinary(BI, Builder, rt, valuef, errorf, valued, errord, ErrorMap);
+                handleBinary(BI, Builder, rt, ErrorMap);
+                // handleBinary(BI, Builder, rt, valuef, errorf, valued, errord, ErrorMap);
                 // handleBinary(BI, Builder, rt, valuef, errorf, valued, errord, ZeroF, ZeroD, ErrorMap);
             }
         }

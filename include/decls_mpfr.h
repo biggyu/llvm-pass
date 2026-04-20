@@ -14,6 +14,8 @@ namespace utils {
         llvm::Type *FloatTy;
         llvm::Type *DoubleTy;
         llvm::Type *PtrTy;
+        llvm::StructType *FpEntryFTy;
+        llvm::StructType *FpEntryDTy;
 
         // llvm::FunctionCallee PropSinFError;
         // llvm::FunctionCallee PropSinDError;
@@ -63,25 +65,29 @@ namespace utils {
             FloatTy = llvm::Type::getFloatTy(Ctx);
             DoubleTy = llvm::Type::getDoubleTy(Ctx);
             PtrTy = llvm::PointerType::getUnqual(Ctx);
+            FpEntryFTy = llvm::StructType::create(Ctx, "fp_entry_f");
+            FpEntryFTy->setBody({FloatTy, FloatTy}, false);
+            FpEntryDTy = llvm::StructType::create(Ctx, "fp_entry_d");
+            FpEntryDTy->setBody({DoubleTy, DoubleTy}, false);
 
             PropExpFErrorTy = llvm::FunctionType::get(
-                VoidTy,
-                {FloatTy, FloatTy, PtrTy, PtrTy},
+                FpEntryFTy,
+                {FloatTy, FloatTy},
                 false
             );
             PropExpDErrorTy = llvm::FunctionType::get(
-                VoidTy,
-                {DoubleTy, DoubleTy, PtrTy, PtrTy},
+                FpEntryDTy,
+                {DoubleTy, DoubleTy},
                 false
             );
             PropFabsFErrorTy = llvm::FunctionType::get(
-                VoidTy,
-                {FloatTy, FloatTy, PtrTy, PtrTy},
+                FpEntryFTy,
+                {FloatTy, FloatTy},
                 false
             );
             PropFabsDErrorTy = llvm::FunctionType::get(
-                VoidTy,
-                {DoubleTy, DoubleTy, PtrTy, PtrTy},
+                FpEntryDTy,
+                {DoubleTy, DoubleTy},
                 false
             );
 
