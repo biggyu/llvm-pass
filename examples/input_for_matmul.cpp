@@ -1,6 +1,6 @@
-// #include <iostream>
-#include <cstdio>
-#include <cstdlib>
+#include <iostream>
+// #include <cstdio>
+// #include <cstdlib>
 #include <vector>
 #include <chrono>
 
@@ -52,9 +52,9 @@ int main() {
     // std::cout << "Checksum: " << checksum << std::endl;
 
     total_time = run_matmul<double>(dim, rep);
-    printf("Double type matmul exeuction time: %fms\n", std::chrono::duration<double, std::milli>(total_time).count());
-    // std::cout << "Double type matmul execution time: " 
-    //             << std::chrono::duration<double, std::milli>(total_time).count() << "ms" << std::endl;
+    // printf("Double type matmul exeuction time: %fms\n", std::chrono::duration<double, std::milli>(total_time).count());
+    std::cout << "Double type matmul execution time: " 
+                << std::chrono::duration<double, std::milli>(total_time).count() << "ms" << std::endl;
     // // std::cout << "Checksum: " << checksum << std::endl;
 
     // auto total_time = end - start;
@@ -65,9 +65,9 @@ int main() {
     // // std::cout << "Checksum: " << checksum << std::endl;
     
     total_time = run_matmul<float>(dim, rep);
-    printf("Float type matmul exeuction time: %fms\n", std::chrono::duration<double, std::milli>(total_time).count());
-    // std::cout << "Float type matmul execution time: " 
-    //             << std::chrono::duration<double, std::milli>(total_time).count() << "ms" << std::endl;
+    // printf("Float type matmul exeuction time: %fms\n", std::chrono::duration<double, std::milli>(total_time).count());
+    std::cout << "Float type matmul execution time: " 
+                << std::chrono::duration<double, std::milli>(total_time).count() << "ms" << std::endl;
 
     // report_fp_profile();
     // report_smem_profile();
