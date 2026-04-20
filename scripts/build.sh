@@ -24,5 +24,4 @@ else
     -DCMAKE_C_FLAGS_RELEASE="-O$OPT_FLAG -DNDEBUG" \
     -DCMAKE_CXX_FLAGS_RELEASE="-O$OPT_FLAG -DNDEBUG"
 fi
-
 cmake --build build
