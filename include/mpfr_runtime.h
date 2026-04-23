@@ -1,5 +1,12 @@
 #pragma once
-#include "fp_runtime.h"
+struct fp_entry_f {
+    float value;
+    float error;
+};
+struct fp_entry_d {
+    double value;
+    double error;
+};
 #ifdef __cplusplus
 extern "C" {
 #endif
