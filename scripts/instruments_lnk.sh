@@ -14,10 +14,9 @@ fi
 OUTDIR="build/out/$PASS"
 mkdir -p "$OUTDIR"
 
-# Change these to your actual runtime source files
 # FP_RUNTIME_SRC="runtime/fp_runtime.cpp"
 SMEM_RUNTIME_SRC="runtime/smem_runtime.cpp"
-# MPFR_RUNTIME_SRC="runtime/mpfr_runtime.cpp"
+MPFR_RUNTIME_SRC="runtime/mpfr_runtime.cpp"
 
 # 1. Compile input source to LLVM IR
 $LLVM_CLANGXX -O"$OPT" -g -S -emit-llvm -ffp-contract=off "$SRC" -o "$OUTDIR/input_O$OPT.ll"
@@ -30,11 +29,11 @@ $LLVM_OPT \
     -o "$OUTDIR/instrumented.ll"
 
 # 3. Compile runtime sources to LLVM IR
-# $LLVM_CLANGXX -O"$OPT" -g -S -emit-llvm "$FP_RUNTIME_SRC"   -o "$OUTDIR/fp_runtime_O$OPT.ll"
+# $LLVM_CLANGXX -O"$OPT" -g -S -emit-llvm -Iinclude "$FP_RUNTIME_SRC" -o "$OUTDIR/fp_runtime_O$OPT.ll"
 $LLVM_CLANGXX -O"$OPT" -g -S -emit-llvm -Iinclude "$SMEM_RUNTIME_SRC" -o "$OUTDIR/smem_runtime_O$OPT.ll"
-# $LLVM_CLANGXX -O"$OPT" -g -S -emit-llvm "$MPFR_RUNTIME_SRC" -o "$OUTDIR/mpfr_runtime_O$OPT.ll"
+$LLVM_CLANGXX -O"$OPT" -g -S -emit-llvm -Iinclude "$MPFR_RUNTIME_SRC" -o "$OUTDIR/mpfr_runtime_O$OPT.ll"
 
-# 4. Link instrumented IR + runtime IR
+# 4. Linek instrumented IR + runtime IR
 $LLVM_LINK \
     "$OUTDIR/instrumented.ll" \
     "$OUTDIR/smem_runtime_O$OPT.ll" \
