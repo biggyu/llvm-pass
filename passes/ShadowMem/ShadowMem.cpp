@@ -4,7 +4,7 @@
 #include "llvm/Support/raw_ostream.h"
 #include "ShadowMem.h"
 #include "decls_fp.h"
-// #include "decls_mpfr.h"
+#include "decls_mpfr.h"
 
 using namespace llvm;
 
@@ -35,7 +35,8 @@ static bool isRuntimeFunction(const Function &F) {
            N == "shadow_load_float";
 }
 
-void handleStore(StoreInst *SI, IRBuilder<> &Builder, utils::RuntimeFns &rt,
+void handleStore(StoreInst *SI, utils::RuntimeFns &rt,
+// void handleStore(StoreInst *SI, IRBuilder<> &Builder, utils::RuntimeFns &rt,
                 // Constant *ZeroF, Constant *ZeroD,
                 DenseMap<const Value*, Value*> &ErrorMap) {
     llvm::Value *val = SI->getValueOperand();
@@ -44,27 +45,29 @@ void handleStore(StoreInst *SI, IRBuilder<> &Builder, utils::RuntimeFns &rt,
     }
     llvm::Value *ptr = SI->getPointerOperand();
     llvm::Value *dx = getError(val, rt.ZeroF, rt.ZeroD, ErrorMap);
-
+    IRBuilder<> AfterSI(SI->getNextNode());
     if (val->getType()->isDoubleTy()) {
-        Builder.CreateCall(rt.ShadowStoreD, {ptr, val, dx});
+        AfterSI.CreateCall(rt.ShadowStoreD, {ptr, val, dx});
     }
     else {
-        Builder.CreateCall(rt.ShadowStoreF, {ptr, val, dx});
+        AfterSI.CreateCall(rt.ShadowStoreF, {ptr, val, dx});
     }
 }
 
-void handleLoad(LoadInst *LI, IRBuilder<> &Builder, utils::RuntimeFns &rt, 
+void handleLoad(LoadInst *LI, utils::RuntimeFns &rt, 
+// void handleLoad(LoadInst *LI, IRBuilder<> &Builder, utils::RuntimeFns &rt, 
                 DenseMap<const Value*, Value*> &ErrorMap) {
     if (!LI->getType()->isDoubleTy() && !LI->getType()->isFloatTy()) {
         return;
     }
     llvm::Value *ptr = LI->getPointerOperand();
     llvm::Value *dx;
+    IRBuilder<> AfterLI(LI->getNextNode());
     if (LI->getType()->isDoubleTy()) {
-        dx = Builder.CreateCall(rt.ShadowLoadD, {ptr});
+        dx = AfterLI.CreateCall(rt.ShadowLoadD, {ptr});
     }
     else {
-        dx = Builder.CreateCall(rt.ShadowLoadF, {ptr});
+        dx = AfterLI.CreateCall(rt.ShadowLoadF, {ptr});
     }
     ErrorMap[LI] = dx;
 
@@ -72,133 +75,171 @@ void handleLoad(LoadInst *LI, IRBuilder<> &Builder, utils::RuntimeFns &rt,
     // ErrorMap[&I] = dx;
 }
 
-// bool handleIntrinsic(IntrinsicInst *II, IRBuilder<> &Builder, utils::RuntimeFns &rt, utils::RuntimeMPFRFns &rt_mpfr,
-//                 // AllocaInst *valuef, AllocaInst *errorf, 
-//                 // AllocaInst *valued, AllocaInst *errord,
-//                 DenseMap<const Value*, Value*> &ErrorMap) {
-//     if (II->getIntrinsicID() == Intrinsic::sqrt) {
-//         Value *arg0 = II->getArgOperand(0);
-//         Value *arg0_err = getError(arg0, rt.ZeroF, rt.ZeroD, ErrorMap);
-//         if(II->getType()->isDoubleTy()) {
-//             Value *ret = Builder.CreateCall(rt.PropSqrtDError, {arg0, arg0_err});
-//             // Value *x = Builder.CreateExtractValue(ret, {0}, "sqrt.val");
-//             Value *dx = Builder.CreateExtractValue(ret, {1}, "sqrt.err");
-            
-//             ErrorMap[II] = dx;
-//             // Value *fmt = Builder.CreateGlobalStringPtr("sqrtD: x=%f, dx=%e\n");
-//             // Builder.CreateCall(rt.Printf, {fmt, xval, dxval});
-//         }
-//         else if(II->getType()->isFloatTy()) {
-//             Value *ret = Builder.CreateCall(rt.PropSqrtFError, {arg0, arg0_err});
-//             // Value *x = Builder.CreateExtractValue(ret, {0}, "sqrtf.val");
-//             Value *dx = Builder.CreateExtractValue(ret, {1}, "sqrtf.err");
-            
-//             ErrorMap[II] = dx;
-//             // Value *fmt = Builder.CreateGlobalStringPtr("sqrtD: x=%f, dx=%e\n");
-//             // Builder.CreateCall(rt.Printf, {fmt, xval, dxval});
-//         }
-//         return true;
-//     }
-//     else if (II->getIntrinsicID() == Intrinsic::fabs) {
-//         Value *arg0 = II->getArgOperand(0);
-//         Value *arg0_err = getError(arg0, rt, ErrorMap);
-//         if (II->getType()->isDoubleTy()) {
-//             Value *ret = Builder.CreateCall(rt_mpfr.PropFabsDError, {arg0, arg0_err});
-//             // Value *x = Builder.CreateExtractValue(ret, {0}, "fabs.val");
-//             Value *dx = Builder.CreateExtractValue(ret, {1}, "fabs.err");
+bool handleIntrinsic(IntrinsicInst *II, utils::RuntimeFns &rt, utils::RuntimeMPFRFns &rt_mpfr,
+                // AllocaInst *valuef, AllocaInst *errorf, 
+                // AllocaInst *valued, AllocaInst *errord,
+                DenseMap<const Value*, Value*> &ErrorMap) {
+    IRBuilder<> AfterII(II->getNextNode());
+    //TODO: Exception Handling(arg0 < 0)
+    if (II->getIntrinsicID() == Intrinsic::sqrt) {
+        Value *arg0 = II->getArgOperand(0);
+        Value *arg0_err = getError(arg0, rt.ZeroF, rt.ZeroD, ErrorMap);
 
-//             ErrorMap[II] = dx;
-//         }
-//         else if (II->getType()->isFloatTy()) {
-//             Value *ret = Builder.CreateCall(rt_mpfr.PropFabsFError, {arg0, arg0_err});
-//             // Value *x = Builder.CreateExtractValue(ret, {0}, "fabsf.val");
-//             Value *dx = Builder.CreateExtractValue(ret, {1}, "fabsf.err");
+        Value *x = II;
+        Value *negVal = AfterII.CreateFNeg(x, "sqrt.negval");
+        Value *fma = AfterII.CreateIntrinsic(
+            Intrinsic::fma,
+            {x->getType()},
+            {negVal, x, arg0},
+            nullptr,
+            "sqrt.fma"
+        );
+        Value *num = AfterII.CreateFAdd(arg0_err, fma, "sqrt.num");
+        Value *two = ConstantFP::get(x->getType(), 2.0);
+        Value *den = AfterII.CreateFMul(two, x, "sqrt.den");
+        Value *dx = AfterII.CreateFDiv(num, den, "sqrt.err");
+        ErrorMap[II] = dx;
+        // if(II->getType()->isDoubleTy()) {
+        //     Value *ret = Builder.CreateCall(rt.PropSqrtDError, {arg0, arg0_err});
+        //     // Value *x = Builder.CreateExtractValue(ret, {0}, "sqrt.val");
+        //     Value *dx = Builder.CreateExtractValue(ret, {1}, "sqrt.err");
+            
+        //     ErrorMap[II] = dx;
+        //     // Value *fmt = Builder.CreateGlobalStringPtr("sqrtD: x=%f, dx=%e\n");
+        //     // Builder.CreateCall(rt.Printf, {fmt, xval, dxval});
+        // }
+        // else if(II->getType()->isFloatTy()) {
+        //     Value *ret = Builder.CreateCall(rt.PropSqrtFError, {arg0, arg0_err});
+        //     // Value *x = Builder.CreateExtractValue(ret, {0}, "sqrtf.val");
+        //     Value *dx = Builder.CreateExtractValue(ret, {1}, "sqrtf.err");
+            
+        //     ErrorMap[II] = dx;
+        //     // Value *fmt = Builder.CreateGlobalStringPtr("sqrtD: x=%f, dx=%e\n");
+        //     // Builder.CreateCall(rt.Printf, {fmt, xval, dxval});
+        // }
+        return true;
+    }
+    else if (II->getIntrinsicID() == Intrinsic::fabs) {
+        Value *arg0 = II->getArgOperand(0);
+        Value *arg0_err = getError(arg0, rt.ZeroF, rt.ZeroD, ErrorMap);
+        if (II->getType()->isDoubleTy()) {
+            Value *ret = AfterII.CreateCall(rt_mpfr.PropFabsDError, {arg0, arg0_err});
+            // Value *x = Builder.CreateExtractValue(ret, {0}, "fabs.val");
+            Value *dx = AfterII.CreateExtractValue(ret, {1}, "fabs.err");
 
-//             ErrorMap[II] = dx;
-//         }
-//         return true;
-//     }
-//     else {
-//         return false;
-//     }
-// }
-// bool handleExternal(CallInst *CI, IRBuilder<> &Builder, utils::RuntimeFns &rt, utils::RuntimeMPFRFns &rt_mpfr,
-//                 // AllocaInst *valuef, AllocaInst *errorf, 
-//                 // AllocaInst *valued, AllocaInst *errord,
-//                 DenseMap<const Value*, Value*> &ErrorMap) {
-//     if (Function *Callee = CI->getCalledFunction()) {
-//         StringRef N = Callee->getName();
-//         if (N == "sqrtf") {
-//             Value *arg0 = CI->getArgOperand(0);
-//             Value *arg0_err = getError(arg0, rt, ErrorMap);
-//             Value *ret = Builder.CreateCall(rt.PropSqrtFError, {arg0, arg0_err});
-//             // Value *x = Builder.CreateExtractValue(ret, {0}, "sqrtf.val");
-//             Value *dx = Builder.CreateExtractValue(ret, {1}, "sqrtf.err");
+            ErrorMap[II] = dx;
+        }
+        else if (II->getType()->isFloatTy()) {
+            Value *ret = AfterII.CreateCall(rt_mpfr.PropFabsFError, {arg0, arg0_err});
+            // Value *x = Builder.CreateExtractValue(ret, {0}, "fabsf.val");
+            Value *dx = AfterII.CreateExtractValue(ret, {1}, "fabsf.err");
+
+            ErrorMap[II] = dx;
+        }
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+bool handleExternal(CallInst *CI, utils::RuntimeFns &rt, utils::RuntimeMPFRFns &rt_mpfr,
+                // AllocaInst *valuef, AllocaInst *errorf, 
+                // AllocaInst *valued, AllocaInst *errord,
+                DenseMap<const Value*, Value*> &ErrorMap) {
+    IRBuilder<> AfterCI(CI->getNextNode());
+    if (Function *Callee = CI->getCalledFunction()) {
+        StringRef N = Callee->getName();
+        //TODO: Exception Handling(arg0 < 0)
+        if (N.contains("sqrt")) {
+            Value *arg0 = CI->getArgOperand(0);
+            Value *arg0_err = getError(arg0, rt.ZeroF, rt.ZeroD, ErrorMap);
+            Value *x = CI;
+            Value *negVal = AfterCI.CreateFNeg(x, "sqrt.negval");
+            Value *fma = AfterCI.CreateIntrinsic(
+                Intrinsic::fma,
+                {x->getType()},
+                {negVal, x, arg0},
+                nullptr,
+                "sqrt.fma"
+            );
+            Value *num = AfterCI.CreateFAdd(arg0_err, fma, "sqrt.num");
+            Value *two = ConstantFP::get(x->getType(), 2.0);
+            Value *den = AfterCI.CreateFMul(two, x, "sqrt.den");
+            Value *dx = AfterCI.CreateFDiv(num, den, "sqrt.err");
+            ErrorMap[CI] = dx;
+        }
+        // if (N == "sqrtf") {
+        //     Value *arg0 = CI->getArgOperand(0);
+        //     Value *arg0_err = getError(arg0, rt.ZeroF, rt.ZeroD, ErrorMap);
+        //     // Value *ret = Builder.CreateCall(rt.PropSqrtFError, {arg0, arg0_err});
+
+        //     // Value *x = Builder.CreateExtractValue(ret, {0}, "sqrtf.val");
+        //     Value *dx = Builder.CreateExtractValue(ret, {1}, "sqrtf.err");
             
-//             ErrorMap[CI] = dx;
-//             // Value *fmt = Builder.CreateGlobalStringPtr("sqrtD: x=%f, dx=%e\n");
-//             // Builder.CreateCall(rt.Printf, {fmt, xval, dxval});
-//             // return true;
-//         }
-//         else if (N == "sqrt") {
-//             Value *arg0 = CI->getArgOperand(0);
-//             Value *arg0_err = getError(arg0, rt, ErrorMap);
-//             Value *ret = Builder.CreateCall(rt.PropSqrtDError, {arg0, arg0_err});
-//             // Value *x = Builder.CreateExtractValue(ret, {0}, "sqrt.val");
-//             Value *dx = Builder.CreateExtractValue(ret, {1}, "sqrt.err");
+        //     ErrorMap[CI] = dx;
+        //     // Value *fmt = Builder.CreateGlobalStringPtr("sqrtD: x=%f, dx=%e\n");
+        //     // Builder.CreateCall(rt.Printf, {fmt, xval, dxval});
+        //     // return true;
+        // }
+        // else if (N == "sqrt") {
+        //     Value *arg0 = CI->getArgOperand(0);
+        //     Value *arg0_err = getError(arg0, rt.ZeroF, rt.ZeroD, ErrorMap);
+        //     Value *ret = Builder.CreateCall(rt.PropSqrtDError, {arg0, arg0_err});
+        //     // Value *x = Builder.CreateExtractValue(ret, {0}, "sqrt.val");
+        //     Value *dx = Builder.CreateExtractValue(ret, {1}, "sqrt.err");
             
-//             ErrorMap[CI] = dx;
-//             // Value *fmt = Builder.CreateGlobalStringPtr("sqrtD: x=%f, dx=%e\n");
-//             // Builder.CreateCall(rt.Printf, {fmt, xval, dxval});
-//             // return true;
-//         }
-//         else if (N == "expf") {
-//             Value *arg0 = CI->getArgOperand(0);
-//             Value *arg0_err = getError(arg0, rt, ErrorMap);
-//             Value *ret = Builder.CreateCall(rt_mpfr.PropExpFError, {arg0, arg0_err});
-//             // Value *x = Builder.CreateExtractValue(ret, {0}, "expf.val");
-//             Value *dx = Builder.CreateExtractValue(ret, {1}, "expf.err");
-//             ErrorMap[CI] = dx;
-//             // return true;
-//         }
-//         else if (N == "exp") {
-//             Value *arg0 = CI->getArgOperand(0);
-//             Value *arg0_err = getError(arg0, rt, ErrorMap);
-//             Value *ret = Builder.CreateCall(rt_mpfr.PropExpDError, {arg0, arg0_err});
-//             // Value *x = Builder.CreateExtractValue(ret, {0}, "exp.val");
-//             Value *dx = Builder.CreateExtractValue(ret, {1}, "exp.err");
-//             ErrorMap[CI] = dx;
-//             // return true;
-//         }
-//         else {
-//             return false;
-//         }
-//         return true;
-//         // if (N != "sqrt" && N != "sqrtf" && N != "fabs" && N != "exp") {
-//         //     return false;
-//         // }
-//     }
-//     return false;
-//     // Value *arg0 = CI->getArgOperand(0);
-//     // Value *arg0_err = getError(arg0, rt, ErrorMap);
+        //     ErrorMap[CI] = dx;
+        //     // Value *fmt = Builder.CreateGlobalStringPtr("sqrtD: x=%f, dx=%e\n");
+        //     // Builder.CreateCall(rt.Printf, {fmt, xval, dxval});
+        //     // return true;
+        // }
+        if (N == "expf") {
+            Value *arg0 = CI->getArgOperand(0);
+            Value *arg0_err = getError(arg0, rt.ZeroF, rt.ZeroD, ErrorMap);
+            Value *ret = AfterCI.CreateCall(rt_mpfr.PropExpFError, {arg0, arg0_err});
+            // Value *x = Builder.CreateExtractValue(ret, {0}, "expf.val");
+            Value *dx = AfterCI.CreateExtractValue(ret, {1}, "expf.err");
+            ErrorMap[CI] = dx;
+            // return true;
+        }
+        else if (N == "exp") {
+            Value *arg0 = CI->getArgOperand(0);
+            Value *arg0_err = getError(arg0, rt.ZeroF, rt.ZeroD, ErrorMap);
+            Value *ret = AfterCI.CreateCall(rt_mpfr.PropExpDError, {arg0, arg0_err});
+            // Value *x = Builder.CreateExtractValue(ret, {0}, "exp.val");
+            Value *dx = AfterCI.CreateExtractValue(ret, {1}, "exp.err");
+            ErrorMap[CI] = dx;
+            // return true;
+        }
+        else {
+            return false;
+        }
+        return true;
+        // if (N != "sqrt" && N != "sqrtf" && N != "fabs" && N != "exp") {
+        //     return false;
+        // }
+    }
+    return false;
+    // Value *arg0 = CI->getArgOperand(0);
+    // Value *arg0_err = getError(arg0, rt, ErrorMap);
     
-//     // if(CI->getType()->isDoubleTy()) {
-//     //     Builder.CreateCall(rt.PropSqrtDError, {arg0, arg0_err, valued, errord});
-//     //     Value *xval = Builder.CreateLoad(rt.DoubleTy, valued, "sqrt.double_val");
-//     //     Value *dxval = Builder.CreateLoad(rt.DoubleTy, errord, "sqrt.double_err");
-//     //     ErrorMap[CI] = dxval;
-//     //     // Value *fmt = Builder.CreateGlobalStringPtr("sqrtD: x=%f, dx=%e\n");
-//     //     // Builder.CreateCall(rt.Printf, {fmt, xval, dxval});
-//     // }
-//     // else if(CI->getType()->isFloatTy()) {
-//     //     Builder.CreateCall(rt.PropSqrtFError, {arg0, arg0_err, valuef, errorf});
-//     //     Value *xval = Builder.CreateLoad(rt.FloatTy, valuef, "sqrt.float_val");
-//     //     Value *dxval = Builder.CreateLoad(rt.FloatTy, errorf, "sqrt.float_err");
-//     //     ErrorMap[CI] = dxval;
-//     //     // Value *fmt = Builder.CreateGlobalStringPtr("sqrtD: x=%f, dx=%e\n");
-//     //     // Builder.CreateCall(rt.Printf, {fmt, xval, dxval});
-//     // }
-// }
+    // if(CI->getType()->isDoubleTy()) {
+    //     Builder.CreateCall(rt.PropSqrtDError, {arg0, arg0_err, valued, errord});
+    //     Value *xval = Builder.CreateLoad(rt.DoubleTy, valued, "sqrt.double_val");
+    //     Value *dxval = Builder.CreateLoad(rt.DoubleTy, errord, "sqrt.double_err");
+    //     ErrorMap[CI] = dxval;
+    //     // Value *fmt = Builder.CreateGlobalStringPtr("sqrtD: x=%f, dx=%e\n");
+    //     // Builder.CreateCall(rt.Printf, {fmt, xval, dxval});
+    // }
+    // else if(CI->getType()->isFloatTy()) {
+    //     Builder.CreateCall(rt.PropSqrtFError, {arg0, arg0_err, valuef, errorf});
+    //     Value *xval = Builder.CreateLoad(rt.FloatTy, valuef, "sqrt.float_val");
+    //     Value *dxval = Builder.CreateLoad(rt.FloatTy, errorf, "sqrt.float_err");
+    //     ErrorMap[CI] = dxval;
+    //     // Value *fmt = Builder.CreateGlobalStringPtr("sqrtD: x=%f, dx=%e\n");
+    //     // Builder.CreateCall(rt.Printf, {fmt, xval, dxval});
+    // }
+}
 
 void handleBinary(Instruction *BO, Constant *ZeroF, Constant *ZeroD,
 // void handleBinary(Instruction *BO, utils::RuntimeFns &rt,
@@ -303,7 +344,7 @@ void handleBinary(Instruction *BO, Constant *ZeroF, Constant *ZeroD,
 
 void runOnModule(llvm::Module &M) {
     utils::RuntimeFns rt(M);
-    // utils::RuntimeMPFRFns rt_mpfr(M);
+    utils::RuntimeMPFRFns rt_mpfr(M);
     auto &Ctx = M.getContext();
 
     IRBuilder<> GlobalB(Ctx);
@@ -326,26 +367,27 @@ void runOnModule(llvm::Module &M) {
             IRBuilder<> Builder(I);
 
             if (auto *LI = dyn_cast<LoadInst>(I)) {
-                handleLoad(LI, Builder, rt, ErrorMap);
+                handleLoad(LI, rt, ErrorMap);
+                // handleLoad(LI, Builder, rt, ErrorMap);
                 continue;
             }
             if (auto *SI = dyn_cast<StoreInst>(I)) {
-                handleStore(SI, Builder, rt, ErrorMap);
-                // handleStore(SI, Builder, rt, ZeroF, ZeroD, ErrorMap);
+                handleStore(SI, rt, ErrorMap);
+                // handleStore(SI, Builder, rt, ErrorMap);
                 continue;
             }
-            // if (auto *II = dyn_cast<IntrinsicInst>(I)) {
-            //     if(handleIntrinsic(II, Builder, rt, rt_mpfr, ErrorMap)) {
-            //     // if(handleIntrinsic(II, Builder, rt, rt_mpfr, valuef, errorf, valued, errord, ErrorMap)) {
-            //         continue;
-            //     }
-            // }
-            // if (auto *CI = dyn_cast<CallInst>(I)) {
-            //     if(handleExternal(CI, Builder, rt, rt_mpfr, ErrorMap)) {
-            //     // if(handleExternal(CI, Builder, rt, rt_mpfr, valuef, errorf, valued, errord, ErrorMap)) {
-            //         continue;
-            //     }
-            // }
+            if (auto *II = dyn_cast<IntrinsicInst>(I)) {
+                if(handleIntrinsic(II, rt, rt_mpfr, ErrorMap)) {
+                // if(handleIntrinsic(II, Builder, rt, rt_mpfr, ErrorMap)) {
+                    continue;
+                }
+            }
+            if (auto *CI = dyn_cast<CallInst>(I)) {
+                if(handleExternal(CI, rt, rt_mpfr, ErrorMap)) {
+                // if(handleExternal(CI, Builder, rt, rt_mpfr, ErrorMap)) {
+                    continue;
+                }
+            }
             if (auto *BO = dyn_cast<BinaryOperator>(I)) {
                 handleBinary(BO, rt.ZeroF, rt.ZeroD, ErrorMap);
                 // handleBinary(BI, Builder, rt, valuef, errorf, valued, errord, ErrorMap);
