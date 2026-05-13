@@ -20,6 +20,7 @@ MPFR_RUNTIME_SRC="runtime/mpfr_runtime.cpp"
 
 # 1. Compile input source to LLVM IR
 $LLVM_CLANGXX -O"$OPT" -g -S -emit-llvm -ffp-contract=off "$SRC" -o "$OUTDIR/input_O$OPT.ll"
+# $LLVM_CLANGXX -O"$OPT" -g -S -emit-llvm -fno-math-errno -ffp-contract=off "$SRC" -o "$OUTDIR/input_O$OPT.ll"
 
 # 2. Run your LLVM pass
 $LLVM_OPT \

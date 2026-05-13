@@ -20,10 +20,6 @@ namespace utils {
         llvm::Constant *ZeroD;
 
         llvm::FunctionCallee Printf;
-        // llvm::FunctionCallee TwoSumF;
-        // llvm::FunctionCallee TwoSumD;
-        // llvm::FunctionCallee TwoProdF;
-        // llvm::FunctionCallee TwoProdD;
         llvm::FunctionCallee ShadowStoreD;
         llvm::FunctionCallee ShadowStoreF;
         llvm::FunctionCallee ShadowLoadD;
@@ -31,10 +27,6 @@ namespace utils {
 
 
         llvm::FunctionType *PrintfTy;
-        // llvm::FunctionType *TwoSumFTy;
-        // llvm::FunctionType *TwoSumDTy;
-        // llvm::FunctionType *TwoProdFTy;
-        // llvm::FunctionType *TwoProdDTy;
         llvm::FunctionType *ShadowStoreFTy;
         llvm::FunctionType *ShadowStoreDTy;
         llvm::FunctionType *ShadowLoadFTy;
