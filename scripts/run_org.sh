@@ -13,7 +13,7 @@ mkdir -p "$OUTDIR"
 
 for OPT in 0 2; do
     echo "=== O$OPT ==="
-    "$LLVM_CLANGXX" -O"$OPT" -ffp-contract=off "$SRC" -o "$OUTDIR/org_O$OPT.out"
+    $LLVM_CLANGXX -O"$OPT" -ffp-contract=off "$SRC" -o "$OUTDIR/org_O$OPT.out"
     for i in 1 2 3; do
         "$OUTDIR/org_O$OPT.out"
     done

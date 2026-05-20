@@ -5,10 +5,16 @@ PASS=$1
 PLUGIN=$2
 SRC=$3
 OPT=$4
+PROFILE=${5:-0}
 
-if [ $# -ne 4 ]; then
-    echo "Usage: $0 <PASS> <PLUGIN> <INPUT> <OPT>"
+if [ $# -ne 5 ]; then
+    echo "Usage: $0 <PASS> <PLUGIN> <INPUT> <OPT> <PROFILE>"
     exit 1
+fi
+
+RUNTIME_DEFS=""
+if [ "$PROFILE" -eq 1 ]; then
+    RUNTIME_DEFS="-DENABLE_RUNTIME_TIME=1"
 fi
 
 OUTDIR="build/out/$PASS"
@@ -19,8 +25,8 @@ SMEM_RUNTIME_SRC="runtime/smem_runtime.cpp"
 MPFR_RUNTIME_SRC="runtime/mpfr_runtime.cpp"
 
 # 1. Compile input source to LLVM IR
-$LLVM_CLANGXX -O"$OPT" -g -S -emit-llvm -ffp-contract=off "$SRC" -o "$OUTDIR/input_O$OPT.ll"
-# $LLVM_CLANGXX -O"$OPT" -g -S -emit-llvm -fno-math-errno -ffp-contract=off "$SRC" -o "$OUTDIR/input_O$OPT.ll"
+# $LLVM_CLANGXX -O"$OPT" -g -S -emit-llvm -ffp-contract=off "$SRC" -o "$OUTDIR/input_O$OPT.ll"
+$LLVM_CLANGXX -O"$OPT" -g -S -emit-llvm -fno-math-errno -ffp-contract=off "$SRC" -o "$OUTDIR/input_O$OPT.ll"
 
 # 2. Run your LLVM pass
 $LLVM_OPT \
@@ -31,13 +37,14 @@ $LLVM_OPT \
 
 # 3. Compile runtime sources to LLVM IR
 # $LLVM_CLANGXX -O"$OPT" -g -S -emit-llvm -Iinclude "$FP_RUNTIME_SRC" -o "$OUTDIR/fp_runtime_O$OPT.ll"
-$LLVM_CLANGXX -O"$OPT" -g -S -emit-llvm -Iinclude "$SMEM_RUNTIME_SRC" -o "$OUTDIR/smem_runtime_O$OPT.ll"
-$LLVM_CLANGXX -O"$OPT" -g -S -emit-llvm -Iinclude "$MPFR_RUNTIME_SRC" -o "$OUTDIR/mpfr_runtime_O$OPT.ll"
+$LLVM_CLANGXX -O"$OPT" -g -S -emit-llvm -Iinclude $RUNTIME_DEFS "$SMEM_RUNTIME_SRC" -o "$OUTDIR/smem_runtime_O$OPT.ll"
+$LLVM_CLANGXX -O"$OPT" -g -S -emit-llvm -Iinclude $RUNTIME_DEFS "$MPFR_RUNTIME_SRC" -o "$OUTDIR/mpfr_runtime_O$OPT.ll"
 
-# 4. Linek instrumented IR + runtime IR
+# 4. Link instrumented IR + runtime IR
 $LLVM_LINK \
     "$OUTDIR/instrumented.ll" \
     "$OUTDIR/smem_runtime_O$OPT.ll" \
+    "$OUTDIR/mpfr_runtime_O$OPT.ll" \
     -S -o "$OUTDIR/linked_O$OPT.ll"
 
 # 5. Optimize the combined IR
@@ -57,4 +64,8 @@ $LLVM_CLANGXX -O"$OPT" \
     -lm -lmpfr -lgmp
 
 # 8. Run
-"$OUTDIR/a.out"
+for i in 1 2 3;
+do
+    "$OUTDIR/a.out"
+done
+# "$OUTDIR/a.out"

@@ -16,8 +16,8 @@ OUTDIR=build/out/org
 mkdir -p "$OUTDIR"
 
 rm -rf ./build
-sh scripts/build.sh "$PROFILE" "$OPT_FLAG"
-
-# sh scripts/instruments.sh "$PASS" "$PLUGIN" "$SRC" "$OPT_FLAG"
-
-sh scripts/instruments_lnk.sh "$PASS" "$PLUGIN" "$SRC" "$OPT_FLAG"
+sh ./scripts/build.sh "$PROFILE" "$OPT_FLAG"
+echo "instruments_lnk.sh"
+sh ./scripts/instruments_lnk.sh "$PASS" "$PLUGIN" "$SRC" "$OPT_FLAG" "$PROFILE"
+echo "instruments.sh"
+sh ./scripts/instruments.sh "$PASS" "$PLUGIN" "$SRC" "$OPT_FLAG"
