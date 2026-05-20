@@ -8,14 +8,14 @@
 using Clock = std::chrono::steady_clock;
 using ns = std::chrono::nanoseconds;
 
-static uint64_t  shadowstoref_calls = 0;
-static uint64_t  shadowstored_calls = 0;
-static uint64_t  shadowloadf_calls = 0;
-static uint64_t  shadowloadd_calls = 0;
-static uint64_t  shadowstoref_ns = 0;
-static uint64_t  shadowstored_ns = 0;
-static uint64_t  shadowloadf_ns = 0;
-static uint64_t  shadowloadd_ns = 0;
+static uint64_t shadowstoref_calls = 0;
+static uint64_t shadowstored_calls = 0;
+static uint64_t shadowloadf_calls = 0;
+static uint64_t shadowloadd_calls = 0;
+static uint64_t shadowstoref_ns = 0;
+static uint64_t shadowstored_ns = 0;
+static uint64_t shadowloadf_ns = 0;
+static uint64_t shadowloadd_ns = 0;
 
 #endif
 

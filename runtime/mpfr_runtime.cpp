@@ -15,8 +15,8 @@
 // void PropBinDoubleError(double a, double da, double b, double db, double *x, double *dx) {
 
 // }
-fp_entry_f PropSinFError(float a, float da) {
-    fp_entry_f result;
+fp_entryF PropSinFError(float a, float da) {
+    fp_entryF result;
     mpfr_t ma, mx;
     mpfr_init2(ma, 200);
     mpfr_init2(mx, 200);
@@ -33,8 +33,8 @@ fp_entry_f PropSinFError(float a, float da) {
     mpfr_clear(mx);
     return result;
 }
-fp_entry_d PropSinDError(double a, double da) {
-    fp_entry_d result;
+fp_entryD PropSinDError(double a, double da) {
+    fp_entryD result;
     mpfr_t ma, mx;
     mpfr_init2(ma, 200);
     mpfr_init2(mx, 200);
@@ -53,8 +53,8 @@ fp_entry_d PropSinDError(double a, double da) {
 }
 // void PropsinfFError(float a, float da, float *x, float *dx);
 // void PropsinfDError(double a, double da, double *x, double *dx);
-fp_entry_f PropCosFError(float a, float da) {
-    fp_entry_f result;
+fp_entryF PropCosFError(float a, float da) {
+    fp_entryF result;
     mpfr_t ma, mx;
     mpfr_init2(ma, 200);
     mpfr_init2(mx, 200);
@@ -71,8 +71,8 @@ fp_entry_f PropCosFError(float a, float da) {
     mpfr_clear(mx);
     return result;
 }
-fp_entry_d PropCosDError(double a, double da) {
-    fp_entry_d result;
+fp_entryD PropCosDError(double a, double da) {
+    fp_entryD result;
     mpfr_t ma, mx;
     mpfr_init2(ma, 200);
     mpfr_init2(mx, 200);
@@ -91,8 +91,8 @@ fp_entry_d PropCosDError(double a, double da) {
 }   
 // void PropcosfFError(float a, float da, float *x, float *dx);
 // void PropcosfDError(double a, double da, double *x, double *dx);
-fp_entry_f PropTanFError(float a, float da) {
-    fp_entry_f result;
+fp_entryF PropTanFError(float a, float da) {
+    fp_entryF result;
     mpfr_t ma, mx;
     mpfr_init2(ma, 200);
     mpfr_init2(mx, 200);
@@ -109,8 +109,8 @@ fp_entry_f PropTanFError(float a, float da) {
     mpfr_clear(mx);
     return result;
 }
-fp_entry_d PropTanDError(double a, double da) {
-    fp_entry_d result;
+fp_entryD PropTanDError(double a, double da) {
+    fp_entryD result;
     mpfr_t ma, mx;
     mpfr_init2(ma, 200);
     mpfr_init2(mx, 200);
@@ -127,8 +127,8 @@ fp_entry_d PropTanDError(double a, double da) {
     mpfr_clear(mx);
     return result;
 }   
-fp_entry_f PropAsinFError(float a, float da) {
-    fp_entry_f result;
+fp_entryF PropAsinFError(float a, float da) {
+    fp_entryF result;
     mpfr_t ma, mx;
     mpfr_init2(ma, 200);
     mpfr_init2(mx, 200);
@@ -145,8 +145,8 @@ fp_entry_f PropAsinFError(float a, float da) {
     mpfr_clear(mx);
     return result;
 }
-fp_entry_d PropAsinDError(double a, double da) {
-    fp_entry_d result;
+fp_entryD PropAsinDError(double a, double da) {
+    fp_entryD result;
     mpfr_t ma, mx;
     mpfr_init2(ma, 200);
     mpfr_init2(mx, 200);
@@ -163,8 +163,8 @@ fp_entry_d PropAsinDError(double a, double da) {
     mpfr_clear(mx);
     return result;
 }   
-fp_entry_f PropAcosFError(float a, float da) {
-    fp_entry_f result;
+fp_entryF PropAcosFError(float a, float da) {
+    fp_entryF result;
     mpfr_t ma, mx;
     mpfr_init2(ma, 200);
     mpfr_init2(mx, 200);
@@ -181,8 +181,8 @@ fp_entry_f PropAcosFError(float a, float da) {
     mpfr_clear(mx);
     return result;
 }
-fp_entry_d PropAcosDError(double a, double da) {
-    fp_entry_d result;
+fp_entryD PropAcosDError(double a, double da) {
+    fp_entryD result;
     mpfr_t ma, mx;
     mpfr_init2(ma, 200);
     mpfr_init2(mx, 200);
@@ -199,8 +199,8 @@ fp_entry_d PropAcosDError(double a, double da) {
     mpfr_clear(mx);
     return result;
 }   
-fp_entry_f PropAtanFError(float a, float da) {
-    fp_entry_f result;
+fp_entryF PropAtanFError(float a, float da) {
+    fp_entryF result;
     mpfr_t ma, mx;
     mpfr_init2(ma, 200);
     mpfr_init2(mx, 200);
@@ -217,8 +217,8 @@ fp_entry_f PropAtanFError(float a, float da) {
     mpfr_clear(mx);
     return result;
 }
-fp_entry_d PropAtanDError(double a, double da) {
-    fp_entry_d result;
+fp_entryD PropAtanDError(double a, double da) {
+    fp_entryD result;
     mpfr_t ma, mx;
     mpfr_init2(ma, 200);
     mpfr_init2(mx, 200);
@@ -235,8 +235,8 @@ fp_entry_d PropAtanDError(double a, double da) {
     mpfr_clear(mx);
     return result;
 }   
-fp_entry_f PropLogFError(float a, float da) {
-    fp_entry_f result;
+fp_entryF PropLogFError(float a, float da) {
+    fp_entryF result;
     mpfr_t ma, mx;
     mpfr_init2(ma, 200);
     mpfr_init2(mx, 200);
@@ -253,8 +253,8 @@ fp_entry_f PropLogFError(float a, float da) {
     mpfr_clear(mx);
     return result;
 }
-fp_entry_d PropLogDError(double a, double da) {
-    fp_entry_d result;
+fp_entryD PropLogDError(double a, double da) {
+    fp_entryD result;
     mpfr_t ma, mx;
     mpfr_init2(ma, 200);
     mpfr_init2(mx, 200);
@@ -271,8 +271,8 @@ fp_entry_d PropLogDError(double a, double da) {
     mpfr_clear(mx);
     return result;
 }   
-fp_entry_f PropExpFError(float a, float da) {
-    fp_entry_f result;
+fp_entryF PropExpFError(float a, float da) {
+    fp_entryF result;
     mpfr_t ma, mx;
     mpfr_init2(ma, 200);
     mpfr_init2(mx, 200);
@@ -289,8 +289,8 @@ fp_entry_f PropExpFError(float a, float da) {
     mpfr_clear(mx);
     return result;
 }
-fp_entry_d PropExpDError(double a, double da) {
-    fp_entry_d result;
+fp_entryD PropExpDError(double a, double da) {
+    fp_entryD result;
     mpfr_t ma, mx;
     mpfr_init2(ma, 200);
     mpfr_init2(mx, 200);
@@ -307,8 +307,8 @@ fp_entry_d PropExpDError(double a, double da) {
     mpfr_clear(mx);
     return result;
 }   
-fp_entry_f PropPowFError(float a, float da, float b, float db) {
-    fp_entry_f result;
+fp_entryF PropPowFError(float a, float da, float b, float db) {
+    fp_entryF result;
     mpfr_t ma, mb, mx;
     mpfr_init2(ma, 200);
     mpfr_init2(mb, 200);
@@ -328,8 +328,8 @@ fp_entry_f PropPowFError(float a, float da, float b, float db) {
     mpfr_clear(mx);
     return result;
 }
-fp_entry_d PropPowDError(double a, double da, double b, double db) {
-    fp_entry_d result;
+fp_entryD PropPowDError(double a, double da, double b, double db) {
+    fp_entryD result;
     mpfr_t ma, mb, mx;
     mpfr_init2(ma, 200);
     mpfr_init2(mb, 200);
@@ -351,8 +351,8 @@ fp_entry_d PropPowDError(double a, double da, double b, double db) {
 }   
 // void PropexpfFError(float a, float da, float *x, float *dx);
 // void PropexpfDError(double a, double da, double *x, double *dx);
-fp_entry_f PropFabsFError(float a, float da) {
-    fp_entry_f result;
+fp_entryF PropFabsFError(float a, float da) {
+    fp_entryF result;
     result.value = fabsf(a);
     if (a > 0.0f) {
         result.error = da;
@@ -365,8 +365,8 @@ fp_entry_f PropFabsFError(float a, float da) {
     }
     return result;
 }
-fp_entry_d PropFabsDError(double a, double da) {
-    fp_entry_d result;
+fp_entryD PropFabsDError(double a, double da) {
+    fp_entryD result;
     result.value = fabs(a);
     if (a > 0.0) {
         result.error = da;
