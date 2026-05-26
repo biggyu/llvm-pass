@@ -24,13 +24,16 @@ namespace utils {
         llvm::FunctionCallee ShadowStoreF;
         llvm::FunctionCallee ShadowLoadD;
         llvm::FunctionCallee ShadowLoadF;
-
+        llvm::FunctionCallee CheckErrorD;
+        llvm::FunctionCallee CheckErrorF;
 
         llvm::FunctionType *PrintfTy;
         llvm::FunctionType *ShadowStoreFTy;
         llvm::FunctionType *ShadowStoreDTy;
         llvm::FunctionType *ShadowLoadFTy;
         llvm::FunctionType *ShadowLoadDTy;
+        llvm::FunctionType *CheckErrorFTy;
+        llvm::FunctionType *CheckErrorDTy;
         explicit RuntimeFns(llvm::Module &Mod);
     };
 }

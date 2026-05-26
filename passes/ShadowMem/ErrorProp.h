@@ -4,17 +4,18 @@
 #include "llvm/IR/Constants.h"
 #include "llvm/IR/IntrinsicInst.h"
 #include "llvm/ADT/DenseMap.h"
+#include "decls_fp.h"
 #include "decls_mpfr.h"
 
 using namespace llvm;
 
-bool handleIntrinsic(IntrinsicInst *II, Constant *ZeroF, Constant *ZeroD, 
+bool handleIntrinsic(IntrinsicInst *II, utils::RuntimeFns &rt,
                 utils::RuntimeMPFRFns &rt_mpfr,
                 DenseMap<const Value*, Value*> &ErrorMap);
 
-bool handleExternal(CallInst *CI, Constant *ZeroF, Constant *ZeroD, 
+bool handleExternal(CallInst *CI, utils::RuntimeFns &rt,
                 utils::RuntimeMPFRFns &rt_mpfr,
                 DenseMap<const Value*, Value*> &ErrorMap);
 
-bool handleBinary(Instruction *BO, Constant *ZeroF, Constant *ZeroD,
+bool handleBinary(Instruction *BO, utils::RuntimeFns &rt,
                 DenseMap<const Value*, Value*> &ErrorMap);

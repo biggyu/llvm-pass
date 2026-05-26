@@ -39,6 +39,16 @@ namespace utils {
             {PtrTy},
             false
         );
+        CheckErrorDTy = llvm::FunctionType::get(
+            VoidTy,
+            {DoubleTy, DoubleTy, I32Ty, I32Ty},
+            false
+        );
+        CheckErrorFTy = llvm::FunctionType::get(
+            VoidTy,
+            {FloatTy, FloatTy, I32Ty, I32Ty},
+            false
+        );
 
         Printf = M.getOrInsertFunction("printf", PrintfTy);
         
@@ -46,6 +56,7 @@ namespace utils {
         ShadowStoreD = M.getOrInsertFunction("shadow_store_double", ShadowStoreDTy);
         ShadowLoadF = M.getOrInsertFunction("shadow_load_float", ShadowLoadFTy);
         ShadowLoadD = M.getOrInsertFunction("shadow_load_double", ShadowLoadDTy);
-
+        CheckErrorF = M.getOrInsertFunction("check_error_float", CheckErrorFTy);
+        CheckErrorD = M.getOrInsertFunction("check_error_double", CheckErrorDTy);
     }
 }

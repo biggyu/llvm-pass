@@ -1,4 +1,5 @@
 #include "ErrorProp.h"
+#include "DebugCheck.h"
 #include "llvm/IR/IRBuilder.h"
 // #include "llvm/IR/Intrinsics.h"
 using namespace llvm;
@@ -18,7 +19,7 @@ static Value* getError(Value *v, Constant *ZeroF, Constant *ZeroD,
     return nullptr;
 }
 
-bool handleIntrinsic(IntrinsicInst *II, Constant *ZeroF, Constant *ZeroD, 
+bool handleIntrinsic(IntrinsicInst *II, utils::RuntimeFns &rt,
                 utils::RuntimeMPFRFns &rt_mpfr,
                 DenseMap<const Value*, Value*> &ErrorMap) {
 
@@ -29,7 +30,7 @@ bool handleIntrinsic(IntrinsicInst *II, Constant *ZeroF, Constant *ZeroD,
     //TODO: Exception Handling(arg0 < 0)
     if (II->getIntrinsicID() == Intrinsic::sqrt) {
         Value *arg0 = II->getArgOperand(0);
-        Value *arg0_err = getError(arg0, ZeroF, ZeroD, ErrorMap);
+        Value *arg0_err = getError(arg0, rt.ZeroF, rt.ZeroD, ErrorMap);
 
         Value *x = II;
         Value *negVal = AfterII.CreateFNeg(x, "sqrt.negval");
@@ -51,7 +52,7 @@ bool handleIntrinsic(IntrinsicInst *II, Constant *ZeroF, Constant *ZeroD,
     }
     else if (II->getIntrinsicID() == Intrinsic::fabs) {
         Value *arg0 = II->getArgOperand(0);
-        Value *arg0_err = getError(arg0, ZeroF, ZeroD, ErrorMap);
+        Value *arg0_err = getError(arg0, rt.ZeroF, rt.ZeroD, ErrorMap);
         if (II->getType()->isDoubleTy()) {
             Value *ret = AfterII.CreateCall(rt_mpfr.PropFabsDError, {arg0, arg0_err});
             // Value *x = Builder.CreateExtractValue(ret, {0}, "fabs.val");
@@ -73,7 +74,7 @@ bool handleIntrinsic(IntrinsicInst *II, Constant *ZeroF, Constant *ZeroD,
     }
 }
 
-bool handleExternal(CallInst *CI, Constant *ZeroF, Constant *ZeroD, 
+bool handleExternal(CallInst *CI, utils::RuntimeFns &rt,
                 utils::RuntimeMPFRFns &rt_mpfr,
                 DenseMap<const Value*, Value*> &ErrorMap) {
 
@@ -86,7 +87,7 @@ bool handleExternal(CallInst *CI, Constant *ZeroF, Constant *ZeroD,
         //TODO: Exception Handling(arg0 < 0)
         if (N.contains("sqrt")) {
             Value *arg0 = CI->getArgOperand(0);
-            Value *arg0_err = getError(arg0, ZeroF, ZeroD, ErrorMap);
+            Value *arg0_err = getError(arg0, rt.ZeroF, rt.ZeroD, ErrorMap);
             Value *x = CI;
             Value *negVal = AfterCI.CreateFNeg(x, "sqrt.negval");
             Value *fma = AfterCI.CreateIntrinsic(
@@ -106,7 +107,7 @@ bool handleExternal(CallInst *CI, Constant *ZeroF, Constant *ZeroD,
         }
         if (N == "expf") {
             Value *arg0 = CI->getArgOperand(0);
-            Value *arg0_err = getError(arg0, ZeroF, ZeroD, ErrorMap);
+            Value *arg0_err = getError(arg0, rt.ZeroF, rt.ZeroD, ErrorMap);
             Value *ret = AfterCI.CreateCall(rt_mpfr.PropExpFError, {arg0, arg0_err});
             // Value *x = Builder.CreateExtractValue(ret, {0}, "expf.val");
             Value *dx = AfterCI.CreateExtractValue(ret, {1}, "expf.err");
@@ -114,7 +115,7 @@ bool handleExternal(CallInst *CI, Constant *ZeroF, Constant *ZeroD,
         }
         else if (N == "exp") {
             Value *arg0 = CI->getArgOperand(0);
-            Value *arg0_err = getError(arg0, ZeroF, ZeroD, ErrorMap);
+            Value *arg0_err = getError(arg0, rt.ZeroF, rt.ZeroD, ErrorMap);
             Value *ret = AfterCI.CreateCall(rt_mpfr.PropExpDError, {arg0, arg0_err});
             // Value *x = Builder.CreateExtractValue(ret, {0}, "exp.val");
             Value *dx = AfterCI.CreateExtractValue(ret, {1}, "exp.err");
@@ -128,7 +129,7 @@ bool handleExternal(CallInst *CI, Constant *ZeroF, Constant *ZeroD,
     return false;
 }
 
-bool handleBinary(Instruction *BO, Constant *ZeroF, Constant *ZeroD,
+bool handleBinary(Instruction *BO, utils::RuntimeFns &rt,
                 DenseMap<const Value*, Value*> &ErrorMap) {
     
     if (!BO->getType()->isDoubleTy() && !BO->getType()->isFloatTy()) {
@@ -136,8 +137,8 @@ bool handleBinary(Instruction *BO, Constant *ZeroF, Constant *ZeroD,
     }
     Value *opr0 = BO->getOperand(0);
     Value *opr1 = BO->getOperand(1);
-    Value *opr0_err = getError(opr0, ZeroF, ZeroD, ErrorMap);
-    Value *opr1_err = getError(opr1, ZeroF, ZeroD, ErrorMap);
+    Value *opr0_err = getError(opr0, rt.ZeroF, rt.ZeroD, ErrorMap);
+    Value *opr1_err = getError(opr1, rt.ZeroF, rt.ZeroD, ErrorMap);
     IRBuilder<> AfterBO(BO->getNextNode());
     switch (BO->getOpcode()) {
         case Instruction::FAdd: {
@@ -150,6 +151,15 @@ bool handleBinary(Instruction *BO, Constant *ZeroF, Constant *ZeroD,
             Value *tmp = AfterBO.CreateFAdd(opr0_err, dab, "fadd.tmp");
             Value *dx = AfterBO.CreateFAdd(opr1_err, tmp, "fadd.err");
             ErrorMap[BO] = dx;
+            if (EnableDebugChecks) {
+                insertCheckError(AfterBO, x, dx, BO, rt);
+                // if (BO->getType()->isDoubleTy()) {
+                //     AfterBO.CreateCall(rt.CheckErrorD, {x, dx, SiteId});
+                // }
+                // else {
+                //     AfterBO.CreateCall(rt.CheckErrorF, {x, dx, SiteId});
+                // }
+            }
             return true;
         }
         case Instruction::FSub: {
@@ -162,6 +172,9 @@ bool handleBinary(Instruction *BO, Constant *ZeroF, Constant *ZeroD,
             Value *tmp = AfterBO.CreateFAdd(opr0_err, dab, "fsub.tmp");
             Value *dx = AfterBO.CreateFSub(tmp, opr1_err, "fsub.err");
             ErrorMap[BO] = dx;
+            if (EnableDebugChecks) {
+                insertCheckError(AfterBO, x, dx, BO, rt);
+            }
             return true;
         }
         case Instruction::FMul: {
@@ -179,6 +192,9 @@ bool handleBinary(Instruction *BO, Constant *ZeroF, Constant *ZeroD,
             Value *bda = AfterBO.CreateFMul(opr1, opr0_err, "fmul.bda");
             Value *dx = AfterBO.CreateFAdd(tmp, bda, "fmul.err");
             ErrorMap[BO] = dx;
+            if (EnableDebugChecks) {
+                insertCheckError(AfterBO, x, dx, BO, rt);
+            }
             return true;
         }
         case Instruction::FDiv: {
@@ -203,6 +219,9 @@ bool handleBinary(Instruction *BO, Constant *ZeroF, Constant *ZeroD,
             Value *denom = AfterBO.CreateFAdd(opr1, opr1_err, "fdiv.denom");
             Value *dx = AfterBO.CreateFDiv(numer, denom, "fdiv.err");
             ErrorMap[BO] = dx;
+            if (EnableDebugChecks) {
+                insertCheckError(AfterBO, x, dx, BO, rt);
+            }
             return true;
         }
         default:
