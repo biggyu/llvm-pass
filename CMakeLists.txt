@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.20)
 project(llvm_pass LANGUAGES C CXX)
 
-option(ENABLE_RUNTIME_TIME "Enable runtime profile" OFF)
+option(ENABLE_PROFILE "Enable runtime profile" OFF)
 option(ENABLE_FP_DEBUG "Enable FP debug reporting" OFF)
 
 find_package(LLVM REQUIRED CONFIG)
