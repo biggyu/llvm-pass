@@ -4,8 +4,8 @@ add_library(pass_runtime STATIC
     mpfr_runtime.cpp
 )
 
-if (ENABLE_RUNTIME_TIME)
-    target_compile_definitions(pass_runtime PRIVATE ENABLE_RUNTIME_TIME=1)
+if (ENABLE_PROFILE)
+    target_compile_definitions(pass_runtime PRIVATE ENABLE_PROFILE=1)
 endif()
 
 if (ENABLE_FP_DEBUG)
@@ -16,6 +16,3 @@ target_include_directories(pass_runtime PUBLIC
     ${CMAKE_SOURCE_DIR}/include
 )
 target_compile_features(pass_runtime PUBLIC cxx_std_17)
-if(ENABLE_RUNTIME_TIME)
-    target_compile_definitions(pass_runtime PRIVATE ENABLE_RUNTIME_TIME=1)
-endif()
