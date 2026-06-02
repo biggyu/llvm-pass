@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # sh scripts/run_benchmark.sh ShadowMem shadowmem benchmarks/fpbench/foo.c benchmarks/driver/foo_main.c 0 0 1
 
-PASS=${1:-0}
-PLUGIN=${2:-0}
+PASS=$1
+PLUGIN=$2
 BENCH_SRC=${3:-0}
 PROFILE=${4:-0}
 FP_DEBUG=${5:-0}
@@ -42,7 +42,7 @@ $LLVM_CLANG -O"$OPT" -g -S -emit-llvm -ffp-contract=off "$BENCH_SRC" -o "$OUTDIR
 # $LLVM_CLANG -O0 -g -S -emit-llvm -fno-math-errno -ffp-contract=off "$BENCH_SRC" -o "$OUTDIR/bench.ll"
 
 # 2. Run your LLVM pass on the benchmark IR
-$LLVM_OPT -O"$OPT" \
+$LLVM_OPT \
   -load-pass-plugin "./build/passes/$PASS/$PASS.so" \
   --passes="$PLUGIN" \
   -fp-debug-checks=true \
