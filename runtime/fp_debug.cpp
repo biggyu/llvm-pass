@@ -29,7 +29,7 @@ static int max_bits_float_site = -1;
 #endif
 
 template <typename T>
-static inline ErrorClass classify(T x, T dx) {
+static ErrorClass classify(T x, T dx) {
     if (!std::isfinite(x) || !std::isfinite(dx)) {
         return ErrorClass::NaNOrInf;
     }
@@ -43,14 +43,6 @@ static inline ErrorClass classify(T x, T dx) {
         return ErrorClass::TotalLoss;
     }
     return ErrorClass::Normal;
-}
-
-static inline ErrorClass classify_double(double x, double dx) {
-    return classify<double>(x, dx);
-}
-
-static inline ErrorClass classify_float(float x, float dx) {
-    return classify<float>(x, dx);
 }
 
 template <typename T>
@@ -90,18 +82,11 @@ double incorrect_bits(T x, T dx, int metric) {
     return bits > 0.0 ? bits : 0.0;
 }
 
-double incorrect_bits_double(double x, double dx, int metric) {
-    return incorrect_bits<double>(x, dx, metric);
-}
-
-double incorrect_bits_float(float x, float dx, int metric) {
-    return incorrect_bits<float>(x, dx, metric);
-}
-
 extern "C" void check_error_double(double x, double dx, int site_id, int metric) {
 #ifdef ENABLE_FP_DEBUG
-    ErrorClass errcls = classify_double(x, dx);
-    double bits = incorrect_bits_double(x, dx, metric);
+    ErrorClass errcls = classify<double>(x, dx);
+    double bits = incorrect_bits<double>(x, dx, metric);
+    // std::printf("%d %f\n", static_cast<int>(errcls), bits);
     // #if FP_DEBUG_METRICS == 0
     //     bits = incorrect_bits_relative<double>(x, dx);
     // #elif FP_DEBUG_METRIX == 1
@@ -139,8 +124,9 @@ extern "C" void check_error_double(double x, double dx, int site_id, int metric)
 
 extern "C" void check_error_float(float x, float dx, int site_id, int metric) {
 #ifdef ENABLE_FP_DEBUG
-    ErrorClass errcls = classify_float(x, dx);
-    double bits = incorrect_bits_float(x, dx, metric);
+    ErrorClass errcls = classify<float>(x, dx);
+    double bits = incorrect_bits<float>(x, dx, metric);
+    // std::printf("%d %f", errcls, bits);
     // #if FP_DEBUG_METRIC == 0
     //     bits = incorrect_bits_relative<float>(x, dx);
     // #elif FP_DEBUG_METRIX == 1
