@@ -5,6 +5,7 @@
 #include "ShadowMemPass.h"
 #include "ErrorProp.h"
 #include "ShadowMemory.h"
+#include "DebugCheck.h"
 #include "decls_fp.h"
 #include "decls_mpfr.h"
 
@@ -15,7 +16,11 @@ static bool isRuntimeFunction(const Function &F) {
     return N == "shadow_store_double" ||
            N == "shadow_load_double"  ||
            N == "shadow_store_float"  ||
-           N == "shadow_load_float";
+           N == "shadow_load_float"   ||
+           N == "check_error_float"   ||
+           N == "check_error_double"  ||
+           N == "register_fp_site"    ||
+           N == "report_debug_summary";
 }
 
 void runOnModule(llvm::Module &M) {
@@ -67,6 +72,10 @@ void runOnModule(llvm::Module &M) {
                 // handleBinary(BO, rt.ZeroF, rt.ZeroD, ErrorMap);
             }
         }
+    }
+    if (EnableDebugChecks) {
+    // if (EnableDebugChecks && EnableDebugAutoReport) {
+        insertReportDebugSummary(M, rt);
     }
 }
 
