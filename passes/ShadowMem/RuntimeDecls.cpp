@@ -39,6 +39,7 @@ namespace utils {
             {PtrTy},
             false
         );
+
         CheckErrorDTy = llvm::FunctionType::get(
             VoidTy,
             {DoubleTy, DoubleTy, I32Ty, I32Ty},
@@ -50,13 +51,28 @@ namespace utils {
             false
         );
 
+        RegisterFPSiteTy = llvm::FunctionType::get(
+            VoidTy,
+            {I32Ty, PtrTy, PtrTy, I32Ty, I32Ty, PtrTy},
+            false
+        );
+
+        ReportDebugSummaryTy = llvm::FunctionType::get(
+            VoidTy,
+            {},
+            false
+        );
+
         Printf = M.getOrInsertFunction("printf", PrintfTy);
         
         ShadowStoreF = M.getOrInsertFunction("shadow_store_float", ShadowStoreFTy);
         ShadowStoreD = M.getOrInsertFunction("shadow_store_double", ShadowStoreDTy);
         ShadowLoadF = M.getOrInsertFunction("shadow_load_float", ShadowLoadFTy);
         ShadowLoadD = M.getOrInsertFunction("shadow_load_double", ShadowLoadDTy);
+
         CheckErrorF = M.getOrInsertFunction("check_error_float", CheckErrorFTy);
         CheckErrorD = M.getOrInsertFunction("check_error_double", CheckErrorDTy);
+        RegisterFPSite = M.getOrInsertFunction("register_fp_site", RegisterFPSiteTy);
+        ReportDebugSummary = M.getOrInsertFunction("report_debug_summary", ReportDebugSummaryTy);
     }
 }
