@@ -1,7 +1,7 @@
 #include "fp_runtime.h"
 #include <cmath>
 #include <iostream>
-#ifdef ENABLE_RUNTIME_TIME
+#ifdef ENABLE_PROFILE
 #include <iostream>
 #include <chrono>
 using Clock = std::chrono::steady_clock;
@@ -31,7 +31,7 @@ static uint64_t  propprodd_ns = 0;
 // }
 
 fp_entry_f PropSumFError(float a, float da, float b, float db) {
-#ifdef ENABLE_RUNTIME_TIME
+#ifdef ENABLE_PROFILE
     auto t0 = Clock::now();
 #endif
     fp_entry_f result;
@@ -41,7 +41,7 @@ fp_entry_f PropSumFError(float a, float da, float b, float db) {
     float ap = val - bp;
     result.value = val;
     result.error = (a - ap) + (b - bp) + da + db;
-#ifdef ENABLE_RUNTIME_TIME
+#ifdef ENABLE_PROFILE
     auto t1 = Clock::now();
     propsumf_calls++;
     propsumf_ns += std::chrono::duration_cast<ns>(t1 - t0).count();
@@ -49,7 +49,7 @@ fp_entry_f PropSumFError(float a, float da, float b, float db) {
     return result;
 }
 fp_entry_d PropSumDError(double a, double da, double b, double db) {
-#ifdef ENABLE_RUNTIME_TIME
+#ifdef ENABLE_PROFILE
     auto t0 = Clock::now();
 #endif
     fp_entry_d result;
@@ -58,7 +58,7 @@ fp_entry_d PropSumDError(double a, double da, double b, double db) {
     double ap = val - bp;
     result.value = val;
     result.error = (a - ap) + (b - bp) + da + db;
-#ifdef ENABLE_RUNTIME_TIME
+#ifdef ENABLE_PROFILE
     auto t1 = Clock::now();
     propsumd_calls++;
     propsumd_ns += std::chrono::duration_cast<ns>(t1 - t0).count();
@@ -66,14 +66,14 @@ fp_entry_d PropSumDError(double a, double da, double b, double db) {
     return result;
 }
 fp_entry_f PropProdFError(float a, float da, float b, float db) {
-#ifdef ENABLE_RUNTIME_TIME
+#ifdef ENABLE_PROFILE
     auto t0 = Clock::now();
 #endif
     fp_entry_f result;
     float val = a * b;
     result.value = val;
     result.error = fma(a, b, -val) + a * db + b * da;
-#ifdef ENABLE_RUNTIME_TIME
+#ifdef ENABLE_PROFILE
     auto t1 = Clock::now();
     propprodf_calls++;
     propprodf_ns += std::chrono::duration_cast<ns>(t1 - t0).count();
@@ -81,14 +81,14 @@ fp_entry_f PropProdFError(float a, float da, float b, float db) {
     return result;
 }
 fp_entry_d PropProdDError(double a, double da, double b, double db) {
-#ifdef ENABLE_RUNTIME_TIME
+#ifdef ENABLE_PROFILE
     auto t0 = Clock::now();
 #endif
     fp_entry_d result;
     double val = a * b;
     result.value = val;
     result.error = fma(a, b, -val) + a * db + b * da;
-#ifdef ENABLE_RUNTIME_TIME
+#ifdef ENABLE_PROFILE
     auto t1 = Clock::now();
     propprodd_calls++;
     propprodd_ns += std::chrono::duration_cast<ns>(t1 - t0).count();
@@ -190,7 +190,7 @@ fp_entry_d PropSqrtDError(double a, double da) {
 // }
 
 extern "C" void report_fp_profile() {
-#ifdef ENABLE_RUNTIME_TIME
+#ifdef ENABLE_PROFILE
     std::printf("\n[fp runtime profile]\n");
     std::printf("PropSumFError : calls=%llu total_ns=%llu avg_ns=%.2f\n",
         (unsigned long long)propsumf_calls,
