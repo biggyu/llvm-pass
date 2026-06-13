@@ -1,7 +1,6 @@
 #include <iostream>
 // #include <cstdio>
 // #include <cstdlib>
-#include <vector>
 #include <chrono>
 
 template <typename T, int N>
@@ -72,7 +71,5 @@ int main() {
     
     total_time = run_matmul<float, dim>(rep);
     std::cout << "Float type matmul execution time: " << total_time << "ms\n";
-
-    // report_fp_profile();
-    // report_smem_profile();
+    
 }
