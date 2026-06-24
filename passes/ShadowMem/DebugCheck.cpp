@@ -21,16 +21,18 @@ cl::opt<int> DebugMetrics(
     cl::init(0)
 );
 
+DenseSet<uint32_t> RegisteredSites;
+
 static bool isRuntimeFunction(const Function &F) {
     StringRef N = F.getName();
-    return N == "shadow_store_double" ||
-           N == "shadow_load_double"  ||
-           N == "shadow_store_float"  ||
-           N == "shadow_load_float"   ||
-           N == "check_error_float"   ||
-           N == "check_error_double"  ||
-           N == "register_fp_site"    ||
-           N == "report_debug_summary";
+    return N == "shadow_store"              ||
+           N == "shadow_load"               ||
+           N == "check_error_float"         ||
+           N == "check_error_double"        ||
+           N == "register_fp_site"          ||
+           N == "report_debug_summary"      ||
+           N == "condition_number_float"    ||
+           N == "condition_number_double";
 }
 
 static uint32_t hash32string(llvm::StringRef S) {
@@ -67,8 +69,11 @@ uint32_t getSiteId(const llvm::Instruction *I) {
 }
 
 bool insertCheckError(IRBuilder<> &B,
-                    Value *x, Value *dx,
-                    Instruction *Site, utils::RuntimeFns &rt) {
+                    const DSLValues &aDsl, 
+                    const DSLValues &bDsl, 
+                    const DSLValues &xDsl, 
+                    Instruction *Site, FpOp op,
+                    utils::RuntimeFns &rt) {
     uint32_t id = getSiteId(Site);
     Value *SiteId = ConstantInt::get(rt.I32Ty, id);
     Value *Metric = ConstantInt::get(rt.I32Ty, DebugMetrics);
@@ -76,7 +81,7 @@ bool insertCheckError(IRBuilder<> &B,
     DebugLoc DL = Site->getDebugLoc();
 
     std::string File = "<unknown>";
-    int Line, Col;
+    int Line = 0, Col = 0;
 
     if (DL) {
         File = DL.get()->getFilename().str();
@@ -93,21 +98,31 @@ bool insertCheckError(IRBuilder<> &B,
     Value *FuncStr = B.CreateGlobalStringPtr(Func);
     Value *OpcodeStr = B.CreateGlobalStringPtr(Opcode);
 
-    B.CreateCall(rt.RegisterFPSite, {
-        SiteId,
-        FuncStr,
-        FileStr,
-        ConstantInt::get(rt.I32Ty, Line),
-        ConstantInt::get(rt.I32Ty, Col),
-        OpcodeStr,
-    });
+    if (RegisteredSites.insert(id).second) {
+        B.CreateCall(rt.RegisterFPSite, {
+            SiteId,
+            FuncStr,
+            FileStr,
+            ConstantInt::get(rt.I32Ty, Line),
+            ConstantInt::get(rt.I32Ty, Col),
+            OpcodeStr,
+        });
+    }
 
-    if (x->getType()->isDoubleTy()) {
-        B.CreateCall(rt.CheckErrorD, {x, dx, SiteId, Metric});
+    bool emitCond = (op != FpOp::Mul && op != FpOp::Div && op != FpOp::Sqrt && op != FpOp::Cbrt && op != FpOp::Unknown);
+
+    if (xDsl.xhat->getType()->isDoubleTy()) {
+        if (emitCond) {
+            B.CreateCall(rt.ConditionNumberD, {ConstantInt::get(rt.I32Ty, (uint32_t)op), aDsl.xhat, aDsl.error, bDsl.xhat, bDsl.error, aDsl.isExact, bDsl.isExact, SiteId});
+        }
+        B.CreateCall(rt.CheckErrorD, {xDsl.xhat, xDsl.error, SiteId, Metric});
         return true;
     }
-    if (x->getType()->isFloatTy()) {
-        B.CreateCall(rt.CheckErrorF, {x, dx, SiteId, Metric});
+    if (xDsl.xhat->getType()->isFloatTy()) {
+        if (emitCond) {
+            B.CreateCall(rt.ConditionNumberF, {ConstantInt::get(rt.I32Ty, (uint32_t)op), aDsl.xhat, aDsl.error, bDsl.xhat, bDsl.error, aDsl.isExact, bDsl.isExact, SiteId});
+        }
+        B.CreateCall(rt.CheckErrorF, {xDsl.xhat, xDsl.error, SiteId, Metric});
         return true;
     }
     return false;

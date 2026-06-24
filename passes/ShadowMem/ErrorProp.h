@@ -6,16 +6,20 @@
 #include "llvm/ADT/DenseMap.h"
 #include "decls_fp.h"
 #include "decls_mpfr.h"
+#include "fp_condition.h"
+#include "DSLValues.h"
 
 using namespace llvm;
 
 bool handleIntrinsic(IntrinsicInst *II, utils::RuntimeFns &rt,
                 utils::RuntimeMPFRFns &rt_mpfr,
-                DenseMap<const Value*, Value*> &ErrorMap);
+                DenseMap<const Value*, DSLValues> &ErrorMap);
 
 bool handleExternal(CallInst *CI, utils::RuntimeFns &rt,
                 utils::RuntimeMPFRFns &rt_mpfr,
-                DenseMap<const Value*, Value*> &ErrorMap);
+                DenseMap<const Value*, DSLValues> &ErrorMap);
 
 bool handleBinary(Instruction *BO, utils::RuntimeFns &rt,
-                DenseMap<const Value*, Value*> &ErrorMap);
+                DenseMap<const Value*, DSLValues> &ErrorMap);
+
+bool resolveFpOp(Instruction *I, FpOp &op);

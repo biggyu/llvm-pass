@@ -3,14 +3,18 @@
 #include <cstddef>
 #include <cstring>
 
+struct ShadowEntry{
+    uintptr_t key;
+    double xhat; // value
+    double rhat; // residual
+    bool sign;
+    bool isExact;
+    double ehat; // log value
+
+    double error;
+    bool used;
+};
 class ShadowTable {
-public:
-    struct ShadowEntry{
-        uintptr_t key;
-        double value;
-        double error;
-        bool used;
-    };
 private:
     static const int TABLE_SIZE = 1 << 22;
     ShadowEntry table[TABLE_SIZE];
@@ -31,31 +35,39 @@ public:
     ShadowTable() {
         std::memset(table, 0, sizeof(table));
     }
-    void insert(void* key, double x, double dx) {
+    void insert(void* key, double x, double rhat, double dx, bool sign, bool isExact, double ehat) {
         uintptr_t k = (uintptr_t)key;
         size_t idx = hashPtr(key);
         for (size_t probe = 0; probe < TABLE_SIZE; probe++) {
             ShadowEntry &entry = table[idx];
-
             if (!entry.used) {
                 entry.used = true;
                 entry.key = k;
-                entry.value = x;
+                entry.xhat = x;
+                entry.rhat = rhat;
                 entry.error = dx;
+                entry.sign = sign;
+                entry.isExact = isExact;
+                entry.ehat = ehat;
                 return;
             }
             //! Update value or just error
             if (entry.key == k) {
+                entry.xhat = x;
+                entry.rhat = rhat;
                 entry.error = dx;
+                entry.sign = sign;
+                entry.isExact = isExact;
+                entry.ehat = ehat;
                 return;
             }
             idx = (idx + 1) & (TABLE_SIZE - 1); 
         }
     }
-    void insert(void* key, float x, double dx) {
-        insert(key, (double)x, dx);
-    }
-    double getDouble(void* key) {
+    // void insert(void* key, float x, double dx) {
+    //     insert(key, (double)x, dx);
+    // }
+    ShadowEntry* get(void* key) {
         uintptr_t k = (uintptr_t)key;
         size_t idx = hashPtr(key);
         
@@ -63,16 +75,16 @@ public:
             ShadowEntry &entry = table[idx];
 
             if (!entry.used) {
-                return 0.0;
+                return nullptr;
             }
             if (entry.key == k) {
-                return entry.error;
+                return &entry;
             }
             idx = (idx + 1) & (TABLE_SIZE - 1); 
         }
-        return 0.0;
+        return nullptr;
     }
-    float getFloat(void* key) {
-        return (float)getDouble(key);
-    }
+    // ShadowEntry* getFloat(void* key) {
+    //     return getDouble(key);
+    // }
 };

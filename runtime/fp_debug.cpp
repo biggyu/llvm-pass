@@ -1,5 +1,5 @@
 #include "fp_debug.h"
-
+#include "fp_condition.h"
 #include <cstdio>
 #include <cmath>
 #include <cstdint>
@@ -7,7 +7,7 @@
 #include <string>
 #include <algorithm>
 #include <unordered_map>
-#ifdef ENABLE_FP_DEBUG
+// #ifdef ENABLE_FP_DEBUG
 static uint64_t total_checks_double = 0;
 static uint64_t total_checks_float = 0;
 
@@ -202,136 +202,6 @@ extern "C" void check_error_float(float x, float dx, int site_id, int metric) {
     return check_error_impl<float>(x, dx, site_id, metric, total_checks_float, float_sites);
 }
 
-// extern "C" void check_error_double(double x, double dx, int site_id, int metric) {
-//
-//     ErrorClass errcls = classify<double>(x, dx);
-//     double bits = incorrect_bits<double>(x, dx, metric);
-//     double relerr = relative_error<double>(x, dx);
-
-//     total_checks_double++;
-//     SiteStats &S = double_sites[site_id];
-
-//     S.cnt++;
-//     if (errcls != ErrorClass::XZero && std::isfinite(bits) && std::isfinite(relerr)) {
-//         S.finite_cnt++;
-//         S.sum_bits += bits;
-//         S.sum_err += relerr;
-//         if (bits >= S.max_bits) {
-//             S.sample_x = x;
-//             S.sample_dx = dx;
-//             S.max_bits = bits;
-//         }
-//         S.max_relerr = S.max_relerr > relerr ? S.max_relerr : relerr;
-//         S.max_abs_dx = S.max_abs_dx > std::fabs(dx) ? S.max_abs_dx : std::fabs(dx);
-//         if (bits >= 4.0) {
-//             S.warn_4++;
-//         }
-//         if (bits >= 8.0) {
-//             S.warn_8++;
-//         }
-//         if (bits >= 16.0) {
-//             S.warn_16++;
-//         }
-//         if (bits >= 53.0) {
-//             S.warn_prec++;
-//         }
-//     }
-//     else {
-//         S.warn_4++;
-//         S.warn_8++;
-//         S.warn_16++;
-//         S.warn_prec++;
-
-//         S.sample_xzero_x = x;
-//         S.sample_xzero_dx = dx;
-//     }
-    
-
-//     switch (errcls) {
-//         case ErrorClass::Exact:
-//             S.exact++;
-//             break;
-//         case ErrorClass::Normal:
-//             S.normal++;
-//             break;
-//         case ErrorClass::TotalLoss:
-//             S.total_loss++;
-//             break;
-//         case ErrorClass::NaNOrInf:
-//             S.nan_or_inf++;
-//             break;
-//         case ErrorClass::XZero:
-//             S.xzero++;
-//             break;
-//     }
-//
-// }
-
-// extern "C" void check_error_float(float x, float dx, int site_id, int metric) {
-//
-//     ErrorClass errcls = classify<float>(x, dx);
-//     double bits = incorrect_bits<float>(x, dx, metric);
-//     double relerr = relative_error<float>(x, dx);
-
-//     total_checks_float++;
-//     SiteStats &S = float_sites[site_id];
-
-//     S.cnt++;
-//     if (errcls != ErrorClass::XZero && std::isfinite(bits) && std::isfinite(relerr)) {
-//         S.finite_cnt++;
-//         S.sum_bits += bits;
-//         S.sum_err += relerr;
-//         if (bits >= S.max_bits) {
-//             S.sample_x = x;
-//             S.sample_dx = dx;
-//             S.max_bits = bits;
-//         }
-//         S.max_relerr = S.max_relerr > relerr ? S.max_relerr : relerr;
-//         S.max_abs_dx = S.max_abs_dx > std::fabs(dx) ? S.max_abs_dx : std::fabs(dx);
-//         if (bits >= 4.0) {
-//             S.warn_4++;
-//         }
-//         if (bits >= 8.0) {
-//             S.warn_8++;
-//         }
-//         if (bits >= 16.0) {
-//             S.warn_16++;
-//         }
-//         if (bits >= 24.0) {
-//             S.warn_prec++;
-//         }
-//     }
-//     else {
-//         S.warn_4++;
-//         S.warn_8++;
-//         S.warn_16++;
-//         S.warn_prec++;
-
-//         S.sample_xzero_x = x;
-//         S.sample_xzero_dx = dx;
-//     }
-
-
-//     switch (errcls) {
-//         case ErrorClass::Exact:
-//             S.exact++;
-//             break;
-//         case ErrorClass::Normal:
-//             S.normal++;
-//             break;
-//         case ErrorClass::TotalLoss:
-//             S.total_loss++;
-//             break;
-//         case ErrorClass::NaNOrInf:
-//             S.nan_or_inf++;
-//             break;
-//         case ErrorClass::XZero:
-//             S.xzero++;
-//             break;
-//     }
-//
-// }
-
 template <typename T>
 static void report_top_impl(std::unordered_map<int, SiteStats> &site_map) {
     std::vector<std::pair<int, SiteStats>> sites;
@@ -415,80 +285,6 @@ extern "C" void report_top_float(std::unordered_map<int, SiteStats> &site_map) {
     return report_top_impl<float>(site_map);
 }
 
-// static void report_top_float() {
-//     std::vector<std::pair<int, SiteStats>> sites;
-
-//     for (const auto &KV : float_sites) {
-//         sites.push_back(KV);
-//     }
-
-//     std::sort(sites.begin(), sites.end(),
-//         [](const auto &A, const auto &B) {
-//             const SiteStats &SA = A.second;
-//             const SiteStats &SB = B.second;
-
-//             return SA.max_bits > SB.max_bits;
-//         }
-//     );
-
-//     size_t limit = std::min<size_t>(10, sites.size());
-
-//     printf("\nTop float sites by max incorrect bits:\n");
-
-//     for (size_t i = 0; i < limit; i++) {
-//         int site_id = sites[i].first;
-        
-//         auto It = site_infos.find(site_id);
-//         if (It != site_infos.end()) {
-//             const SiteInfo &Info = It->second;
-
-//             printf("[%zu] site=%d %s:%d:%d function=%s opcode=%s\n",
-//                 i + 1,
-//                 site_id,
-//                 Info.file.c_str(),
-//                 Info.line,
-//                 Info.col,
-//                 Info.function.c_str(),
-//                 Info.opcode.c_str());
-//         } else {
-//             printf("[%zu] site=%d <no source info>\n", i + 1, site_id);
-//         }
-
-//         const SiteStats &S = sites[i].second;
-
-//         double avg_bits = S.cnt ? S.sum_bits / S.finite_cnt : 0.0;
-//         double avg_relerr = S.cnt ? S.sum_err / S.finite_cnt : 0.0;
-
-//         printf("    site=%d count=%llu finite count=%llu max_bits=%.2f avg_bits=%.2f "
-//                "max_relerr=%.3e avg_relerr=%.3e max_abs_dx=%.3e\n",
-//                site_id,
-//                (unsigned long long)S.cnt,
-//                (unsigned long long)S.finite_cnt,
-//                S.max_bits,
-//                avg_bits,
-//                S.max_relerr,
-//                avg_relerr,
-//                S.max_abs_dx);
-
-//         printf("    warnings: >4=%llu >8=%llu >16=%llu >precision=%llu\n",
-//                (unsigned long long)S.warn_4,
-//                (unsigned long long)S.warn_8,
-//                (unsigned long long)S.warn_16,
-//                (unsigned long long)S.warn_prec);
-
-//         printf("    classes: exact=%llu normal=%llu total_loss=%llu nan_inf=%llu xzero=%llu\n",
-//                (unsigned long long)S.exact,
-//                (unsigned long long)S.normal,
-//                (unsigned long long)S.total_loss,
-//                (unsigned long long)S.nan_or_inf,
-//                (unsigned long long)S.xzero);
-
-//         printf("    sample: x=%.17e dx=%.17e\n",
-//                S.sample_x,
-//                S.sample_dx);
-//     }
-// }
-
 extern "C" void report_debug_summary() {
     printf("--- [fp debug summary] ---\n");
 
@@ -499,4 +295,4 @@ extern "C" void report_debug_summary() {
     report_top_float(float_sites);
 
 }
-#endif
+// #endif

@@ -8,6 +8,7 @@
 #include "DebugCheck.h"
 #include "decls_fp.h"
 #include "decls_mpfr.h"
+#include "DSLValues.h"
 
 using namespace llvm;
 
@@ -32,7 +33,7 @@ void runOnModule(llvm::Module &M) {
         if (F.isDeclaration()) continue;
         if (isRuntimeFunction(F)) continue;
 
-        DenseMap<const Value*, Value*> ErrorMap;
+        DenseMap<const Value*, DSLValues> DSLMap;
 
         SmallVector<Instruction*, 128> WorkList;
         for (BasicBlock &BB : F) {
@@ -44,32 +45,29 @@ void runOnModule(llvm::Module &M) {
             if (isa<PHINode>(I)) continue;
 
             if (auto *LI = dyn_cast<LoadInst>(I)) {
-                if(handleLoad(LI, rt, ErrorMap)) {
+                if(handleLoad(LI, rt, DSLMap)) {
                     continue;
                 }
-                // handleLoad(LI, rt, ErrorMap);
-                // continue;
             }
             if (auto *SI = dyn_cast<StoreInst>(I)) {
-                if(handleStore(SI, rt, ErrorMap)) {
+                if(handleStore(SI, rt, DSLMap)) {
                     continue;
                 }
             }
             if (auto *II = dyn_cast<IntrinsicInst>(I)) {
-                if(handleIntrinsic(II, rt, rt_mpfr, ErrorMap)) {
+                if(handleIntrinsic(II, rt, rt_mpfr, DSLMap)) {
                     continue;
                 }
             }
             if (auto *CI = dyn_cast<CallInst>(I)) {
-                if(handleExternal(CI, rt, rt_mpfr, ErrorMap)) {
+                if(handleExternal(CI, rt, rt_mpfr, DSLMap)) {
                     continue;
                 }
             }
             if (auto *BO = dyn_cast<BinaryOperator>(I)) {
-                if(handleBinary(BO, rt, ErrorMap)) {
+                if(handleBinary(BO, rt, DSLMap)) {
                     continue;
                 }
-                // handleBinary(BO, rt.ZeroF, rt.ZeroD, ErrorMap);
             }
         }
     }

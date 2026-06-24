@@ -5,10 +5,13 @@ using namespace llvm;
 namespace utils {
     RuntimeFns::RuntimeFns(Module &Mod) : M(Mod), Ctx(Mod.getContext()) {
         VoidTy = llvm::Type::getVoidTy(Ctx);
+        BoolTy = llvm::Type::getInt1Ty(Ctx);
         I32Ty = llvm::Type::getInt32Ty(Ctx);
         FloatTy = llvm::Type::getFloatTy(Ctx);
         DoubleTy = llvm::Type::getDoubleTy(Ctx);
         PtrTy = llvm::PointerType::getUnqual(Ctx);
+        ShadowEntryTy = llvm::StructType::create(Ctx, "ShadowEntry");
+        ShadowEntryTy->setBody({I32Ty, DoubleTy, DoubleTy, BoolTy, BoolTy, DoubleTy, DoubleTy, BoolTy}, false);
 
         ZeroD = llvm::ConstantFP::get(DoubleTy, 0.0);
         ZeroF = llvm::ConstantFP::get(FloatTy, 0.0);
@@ -19,23 +22,13 @@ namespace utils {
             true
         );
 
-        ShadowStoreDTy = llvm::FunctionType::get(
+        ShadowStoreTy = llvm::FunctionType::get(
             VoidTy,
-            {PtrTy, DoubleTy, DoubleTy},
+            {PtrTy, DoubleTy, DoubleTy, DoubleTy, BoolTy, BoolTy, DoubleTy},
             false
         );
-        ShadowStoreFTy = llvm::FunctionType::get(
-            VoidTy,
-            {PtrTy, FloatTy, FloatTy},
-            false
-        );
-        ShadowLoadDTy = llvm::FunctionType::get(
-            DoubleTy,
-            {PtrTy},
-            false
-        );
-        ShadowLoadFTy = llvm::FunctionType::get(
-            FloatTy,
+        ShadowLoadTy = llvm::FunctionType::get(
+            ShadowEntryTy,
             {PtrTy},
             false
         );
@@ -63,16 +56,27 @@ namespace utils {
             false
         );
 
+        ConditionNumberDTy = llvm::FunctionType::get(
+            DoubleTy,
+            {I32Ty, DoubleTy, DoubleTy, DoubleTy, DoubleTy, BoolTy, BoolTy, I32Ty},
+            false
+        );
+        ConditionNumberFTy = llvm::FunctionType::get(
+            DoubleTy,
+            {I32Ty, FloatTy, FloatTy, FloatTy, FloatTy, BoolTy, BoolTy, I32Ty},
+            false
+        );
+
         Printf = M.getOrInsertFunction("printf", PrintfTy);
         
-        ShadowStoreF = M.getOrInsertFunction("shadow_store_float", ShadowStoreFTy);
-        ShadowStoreD = M.getOrInsertFunction("shadow_store_double", ShadowStoreDTy);
-        ShadowLoadF = M.getOrInsertFunction("shadow_load_float", ShadowLoadFTy);
-        ShadowLoadD = M.getOrInsertFunction("shadow_load_double", ShadowLoadDTy);
+        ShadowStore = M.getOrInsertFunction("shadow_store", ShadowStoreTy);
+        ShadowLoad = M.getOrInsertFunction("shadow_load", ShadowLoadTy);
 
         CheckErrorF = M.getOrInsertFunction("check_error_float", CheckErrorFTy);
         CheckErrorD = M.getOrInsertFunction("check_error_double", CheckErrorDTy);
         RegisterFPSite = M.getOrInsertFunction("register_fp_site", RegisterFPSiteTy);
         ReportDebugSummary = M.getOrInsertFunction("report_debug_summary", ReportDebugSummaryTy);
+        ConditionNumberF = M.getOrInsertFunction("condition_number_float", ConditionNumberFTy);
+        ConditionNumberD = M.getOrInsertFunction("condition_number_double", ConditionNumberDTy);
     }
 }

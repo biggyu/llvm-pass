@@ -3,23 +3,26 @@
 
 using namespace llvm;
 
-static Value* getError(Value *v, Constant *ZeroF, Constant *ZeroD, 
-                        DenseMap<const Value*, Value*> &ErrorMap) {
-    auto it = ErrorMap.find(v);
-    if (it != ErrorMap.end()) {
-        return it->second;
-    }
-    if (v->getType()->isDoubleTy()) {
-        return ZeroD;
-    }
-    if (v->getType()->isFloatTy()) {
-        return ZeroF;
-    }
-    return nullptr;
-}
+// static DSLValues getDSL(Value *v, utils::RuntimeFns &rt, 
+//                     DenseMap<const Value*, DSLValues> &DSLMap) {
+//     auto it = DSLMap.find(v);
+//     if (it != DSLMap.end()) {
+//         return it->second;
+//     }
+//     DSLValues d;
+//     bool isD = v->getType()->isDoubleTy();
+//     Constant *zfp = v->getType()->isDoubleTy() ? rt.ZeroD : rt.ZeroF;
+//     d.xhat = v;
+//     d.rhat = zfp;
+//     d.error = zfp;
+//     d.sign = ConstantInt::getFalse(rt.BoolTy);
+//     d.isExact = ConstantInt::getTrue(rt.BoolTy);
+//     d.ehat = zfp;
+//     return d;
+// }
 
 bool handleStore(StoreInst *SI, utils::RuntimeFns &rt, 
-                DenseMap<const Value*, Value*> &ErrorMap) {
+                DenseMap<const Value*, DSLValues> &DSLMap) {
     llvm::Value *val = SI->getValueOperand();
     if (!val->getType()->isDoubleTy() && !val->getType()->isFloatTy()) {
         return false;
@@ -28,19 +31,22 @@ bool handleStore(StoreInst *SI, utils::RuntimeFns &rt,
         return false;
     }
     llvm::Value *ptr = SI->getPointerOperand();
-    llvm::Value *dx = getError(val, rt.ZeroF, rt.ZeroD, ErrorMap);
+    DSLValues dsl = getDSL(val, rt, DSLMap);
+
     IRBuilder<> AfterSI(SI->getNextNode());
-    if (val->getType()->isDoubleTy()) {
-        AfterSI.CreateCall(rt.ShadowStoreD, {ptr, val, dx});
-    }
-    else {
-        AfterSI.CreateCall(rt.ShadowStoreF, {ptr, val, dx});
-    }
+
+    AfterSI.CreateCall(rt.ShadowStore, {ptr, val, dsl.rhat, dsl.sign, dsl.isExact, dsl.ehat, dsl.error});
+    // if (val->getType()->isDoubleTy()) {
+    //     AfterSI.CreateCall(rt.ShadowStoreD, {ptr, val, dsl.rhat, dsl.sign, dsl.isExact, dsl.ehat, dsl.error});
+    // }
+    // else {
+    //     AfterSI.CreateCall(rt.ShadowStoreF, {ptr, val, dsl.rhat, dsl.sign, dsl.isExact, dsl.ehat, dsl.error});
+    // }
     return true;
 }
 
 bool handleLoad(LoadInst *LI, utils::RuntimeFns &rt, 
-                DenseMap<const Value*, Value*> &ErrorMap) {
+                DenseMap<const Value*, DSLValues> &DSLMap) {
     if (!LI->getType()->isDoubleTy() && !LI->getType()->isFloatTy()) {
         return false;
     }
@@ -48,15 +54,8 @@ bool handleLoad(LoadInst *LI, utils::RuntimeFns &rt,
         return false;
     }
     llvm::Value *ptr = LI->getPointerOperand();
-    llvm::Value *dx;
     IRBuilder<> AfterLI(LI->getNextNode());
-    dx = LI->getType()->isDoubleTy() ? AfterLI.CreateCall(rt.ShadowLoadD, {ptr}) : AfterLI.CreateCall(rt.ShadowLoadF, {ptr});
-    // if (LI->getType()->isDoubleTy()) {
-    //     dx = AfterLI.CreateCall(rt.ShadowLoadD, {ptr});
-    // }
-    // else {
-    //     dx = AfterLI.CreateCall(rt.ShadowLoadF, {ptr});
-    // }
-    ErrorMap[LI] = dx;
+    llvm::Value *entryPtr = AfterLI.CreateCall(rt.ShadowLoad, {ptr});
+    DSLMap[LI] = extractDSL(AfterLI, entryPtr);
     return true;
 }
