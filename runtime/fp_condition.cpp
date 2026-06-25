@@ -1,5 +1,21 @@
 #include "fp_condition.h"
 #include <cmath>
+#include <cstdlib>
+#include <cstdio>
+
+static double load_threshold() {
+    if (const char *s = std::getenv("FPCHECK_THRESHOLD")) {
+        char *end = nullptr;
+        double v = std::strtod(s, &end);
+        if (end != s && v > 0.0) {
+            return v;
+        }
+        std::fprintf(stderr, "[fpcheck] ignoring invalid FPCHECK_THRESHOLD\"%s\"\n", s);
+    }
+    return 1e16;
+}
+
+double g_threshold = load_threshold();
 
 template <typename T>
 double condition_number_impl(uint32_t opraw, T a, T da, T b, T db, bool aExact, bool bExact, uint32_t siteId) {
