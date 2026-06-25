@@ -161,7 +161,7 @@ fp_entryF PropAsinFError(float a, float da) {
     mpfr_set_flt(ma, a, MPFR_RNDN);
 
     mpfr_mul(mt, ma, ma, MPFR_RNDN);
-    mpfr_ui_sub(mt, 1, mt, RNDN);
+    mpfr_ui_sub(mt, 1, mt, MPFR_RNDN);
     mpfr_sqrt(mt, mt, MPFR_RNDN);
     mpfr_ui_div(mt, 1, mt, MPFR_RNDN);
 
@@ -189,7 +189,7 @@ fp_entryD PropAsinDError(double a, double da) {
     mpfr_set_d(ma, a, MPFR_RNDN);
 
     mpfr_mul(mt, ma, ma, MPFR_RNDN);
-    mpfr_ui_sub(mt, 1, mt, RNDN);
+    mpfr_ui_sub(mt, 1, mt, MPFR_RNDN);
     mpfr_sqrt(mt, mt, MPFR_RNDN);
     mpfr_ui_div(mt, 1, mt, MPFR_RNDN);
     mpfr_asin(mx, ma, MPFR_RNDN);
@@ -218,7 +218,7 @@ fp_entryF PropAcosFError(float a, float da) {
     mpfr_set_flt(ma, a, MPFR_RNDN);
     
     mpfr_mul(mt, ma, ma, MPFR_RNDN);
-    mpfr_ui_sub(mt, 1, mt, RNDN);
+    mpfr_ui_sub(mt, 1, mt, MPFR_RNDN);
     mpfr_sqrt(mt, mt, MPFR_RNDN);
     mpfr_ui_div(mt, 1, mt, MPFR_RNDN);
     mpfr_neg(mt, mt, MPFR_RNDN);
@@ -247,7 +247,7 @@ fp_entryD PropAcosDError(double a, double da) {
     mpfr_set_d(ma, a, MPFR_RNDN);
     
     mpfr_mul(mt, ma, ma, MPFR_RNDN);
-    mpfr_ui_sub(mt, 1, mt, RNDN);
+    mpfr_ui_sub(mt, 1, mt, MPFR_RNDN);
     mpfr_sqrt(mt, mt, MPFR_RNDN);
     mpfr_ui_div(mt, 1, mt, MPFR_RNDN);
     mpfr_neg(mt, mt, MPFR_RNDN);
@@ -276,7 +276,7 @@ fp_entryF PropAtanFError(float a, float da) {
     mpfr_set_flt(ma, a, MPFR_RNDN);
     
     mpfr_mul(mt, ma, ma, MPFR_RNDN);
-    mpfr_add_ui(mt, mt, 1, RNDN);
+    mpfr_add_ui(mt, mt, 1, MPFR_RNDN);
     mpfr_ui_div(mt, 1, mt, MPFR_RNDN);
     mpfr_neg(mt, mt, MPFR_RNDN);
 
