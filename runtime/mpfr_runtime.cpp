@@ -15,7 +15,7 @@ fp_entryF PropSinFError(float a, float da) {
     mpfr_sin(mx, ma, MPFR_RNDN);
 
     double taylor = mpfr_get_d(mt, MPFR_RNDN);
-    double hprec = mpfr_set_d(mx, MPFR_RNDN);
+    double hprec = mpfr_get_d(mx, MPFR_RNDN);
     float dprec = sinf(a);
 
     result.value = dprec;
@@ -107,11 +107,10 @@ fp_entryF PropTanFError(float a, float da) {
     mpfr_init2(mx, 200);
     
     mpfr_set_flt(ma, a, MPFR_RNDN);
-
     mpfr_tan(mx, ma, MPFR_RNDN);
-    mpfr_mul(mt, mx, mx, MPFR_RNDN);
 
-    mpfr_ui(mt, mt, 1, MPFR_RNDN);
+    mpfr_mul(mt, mx, mx, MPFR_RNDN);
+    mpfr_add_ui(mt, mt, 1, MPFR_RNDN);
     
     double taylor = mpfr_get_d(mt, MPFR_RNDN);
     double hprec = mpfr_get_d(mx, MPFR_RNDN);
@@ -135,9 +134,9 @@ fp_entryD PropTanDError(double a, double da) {
     mpfr_set_d(ma, a, MPFR_RNDN);
 
     mpfr_tan(mx, ma, MPFR_RNDN);
-    mpfr_mul(mt, mx, mx, MPFR_RNDN);
 
-    mpfr_ui(mt, mt, 1, MPFR_RNDN);
+    mpfr_mul(mt, mx, mx, MPFR_RNDN);
+    mpfr_add_ui(mt, mt, 1, MPFR_RNDN);
     
     double taylor = mpfr_get_d(mt, MPFR_RNDN);
     double hprec = mpfr_get_d(mx, MPFR_RNDN);
@@ -324,7 +323,7 @@ fp_entryF PropLogFError(float a, float da) {
     mpfr_init2(mx, 200);
     
     mpfr_set_flt(ma, a, MPFR_RNDN);
-    mpfr_ui_div(md, 1, ma, MPFR_RNDN);
+    mpfr_ui_div(mt, 1, ma, MPFR_RNDN);
     mpfr_log(mx, ma, MPFR_RNDN);
     
     double taylor = mpfr_get_d(mt, MPFR_RNDN);
@@ -347,7 +346,7 @@ fp_entryD PropLogDError(double a, double da) {
     mpfr_init2(mx, 200);
     
     mpfr_set_d(ma, a, MPFR_RNDN);
-    mpfr_ui_div(md, 1, ma, MPFR_RNDN);
+    mpfr_ui_div(mt, 1, ma, MPFR_RNDN);
     mpfr_log(mx, ma, MPFR_RNDN);
     
     double taylor = mpfr_get_d(mt, MPFR_RNDN);
@@ -464,7 +463,7 @@ fp_entryD PropPowDError(double a, double da, double b, double db) {
     double dda = mpfr_get_d(mda, MPFR_RNDN);
     double ddb = mpfr_get_d(mdb, MPFR_RNDN);
     
-    double taylor = mpfr_get_d(mt, MPFR_RNDN);
+    // double taylor = mpfr_get_d(mt, MPFR_RNDN);
     double hprec = mpfr_get_d(mx, MPFR_RNDN);
     double dprec = pow(a, b);
 
