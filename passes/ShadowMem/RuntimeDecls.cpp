@@ -57,12 +57,12 @@ namespace utils {
         );
 
         ConditionNumberDTy = llvm::FunctionType::get(
-            DoubleTy,
+            VoidTy,
             {I32Ty, DoubleTy, DoubleTy, DoubleTy, DoubleTy, BoolTy, BoolTy, I32Ty},
             false
         );
         ConditionNumberFTy = llvm::FunctionType::get(
-            DoubleTy,
+            VoidTy,
             {I32Ty, FloatTy, FloatTy, FloatTy, FloatTy, BoolTy, BoolTy, I32Ty},
             false
         );

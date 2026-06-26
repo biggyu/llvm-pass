@@ -1,4 +1,5 @@
 #include "fp_condition.h"
+#include "fp_debug.h"
 #include <cmath>
 #include <cstdlib>
 #include <cstdio>
@@ -114,8 +115,8 @@ double condition_number_impl(uint32_t opraw, T a, T da, T b, T db, bool aExact, 
     }
 }
 
-double condition_number_double(uint32_t opraw, double a, double da, double b, double db, bool aExact, bool bExact, uint32_t siteId) {
-    FpOp opcode = (FpOp)opraw;
+void condition_number_double(uint32_t opraw, double a, double da, double b, double db, bool aExact, bool bExact, uint32_t siteId) {
+    // FpOp opcode = (FpOp)opraw;
     SplitGamma splits[2];
     int n = 0;
     double full = condition_number_impl<double>(opraw, a, da, b, db, aExact, bExact, siteId);
@@ -124,13 +125,13 @@ double condition_number_double(uint32_t opraw, double a, double da, double b, do
         for (int i = 0; i < n; i++) {
             if(splits[i].exact) continue;
             if(splits[i].value > g_threshold) {
-                // report_error(siteId, splits[i].kind, splits[i].value);
+                report_cond_err(siteId, (int) splits[i].kind, splits[i].value, a);
             }
         }
     }
 }
-double condition_number_float(uint32_t opraw, float a, float da, float b, float db, bool aExact, bool bExact, uint32_t siteId) {
-    FpOp opcode = (FpOp)opraw;
+void condition_number_float(uint32_t opraw, float a, float da, float b, float db, bool aExact, bool bExact, uint32_t siteId) {
+    // FpOp opcode = (FpOp)opraw;
     SplitGamma splits[2];
     int n = 0;
     double full = condition_number_impl<float>(opraw, a, da, b, db, aExact, bExact, siteId);
@@ -138,7 +139,7 @@ double condition_number_float(uint32_t opraw, float a, float da, float b, float 
         for (int i = 0; i < n; i++) {
             if(splits[i].exact) continue;
             if(splits[i].value > g_threshold) {
-                // report_error(siteId, splits[i].kind, splits[i].value);
+                report_cond_err(siteId, (int) splits[i].kind, splits[i].value, a);
             }
         }
     }

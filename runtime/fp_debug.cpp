@@ -7,7 +7,7 @@
 #include <string>
 #include <algorithm>
 #include <unordered_map>
-// #ifdef ENABLE_FP_DEBUG
+
 static uint64_t total_checks_double = 0;
 static uint64_t total_checks_float = 0;
 
@@ -44,8 +44,15 @@ struct SiteStats {
     double sample_x = 0.0;
     double sample_dx = 0.0;
 
-    double sample_xzero_x = 0.0;
-    double sample_xzero_dx = 0.0;
+    // double sample_xzero_x = 0.0;
+    // double sample_xzero_dx = 0.0;
+
+    // condition-number aggregation
+    uint64_t cond_warn_cancellation = 0.0;
+    uint64_t cond_warn_sensitivity = 0.0;
+    
+    double max_gamma = 0.0;
+    double sample_gamma_x = 0.0;
 };
 
 struct SiteInfo {
@@ -277,11 +284,11 @@ static void report_top_impl(std::unordered_map<int, SiteStats> &site_map) {
     }
 }
 
-extern "C" void report_top_double(std::unordered_map<int, SiteStats> &site_map) {
+static void report_top_double(std::unordered_map<int, SiteStats> &site_map) {
     return report_top_impl<double>(site_map);
 }
 
-extern "C" void report_top_float(std::unordered_map<int, SiteStats> &site_map) {
+static void report_top_float(std::unordered_map<int, SiteStats> &site_map) {
     return report_top_impl<float>(site_map);
 }
 
@@ -295,4 +302,7 @@ extern "C" void report_debug_summary() {
     report_top_float(float_sites);
 
 }
-// #endif
+
+static void report_cond_err(int site_id, int err_kind, double xhat, double value) {
+    
+}

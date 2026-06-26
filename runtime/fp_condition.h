@@ -23,8 +23,9 @@ struct SplitGamma {
     bool exact;
 };
 
-double condition_number_double(uint32_t opcode, double a, double da, double b, double db, bool aExact, bool bExact, uint32_t siteId);
-double condition_number_float(uint32_t opcode, float a, float da, float b, float db, bool aExact, bool bExact, uint32_t siteId);
+void condition_number_double(uint32_t opcode, double a, double da, double b, double db, bool aExact, bool bExact, uint32_t siteId);
+
+void condition_number_float(uint32_t opcode, float a, float da, float b, float db, bool aExact, bool bExact, uint32_t siteId);
 
 #ifdef __cplusplus
 }
