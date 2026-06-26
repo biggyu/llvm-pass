@@ -11,7 +11,7 @@ void check_error_float(float x, float dx, int site_id, int metric);
 
 void report_debug_summary();
 
-void report_cond_err(int site_id, int err_kind, double xhat, double value);
+static void report_cond_err(int site_id, int err_kind, double gamma, double operand);
 
 #ifdef __cplusplus
 }

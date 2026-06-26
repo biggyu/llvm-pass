@@ -48,11 +48,11 @@ struct SiteStats {
     // double sample_xzero_dx = 0.0;
 
     // condition-number aggregation
-    uint64_t cond_warn_cancellation = 0.0;
-    uint64_t cond_warn_sensitivity = 0.0;
+    uint64_t cond_cancellation = 0.0;
+    uint64_t cond_sensitivity = 0.0;
     
     double max_gamma = 0.0;
-    double sample_gamma_x = 0.0;
+    double sample_gamma_operand = 0.0;
 };
 
 struct SiteInfo {
@@ -173,8 +173,8 @@ static void check_error_impl(T x, T dx, int site_id, int metric, uint64_t &total
         S.warn_16++;
         S.warn_prec++;
 
-        S.sample_xzero_x = x;
-        S.sample_xzero_dx = dx;
+        // S.sample_xzero_x = x;
+        // S.sample_xzero_dx = dx;
         return;
     }
     S.finite_cnt++;
@@ -278,6 +278,12 @@ static void report_top_impl(std::unordered_map<int, SiteStats> &site_map) {
                (unsigned long long)S.nan_or_inf,
                (unsigned long long)S.xzero);
 
+        printf("    condition: max_gamma=%.3e kind=%s, cancellation_hits=%llu, sensitivity_hits=%llu, (operand=%.6e)\n",
+                S.max_gamma,
+                (unsigned long long)S.cond_cancellation,
+                (unsigned long long)S.cond_sensitivity,
+                S.sample_gamma_operand);
+
         printf("    sample: x=%.17e dx=%.17e\n",
                S.sample_x,
                S.sample_dx);
@@ -303,6 +309,17 @@ extern "C" void report_debug_summary() {
 
 }
 
-static void report_cond_err(int site_id, int err_kind, double xhat, double value) {
+static void report_cond_err(int site_id, int err_kind, double gamma, double operand) {
+    SiteStats &S = double_sites[site_id];
+    if (err_kind == (int)ErrKind::Cancellation) {
+        S.cond_cancellation++;
+    }
+    else {
+        S.cond_sensitivity++;
+    }
     
+    if (gamma > S.max_gamma) {
+        S.max_gamma = gamma;
+        S.sample_gamma_operand = operand;
+    }
 }

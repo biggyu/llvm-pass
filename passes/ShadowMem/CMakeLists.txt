@@ -1,8 +1,9 @@
 add_llvm_pass(ShadowMem    
+    DebugCheck.cpp
+    DSLValues.cpp
     ErrorProp.cpp
-    ShadowMemory.cpp
-    ShadowMemPass.cpp
     RuntimeDecls.cpp
     RuntimeMPFR.cpp
-    DebugCheck.cpp
+    ShadowMemory.cpp
+    ShadowMemPass.cpp
 )

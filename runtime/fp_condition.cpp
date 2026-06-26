@@ -19,8 +19,8 @@ static double load_threshold() {
 double g_threshold = load_threshold();
 
 template <typename T>
-double condition_number_impl(uint32_t opraw, T a, T da, T b, T db, bool aExact, bool bExact, uint32_t siteId) {
-    FpOp opcode = (FpOp)opraw
+double condition_number_impl(uint32_t opraw, SplitGamma *splits, int *nsplits, T a, T da, T b, T db, bool aExact, bool bExact, uint32_t siteId) {
+    FpOp opcode = (FpOp)opraw;
     switch (opcode) {
         case FpOp::Add:
         case FpOp::Sub: {
@@ -95,19 +95,19 @@ double condition_number_impl(uint32_t opraw, T a, T da, T b, T db, bool aExact, 
         }
 
         case FpOp::Acos: {
-            double g = std::fabs(a / std::sqrt(1 - std::(a, 2) * std::acos(a)));
+            double g = std::fabs(a / std::sqrt(1 - std::pow(a, 2) * std::acos(a)));
             splits[0] = {g, ErrKind::Cancellation, aExact};
             *nsplits = 1;
             return g;
         }
         case FpOp::Asin: {
-            double g = std::fabs(a / std::sqrt(1 - std::(a, 2) * std::asin(a)));
+            double g = std::fabs(a / std::sqrt(1 - std::pow(a, 2) * std::asin(a)));
             splits[0] = {g, ErrKind::Cancellation, aExact};
             *nsplits = 1;
             return g;
         }
         case FpOp::Atan: {
-            double g = a / ((1 + std::(a, 2)) * std::atan(a));
+            double g = a / ((1 + std::pow(a, 2)) * std::atan(a));
             splits[0] = {g, ErrKind::Cancellation, aExact};
             *nsplits = 1;
             return g;
@@ -119,7 +119,7 @@ void condition_number_double(uint32_t opraw, double a, double da, double b, doub
     // FpOp opcode = (FpOp)opraw;
     SplitGamma splits[2];
     int n = 0;
-    double full = condition_number_impl<double>(opraw, a, da, b, db, aExact, bExact, siteId);
+    double full = condition_number_impl<double>(opraw, splits, &n, a, da, b, db, aExact, bExact, siteId);
     //TODO: g_threshold
     if (full > g_threshold) {
         for (int i = 0; i < n; i++) {
@@ -134,7 +134,7 @@ void condition_number_float(uint32_t opraw, float a, float da, float b, float db
     // FpOp opcode = (FpOp)opraw;
     SplitGamma splits[2];
     int n = 0;
-    double full = condition_number_impl<float>(opraw, a, da, b, db, aExact, bExact, siteId);
+    double full = condition_number_impl<float>(opraw, splits, &n, a, da, b, db, aExact, bExact, siteId);
     if (full > g_threshold) {
         for (int i = 0; i < n; i++) {
             if(splits[i].exact) continue;
