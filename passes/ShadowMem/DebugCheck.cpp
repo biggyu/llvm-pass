@@ -2,6 +2,7 @@
 #include <cstdint>
 #include <string>
 #include "llvm/IR/DebugInfoMetadata.h"
+#include "../runtime/fp_condition.h"
 
 cl::opt<bool> EnableDebugChecks(
     "fp-debug-checks",

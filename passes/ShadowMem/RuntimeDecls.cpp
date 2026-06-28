@@ -22,9 +22,14 @@ namespace utils {
             true
         );
 
-        ShadowStoreTy = llvm::FunctionType::get(
+        ShadowStoreDTy = llvm::FunctionType::get(
             VoidTy,
             {PtrTy, DoubleTy, DoubleTy, DoubleTy, BoolTy, BoolTy, DoubleTy},
+            false
+        );
+        ShadowStoreFTy = llvm::FunctionType::get(
+            VoidTy,
+            {PtrTy, FloatTy, DoubleTy, DoubleTy, BoolTy, BoolTy, DoubleTy},
             false
         );
         ShadowLoadTy = llvm::FunctionType::get(
@@ -69,7 +74,8 @@ namespace utils {
 
         Printf = M.getOrInsertFunction("printf", PrintfTy);
         
-        ShadowStore = M.getOrInsertFunction("shadow_store", ShadowStoreTy);
+        ShadowStoreF = M.getOrInsertFunction("shadow_store_float", ShadowStoreFTy);
+        ShadowStoreD = M.getOrInsertFunction("shadow_store_double", ShadowStoreDTy);
         ShadowLoad = M.getOrInsertFunction("shadow_load", ShadowLoadTy);
 
         CheckErrorF = M.getOrInsertFunction("check_error_float", CheckErrorFTy);

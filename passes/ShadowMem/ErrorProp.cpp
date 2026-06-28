@@ -2,6 +2,7 @@
 #include "DebugCheck.h"
 #include "llvm/IR/IRBuilder.h"
 // #include "llvm/IR/Intrinsics.h"
+#include "../runtime/fp_condition.h"
 using namespace llvm;
 
 bool handleIntrinsic(IntrinsicInst *II, utils::RuntimeFns &rt,
@@ -11,13 +12,19 @@ bool handleIntrinsic(IntrinsicInst *II, utils::RuntimeFns &rt,
     if (!II->getType()->isDoubleTy() && !II->getType()->isFloatTy()) {
         return false;
     }
-    Value *arg0 = II->getArgOperand(0);
+    IRBuilder<> AfterII(II->getNextNode());
+    Value *x_org = II;
+    Value *arg0_org = II->getArgOperand(0);
+    
+    bool isFloat = II->getType()->isFloatTy();
+    Value *arg0 = isFloat ? AfterII.CreateFPExt(arg0_org, rt.DoubleTy, "II.arg0") : arg0_org;
+    Value *x = isFloat ? AfterII.CreateFPExt(x_org, rt.DoubleTy, "II.x") : x_org;
+
     DSLValues arg0_dsl = getDSL(arg0, rt, DSLMap);
     Value *arg0_err = arg0_dsl.error;
-    IRBuilder<> AfterII(II->getNextNode());
     //TODO: Exception Handling(arg0 < 0)
     if (II->getIntrinsicID() == Intrinsic::sqrt) {
-        Value *x = II;
+        // Value *x = II;
         Value *negVal = AfterII.CreateFNeg(x, "sqrt.negval");
         Value *fma = AfterII.CreateIntrinsic(
             Intrinsic::fma,
@@ -235,10 +242,16 @@ bool handleExternal(CallInst *CI, utils::RuntimeFns &rt,
     if (!CI->getType()->isDoubleTy() && !CI->getType()->isFloatTy()) {
         return false;
     }
-    Value *arg0 = CI->getArgOperand(0);
+    IRBuilder<> AfterCI(CI->getNextNode());
+    Value *x_org = CI;
+    Value *arg0_org = CI->getArgOperand(0);
+
+    bool isFloat = CI->getType()->isFloatTy();
+    Value *arg0 = isFloat ? AfterCI.CreateFPExt(arg0_org, rt.DoubleTy, "CI.arg0") : arg0_org;
+    Value *x = isFloat ? AfterCI.CreateFPExt(x_org, rt.DoubleTy, "CI.x") : x_org;
+
     DSLValues arg0_dsl = getDSL(arg0, rt, DSLMap);
     Value *arg0_err = arg0_dsl.error;
-    IRBuilder<> AfterCI(CI->getNextNode());
     if (Function *Callee = CI->getCalledFunction()) {
         StringRef N = Callee->getName();
         //TODO: Exception Handling(arg0 < 0)
@@ -492,8 +505,16 @@ bool handleBinary(Instruction *BO, utils::RuntimeFns &rt,
     if (!BO->getType()->isDoubleTy() && !BO->getType()->isFloatTy()) {
         return false;
     }
-    Value *opr0 = BO->getOperand(0);
-    Value *opr1 = BO->getOperand(1);
+    IRBuilder<> AfterBO(BO->getNextNode());
+    Value *x_org = BO;
+    Value *opr0_org = BO->getOperand(0);
+    Value *opr1_org = BO->getOperand(1);
+    
+    bool isFloat = BO->getType()->isFloatTy();
+    Value *opr0 = isFloat ? AfterBO.CreateFPExt(opr0_org, rt.DoubleTy, "BO.opr0") : opr0_org;
+    Value *opr1 = isFloat ? AfterBO.CreateFPExt(opr1_org, rt.DoubleTy, "BO.opr1") : opr1_org;
+    Value *x = isFloat ? AfterBO.CreateFPExt(x_org, rt.DoubleTy, "BO.x") : x_org;
+    
     DSLValues opr0_dsl = getDSL(opr0, rt, DSLMap);
     DSLValues opr1_dsl = getDSL(opr1, rt, DSLMap);
     Value *opr0_err = opr0_dsl.error;
@@ -501,10 +522,8 @@ bool handleBinary(Instruction *BO, utils::RuntimeFns &rt,
     // Value *opr0_err = getError(opr0, rt.ZeroF, rt.ZeroD, DSLMap);
     // Value *opr1_err = getError(opr1, rt.ZeroF, rt.ZeroD, DSLMap);
     // FpOp opcode;
-    IRBuilder<> AfterBO(BO->getNextNode());
     switch (BO->getOpcode()) {
         case Instruction::FAdd: {
-            Value *x = BO;
             Value *bp = AfterBO.CreateFSub(x, opr0, "fadd.bp");
             Value *ap = AfterBO.CreateFSub(x, bp, "fadd.ap");
             Value *da = AfterBO.CreateFSub(opr0, ap, "fadd.da");
@@ -521,7 +540,7 @@ bool handleBinary(Instruction *BO, utils::RuntimeFns &rt,
             return true;
         }
         case Instruction::FSub: {
-            Value *x = BO;
+            // Value *x = BO;
             Value *bp = AfterBO.CreateFSub(x, opr0, "fsub.bp");
             Value *ap = AfterBO.CreateFSub(x, bp, "fsub.ap");
             Value *da = AfterBO.CreateFSub(opr0, ap, "fsub.da");
@@ -538,7 +557,7 @@ bool handleBinary(Instruction *BO, utils::RuntimeFns &rt,
             return true;
         }
         case Instruction::FMul: {
-            Value *x = BO;
+            // Value *x = BO;
             Value *negVal = AfterBO.CreateFNeg(x, "fmul.negval");
             Value *fma = AfterBO.CreateIntrinsic(
                 Intrinsic::fma,
@@ -563,7 +582,7 @@ bool handleBinary(Instruction *BO, utils::RuntimeFns &rt,
             return true;
         }
         case Instruction::FDiv: {
-            Value *x = BO;
+            // Value *x = BO;
             Value *invopr0 = AfterBO.CreateFNeg(opr0, "fdiv.invopr0");
             Value *fma = AfterBO.CreateIntrinsic(
                 Intrinsic::fma,

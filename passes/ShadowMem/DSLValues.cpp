@@ -10,15 +10,15 @@ DSLValues getDSL(Value *v, utils::RuntimeFns &rt,
         return it->second;
     }
     DSLValues d;
-    bool isD = v->getType()->isDoubleTy();
-    Constant *zfp = v->getType()->isDoubleTy() ? rt.ZeroD : rt.ZeroF;
+    // bool isD = v->getType()->isDoubleTy();
+    // Constant *zfp = v->getType()->isDoubleTy() ? rt.ZeroD : rt.ZeroF;    
     d.xhat = v;
-    d.rhat = zfp;
-    d.error = zfp;
+    d.rhat = rt.ZeroD;
+    d.error = rt.ZeroD;
     llvm::LLVMContext &ctx = v->getContext();
     d.sign = ConstantInt::getFalse(ctx);
     d.isExact = ConstantInt::getTrue(ctx);
-    d.ehat = zfp;
+    d.ehat = rt.ZeroD;
     return d;
 }
 

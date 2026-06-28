@@ -35,13 +35,14 @@ bool handleStore(StoreInst *SI, utils::RuntimeFns &rt,
 
     IRBuilder<> AfterSI(SI->getNextNode());
 
-    AfterSI.CreateCall(rt.ShadowStore, {ptr, val, dsl.rhat, dsl.sign, dsl.isExact, dsl.ehat, dsl.error});
-    // if (val->getType()->isDoubleTy()) {
-    //     AfterSI.CreateCall(rt.ShadowStoreD, {ptr, val, dsl.rhat, dsl.sign, dsl.isExact, dsl.ehat, dsl.error});
-    // }
-    // else {
-    //     AfterSI.CreateCall(rt.ShadowStoreF, {ptr, val, dsl.rhat, dsl.sign, dsl.isExact, dsl.ehat, dsl.error});
-    // }
+    // AfterSI.CreateCall(rt.ShadowStoreD, {ptr, val, dsl.rhat, dsl.error, dsl.sign, dsl.isExact, dsl.ehat});
+    // AfterSI.CreateCall(rt.ShadowStore, {ptr, val, dsl.rhat, dsl.sign, dsl.isExact, dsl.ehat, dsl.error});
+    if (val->getType()->isDoubleTy()) {
+        AfterSI.CreateCall(rt.ShadowStoreD, {ptr, val, dsl.rhat, dsl.error, dsl.sign, dsl.isExact, dsl.ehat});
+    }
+    else {
+        AfterSI.CreateCall(rt.ShadowStoreF, {ptr, val, dsl.rhat, dsl.error, dsl.sign, dsl.isExact, dsl.ehat});
+    }
     return true;
 }
 

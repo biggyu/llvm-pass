@@ -23,7 +23,8 @@ namespace utils {
         llvm::Constant *ZeroD;
 
         llvm::FunctionCallee Printf;
-        llvm::FunctionCallee ShadowStore;
+        llvm::FunctionCallee ShadowStoreD;
+        llvm::FunctionCallee ShadowStoreF;
         llvm::FunctionCallee ShadowLoad;
 
         llvm::FunctionCallee CheckErrorD;
@@ -34,7 +35,8 @@ namespace utils {
         llvm::FunctionCallee ConditionNumberF;
 
         llvm::FunctionType *PrintfTy;
-        llvm::FunctionType *ShadowStoreTy;
+        llvm::FunctionType *ShadowStoreDTy;
+        llvm::FunctionType *ShadowStoreFTy;
         llvm::FunctionType *ShadowLoadTy;
 
         llvm::FunctionType *CheckErrorFTy;

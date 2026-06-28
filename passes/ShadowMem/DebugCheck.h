@@ -4,7 +4,7 @@
 #include "llvm/IR/Instruction.h"
 #include "llvm/Support/CommandLine.h"
 #include "decls_fp.h"
-#include "fp_condition.h"
+#include "../runtime/fp_condition.h"
 #include "DSLValues.h"
 
 using namespace llvm;

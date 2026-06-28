@@ -309,7 +309,7 @@ extern "C" void report_debug_summary() {
 
 }
 
-static void report_cond_err(int site_id, int err_kind, double gamma, double operand) {
+void report_cond_err(int site_id, int err_kind, double gamma, double operand) {
     SiteStats &S = double_sites[site_id];
     if (err_kind == (int)ErrKind::Cancellation) {
         S.cond_cancellation++;
