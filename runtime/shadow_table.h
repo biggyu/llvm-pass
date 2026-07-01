@@ -32,47 +32,21 @@ public:
         std::memset(table, 0, sizeof(table));
     }
     void insert(void* key, double x, double dx) {
-        uintptr_t k = (uintptr_t)key;
+        // uintptr_t k = (uintptr_t)key;
         size_t idx = hashPtr(key);
-        for (size_t probe = 0; probe < TABLE_SIZE; probe++) {
-            ShadowEntry &entry = table[idx];
+        ShadowEntry &entry = table[idx];
+        entry.used = true;
+        entry.key = (uintptr_t)key;
+        entry.value = x;
+        entry.error = dx;
+    }
 
-            if (!entry.used) {
-                entry.used = true;
-                entry.key = k;
-                entry.value = x;
-                entry.error = dx;
-                return;
-            }
-            //! Update value or just error
-            if (entry.key == k) {
-                entry.error = dx;
-                return;
-            }
-            idx = (idx + 1) & (TABLE_SIZE - 1); 
-        }
-    }
-    void insert(void* key, float x, double dx) {
-        insert(key, (double)x, dx);
-    }
-    double getDouble(void* key) {
-        uintptr_t k = (uintptr_t)key;
+    double get(void* key, double progVal) {
         size_t idx = hashPtr(key);
-        
-        for (size_t probe = 0; probe < TABLE_SIZE; probe++) {
-            ShadowEntry &entry = table[idx];
-
-            if (!entry.used) {
-                return 0.0;
-            }
-            if (entry.key == k) {
-                return entry.error;
-            }
-            idx = (idx + 1) & (TABLE_SIZE - 1); 
+        ShadowEntry &entry = table[idx];
+        if(entry.used && entry.key == (uintptr_t)key && entry.value == progVal) {
+            return entry.error;
         }
         return 0.0;
-    }
-    float getFloat(void* key) {
-        return (float)getDouble(key);
     }
 };

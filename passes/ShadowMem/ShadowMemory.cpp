@@ -9,13 +9,14 @@ static Value* getError(Value *v, Constant *ZeroF, Constant *ZeroD,
     if (it != ErrorMap.end()) {
         return it->second;
     }
-    if (v->getType()->isDoubleTy()) {
-        return ZeroD;
-    }
-    if (v->getType()->isFloatTy()) {
-        return ZeroF;
-    }
-    return nullptr;
+    return ZeroD;
+    // if (v->getType()->isDoubleTy()) {
+    //     return ZeroD;
+    // }
+    // if (v->getType()->isFloatTy()) {
+    //     return ZeroF;
+    // }
+    // return nullptr;
 }
 
 bool handleStore(StoreInst *SI, utils::RuntimeFns &rt, 
@@ -47,10 +48,9 @@ bool handleLoad(LoadInst *LI, utils::RuntimeFns &rt,
     if (LI->isVolatile() || LI->isAtomic()) {
         return false;
     }
-    llvm::Value *ptr = LI->getPointerOperand();
-    llvm::Value *dx;
+    llvm::Value *dx, *ptr = LI->getPointerOperand();
     IRBuilder<> AfterLI(LI->getNextNode());
-    dx = LI->getType()->isDoubleTy() ? AfterLI.CreateCall(rt.ShadowLoadD, {ptr}) : AfterLI.CreateCall(rt.ShadowLoadF, {ptr});
+    dx = LI->getType()->isDoubleTy() ? AfterLI.CreateCall(rt.ShadowLoadD, {ptr, LI}) : AfterLI.CreateCall(rt.ShadowLoadF, {ptr, LI});
     // if (LI->getType()->isDoubleTy()) {
     //     dx = AfterLI.CreateCall(rt.ShadowLoadD, {ptr});
     // }

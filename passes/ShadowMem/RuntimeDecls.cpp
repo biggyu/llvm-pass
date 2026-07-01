@@ -26,17 +26,17 @@ namespace utils {
         );
         ShadowStoreFTy = llvm::FunctionType::get(
             VoidTy,
-            {PtrTy, FloatTy, FloatTy},
+            {PtrTy, FloatTy, DoubleTy},
             false
         );
         ShadowLoadDTy = llvm::FunctionType::get(
             DoubleTy,
-            {PtrTy},
+            {PtrTy, DoubleTy},
             false
         );
         ShadowLoadFTy = llvm::FunctionType::get(
-            FloatTy,
-            {PtrTy},
+            DoubleTy,
+            {PtrTy, FloatTy},
             false
         );
 
@@ -47,7 +47,7 @@ namespace utils {
         );
         CheckErrorFTy = llvm::FunctionType::get(
             VoidTy,
-            {FloatTy, FloatTy, I32Ty, I32Ty},
+            {FloatTy, DoubleTy, I32Ty, I32Ty},
             false
         );
 

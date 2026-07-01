@@ -4,19 +4,20 @@
 // #include "llvm/IR/Intrinsics.h"
 using namespace llvm;
 
-static Value* getError(Value *v, Constant *ZeroF, Constant *ZeroD, 
+static Value* getError(Value *v, Constant *ZeroD, 
                         DenseMap<const Value*, Value*> &ErrorMap) {
     auto it = ErrorMap.find(v);
     if (it != ErrorMap.end()) {
         return it->second;
     }
-    if (v->getType()->isDoubleTy()) {
-        return ZeroD;
-    }
-    if (v->getType()->isFloatTy()) {
-        return ZeroF;
-    }
-    return nullptr;
+    return ZeroD;
+    // if (v->getType()->isDoubleTy()) {
+    //     return ZeroD;
+    // }
+    // if (v->getType()->isFloatTy()) {
+    //     return ZeroF;
+    // }
+    // return nullptr;
 }
 
 bool handleIntrinsic(IntrinsicInst *II, utils::RuntimeFns &rt,
@@ -27,16 +28,19 @@ bool handleIntrinsic(IntrinsicInst *II, utils::RuntimeFns &rt,
         return false;
     }
     IRBuilder<> AfterII(II->getNextNode());
+    bool isFloat = II->getType()->isFloatTy();
+    Value *arg0_org = II->getArgOperand(0);
+    Value *arg0 = isFloat ? AfterII.CreateFPExt(arg0_org, rt.DoubleTy, "II.arg0")   : arg0_org;
+
+    Value *arg0_err = getError(arg0, rt.ZeroD, ErrorMap);
     //TODO: Exception Handling(arg0 < 0)
     if (II->getIntrinsicID() == Intrinsic::sqrt) {
-        Value *arg0 = II->getArgOperand(0);
-        Value *arg0_err = getError(arg0, rt.ZeroF, rt.ZeroD, ErrorMap);
-
-        Value *x = II;
+        Value *x_org = II;
+        Value *x = isFloat ? AfterII.CreateFPExt(x_org, rt.DoubleTy, "II.x")        : x_org;
         Value *negVal = AfterII.CreateFNeg(x, "sqrt.negval");
         Value *fma = AfterII.CreateIntrinsic(
             Intrinsic::fma,
-            {x->getType()},
+            {rt.DoubleTy},
             {negVal, x, arg0},
             nullptr,
             "sqrt.fma"
@@ -46,35 +50,138 @@ bool handleIntrinsic(IntrinsicInst *II, utils::RuntimeFns &rt,
         Value *den = AfterII.CreateFMul(two, x, "sqrt.den");
         Value *dx = AfterII.CreateFDiv(num, den, "sqrt.err");
         ErrorMap[II] = dx;
+        if (EnableDebugChecks) {
+            insertCheckError(AfterII, x, dx, II, rt);
+        }
         // Value *fmt = AfterII.CreateGlobalStringPtr("sqrt_II: x=%f, dx=%e\n");
         // AfterII.CreateCall(rt.Printf, {fmt, x, dx});
         return true;
     }
-    else if (II->getIntrinsicID() == Intrinsic::fabs) {
-        Value *arg0 = II->getArgOperand(0);
-        Value *arg0_err = getError(arg0, rt.ZeroF, rt.ZeroD, ErrorMap);
-        if (II->getType()->isDoubleTy()) {
-            Value *ret = AfterII.CreateCall(rt_mpfr.PropFabsDError, {arg0, arg0_err});
-            // Value *x = Builder.CreateExtractValue(ret, {0}, "fabs.val");
-            Value *dx = AfterII.CreateExtractValue(ret, {1}, "fabs.err");
-
-            ErrorMap[II] = dx;
-        }
-        else if (II->getType()->isFloatTy()) {
-            Value *ret = AfterII.CreateCall(rt_mpfr.PropFabsFError, {arg0, arg0_err});
-            // Value *x = Builder.CreateExtractValue(ret, {0}, "fabsf.val");
-            Value *dx = AfterII.CreateExtractValue(ret, {1}, "fabsf.err");
-
-            ErrorMap[II] = dx;
-        }
-        return true;
-    }
     else if (II->getIntrinsicID() == Intrinsic::sin) {
-        llvm::errs() << "II::sin\n";
+        Value *ret = AfterII.CreateCall(rt_mpfr.PropSinDError, {arg0, arg0_err});
+        Value *x = AfterII.CreateExtractValue(ret, {0}, "sin.val");
+        Value *dx = AfterII.CreateExtractValue(ret, {1}, "sin.err");
+
+        ErrorMap[II] = dx;
+        if (EnableDebugChecks) {
+            insertCheckError(AfterII, x, dx,II, rt);
+        }
         return true;
     }
     else if (II->getIntrinsicID() == Intrinsic::cos) {
-        llvm::errs() << "II::cos\n";
+        Value *ret = AfterII.CreateCall(rt_mpfr.PropCosDError, {arg0, arg0_err});
+        Value *x = AfterII.CreateExtractValue(ret, {0}, "cos.val");
+        Value *dx = AfterII.CreateExtractValue(ret, {1}, "cos.err");
+
+        ErrorMap[II] = dx;
+        if (EnableDebugChecks) {
+            insertCheckError(AfterII, x, dx,II, rt);
+        }
+        return true;
+    }
+    else if (II->getIntrinsicID() == Intrinsic::tan) {
+        Value *ret = AfterII.CreateCall(rt_mpfr.PropTanDError, {arg0, arg0_err});
+        Value *x = AfterII.CreateExtractValue(ret, {0}, "tan.val");
+        Value *dx = AfterII.CreateExtractValue(ret, {1}, "tan.err");
+
+        ErrorMap[II] = dx;
+        if (EnableDebugChecks) {
+            insertCheckError(AfterII, x, dx,II, rt);
+        }
+        return true;
+    }
+    else if (II->getIntrinsicID() == Intrinsic::asin) {
+        Value *ret = AfterII.CreateCall(rt_mpfr.PropAsinDError, {arg0, arg0_err});
+        Value *x = AfterII.CreateExtractValue(ret, {0}, "asin.val");
+        Value *dx = AfterII.CreateExtractValue(ret, {1}, "asin.err");
+
+        ErrorMap[II] = dx;
+        if (EnableDebugChecks) {
+            insertCheckError(AfterII, x, dx,II, rt);
+        }
+        return true;
+    }
+    else if (II->getIntrinsicID() == Intrinsic::acos) {
+        Value *ret = AfterII.CreateCall(rt_mpfr.PropAcosDError, {arg0, arg0_err});
+        Value *x = AfterII.CreateExtractValue(ret, {0}, "acos.val");
+        Value *dx = AfterII.CreateExtractValue(ret, {1}, "acos.err");
+
+        ErrorMap[II] = dx;
+        if (EnableDebugChecks) {
+            insertCheckError(AfterII, x, dx,II, rt);
+        }
+        return true;
+    }
+    else if (II->getIntrinsicID() == Intrinsic::atan) {
+        Value *ret = AfterII.CreateCall(rt_mpfr.PropAtanDError, {arg0, arg0_err});
+        Value *x = AfterII.CreateExtractValue(ret, {0}, "atan.val");
+        Value *dx = AfterII.CreateExtractValue(ret, {1}, "atan.err");
+
+        ErrorMap[II] = dx;
+        if (EnableDebugChecks) {
+            insertCheckError(AfterII, x, dx,II, rt);
+        }
+        return true;
+    }
+    else if (II->getIntrinsicID() == Intrinsic::exp) {
+        Value *ret = AfterII.CreateCall(rt_mpfr.PropExpDError, {arg0, arg0_err});
+        Value *x = AfterII.CreateExtractValue(ret, {0}, "exp.val");
+        Value *dx = AfterII.CreateExtractValue(ret, {1}, "exp.err");
+
+        ErrorMap[II] = dx;
+        if (EnableDebugChecks) {
+            insertCheckError(AfterII, x, dx,II, rt);
+        }
+        return true;
+    }
+    else if (II->getIntrinsicID() == Intrinsic::pow) {
+        Value *arg1_org = II->getArgOperand(1);
+        Value *arg1 = isFloat ? AfterII.CreateFPExt(arg1_org, rt.DoubleTy, "II.arg1")   : arg1_org;
+        Value *arg1_err = getError(arg1, rt.ZeroD, ErrorMap);
+        Value *ret = AfterII.CreateCall(rt_mpfr.PropPowDError, {arg0, arg0_err});
+        Value *x = AfterII.CreateExtractValue(ret, {0}, "pow.val");
+        Value *dx = AfterII.CreateExtractValue(ret, {1}, "pow.err");
+
+        ErrorMap[II] = dx;
+        if (EnableDebugChecks) {
+            insertCheckError(AfterII, x, dx,II, rt);
+        }
+        return true;
+    }
+    else if (II->getIntrinsicID() == Intrinsic::log) {
+        Value *ret = AfterII.CreateCall(rt_mpfr.PropLogDError, {arg0, arg0_err});
+        Value *x = AfterII.CreateExtractValue(ret, {0}, "log.val");
+        Value *dx = AfterII.CreateExtractValue(ret, {1}, "log.err");
+
+        ErrorMap[II] = dx;
+        if (EnableDebugChecks) {
+            insertCheckError(AfterII, x, dx,II, rt);
+        }
+        return true;
+    }
+    else if (II->getIntrinsicID() == Intrinsic::fabs) {
+        Value *ret = AfterII.CreateCall(rt_mpfr.PropFabsDError, {arg0, arg0_err});
+        Value *x = AfterII.CreateExtractValue(ret, {0}, "fabs.val");
+        Value *dx = AfterII.CreateExtractValue(ret, {1}, "fabs.err");
+
+        ErrorMap[II] = dx;
+        if (EnableDebugChecks) {
+            insertCheckError(AfterII, x, dx,II, rt);
+        }
+        // if (II->getType()->isDoubleTy()) {
+        //     Value *ret = AfterII.CreateCall(rt_mpfr.PropFabsDError, {arg0, arg0_err});
+        //     Value *x = AfterII.CreateExtractValue(ret, {0}, "fabs.val");
+        //     Value *dx = AfterII.CreateExtractValue(ret, {1}, "fabs.err");
+
+        //     ErrorMap[II] = dx;
+        // }
+        // else if (II->getType()->isFloatTy()) {
+        //     Value *ret = AfterII.CreateCall(rt_mpfr.PropFabsFError, {arg0, arg0_err});
+        //     // Value *x = AfterII.CreateExtractValue(ret, {0}, "fabsf.val");
+        //     Value *dx = AfterII.CreateExtractValue(ret, {1}, "fabsf.err");
+
+        //     ErrorMap[II] = dx;
+        // }
         return true;
     }
     else if (II->getIntrinsicID() == Intrinsic::atan) {
@@ -93,20 +200,22 @@ bool handleExternal(CallInst *CI, utils::RuntimeFns &rt,
     if (!CI->getType()->isDoubleTy() && !CI->getType()->isFloatTy()) {
         return false;
     }
-    Value *arg0 = CI->getArgOperand(0);
-    Value *arg0_err = getError(arg0, rt.ZeroF, rt.ZeroD, ErrorMap);
     IRBuilder<> AfterCI(CI->getNextNode());
+    bool isFloat = CI->getType()->isFloatTy();
+    Value *arg0_org = CI->getArgOperand(0);
+    Value *arg0 = isFloat ? AfterCI.CreateFPExt(arg0_org, rt.DoubleTy, "CI.arg0")   : arg0_org;
+    
+    Value *arg0_err = getError(arg0, rt.ZeroD, ErrorMap);
     if (Function *Callee = CI->getCalledFunction()) {
         StringRef N = Callee->getName();
         //TODO: Exception Handling(arg0 < 0)
         if (N.contains("sqrt")) {
-            // Value *arg0 = CI->getArgOperand(0);
-            // Value *arg0_err = getError(arg0, rt.ZeroF, rt.ZeroD, ErrorMap);
-            Value *x = CI;
+            Value *x_org = CI;
+            Value *x = isFloat ? AfterCI.CreateFPExt(x_org, rt.DoubleTy, "CI.x")    : x_org;
             Value *negVal = AfterCI.CreateFNeg(x, "sqrt.negval");
             Value *fma = AfterCI.CreateIntrinsic(
                 Intrinsic::fma,
-                {x->getType()},
+                {rt.DoubleTy},
                 {negVal, x, arg0},
                 nullptr,
                 "sqrt.fma"
@@ -123,9 +232,7 @@ bool handleExternal(CallInst *CI, utils::RuntimeFns &rt,
             }
         }
 
-        if (N == "sin") {
-            // Value *arg0 = CI->getArgOperand(0);
-            // Value *arg0_err = getError(arg0, rt.ZeroF, rt.ZeroD, ErrorMap);
+        if (N == "sin" || N == "sinf") {
             Value *ret = AfterCI.CreateCall(rt_mpfr.PropSinDError, {arg0, arg0_err});
             Value *x = AfterCI.CreateExtractValue(ret, {0}, "sin.val");
             Value *dx = AfterCI.CreateExtractValue(ret, {1}, "sin.err");
@@ -134,21 +241,20 @@ bool handleExternal(CallInst *CI, utils::RuntimeFns &rt,
             if (EnableDebugChecks) {
                 insertCheckError(AfterCI, x, dx, CI, rt);
             }
-            llvm::errs() << "CI::sin\n";
         }
-        else if (N == "sinf") {
-            // Value *arg0 = CI->getArgOperand(0);
-            // Value *arg0_err = getError(arg0, rt.ZeroF, rt.ZeroD, ErrorMap);
-            Value *ret = AfterCI.CreateCall(rt_mpfr.PropSinFError, {arg0, arg0_err});
-            Value *x = AfterCI.CreateExtractValue(ret, {0}, "sinf.val");
-            Value *dx = AfterCI.CreateExtractValue(ret, {1}, "sinf.err");
+        // else if (N == "sinf") {
+        //     // Value *arg0 = CI->getArgOperand(0);
+        //     // Value *arg0_err = getError(arg0, rt.ZeroF, rt.ZeroD, ErrorMap);
+        //     Value *ret = AfterCI.CreateCall(rt_mpfr.PropSinFError, {arg0, arg0_err});
+        //     Value *x = AfterCI.CreateExtractValue(ret, {0}, "sinf.val");
+        //     Value *dx = AfterCI.CreateExtractValue(ret, {1}, "sinf.err");
 
-            ErrorMap[CI] = dx;
-            if (EnableDebugChecks) {
-                insertCheckError(AfterCI, x, dx, CI, rt);
-            }
-        }
-        else if (N == "cos") {
+        //     ErrorMap[CI] = dx;
+        //     if (EnableDebugChecks) {
+        //         insertCheckError(AfterCI, x, dx, CI, rt);
+        //     }
+        // }
+        else if (N == "cos" || N == "cosf") {
             Value *ret = AfterCI.CreateCall(rt_mpfr.PropCosDError, {arg0, arg0_err});
             Value *x = AfterCI.CreateExtractValue(ret, {0}, "cos.val");
             Value *dx = AfterCI.CreateExtractValue(ret, {1}, "cos.err");
@@ -157,19 +263,18 @@ bool handleExternal(CallInst *CI, utils::RuntimeFns &rt,
             if (EnableDebugChecks) {
                 insertCheckError(AfterCI, x, dx, CI, rt);
             }
-            llvm::errs() << "cos\n";
         }
-        else if (N == "cosf") {
-            Value *ret = AfterCI.CreateCall(rt_mpfr.PropCosFError, {arg0, arg0_err});
-            Value *x = AfterCI.CreateExtractValue(ret, {0}, "cosf.val");
-            Value *dx = AfterCI.CreateExtractValue(ret, {1}, "cosf.err");
+        // else if (N == "cosf") {
+        //     Value *ret = AfterCI.CreateCall(rt_mpfr.PropCosFError, {arg0, arg0_err});
+        //     Value *x = AfterCI.CreateExtractValue(ret, {0}, "cosf.val");
+        //     Value *dx = AfterCI.CreateExtractValue(ret, {1}, "cosf.err");
 
-            ErrorMap[CI] = dx;
-            if (EnableDebugChecks) {
-                insertCheckError(AfterCI, x, dx, CI, rt);
-            }
-        }
-        else if (N == "tan") {
+        //     ErrorMap[CI] = dx;
+        //     if (EnableDebugChecks) {
+        //         insertCheckError(AfterCI, x, dx, CI, rt);
+        //     }
+        // }
+        else if (N == "tan" || N == "tanf") {
             Value *ret = AfterCI.CreateCall(rt_mpfr.PropTanDError, {arg0, arg0_err});
             Value *x = AfterCI.CreateExtractValue(ret, {0}, "tan.val");
             Value *dx = AfterCI.CreateExtractValue(ret, {1}, "tan.err");
@@ -179,17 +284,17 @@ bool handleExternal(CallInst *CI, utils::RuntimeFns &rt,
                 insertCheckError(AfterCI, x, dx, CI, rt);
             }
         }
-        else if (N == "tanf") {
-            Value *ret = AfterCI.CreateCall(rt_mpfr.PropTanFError, {arg0, arg0_err});
-            Value *x = AfterCI.CreateExtractValue(ret, {0}, "tanf.val");
-            Value *dx = AfterCI.CreateExtractValue(ret, {1}, "tanf.err");
+        // else if (N == "tanf") {
+        //     Value *ret = AfterCI.CreateCall(rt_mpfr.PropTanFError, {arg0, arg0_err});
+        //     Value *x = AfterCI.CreateExtractValue(ret, {0}, "tanf.val");
+        //     Value *dx = AfterCI.CreateExtractValue(ret, {1}, "tanf.err");
 
-            ErrorMap[CI] = dx;
-            if (EnableDebugChecks) {
-                insertCheckError(AfterCI, x, dx, CI, rt);
-            }
-        }
-        else if (N == "asin") {
+        //     ErrorMap[CI] = dx;
+        //     if (EnableDebugChecks) {
+        //         insertCheckError(AfterCI, x, dx, CI, rt);
+        //     }
+        // }
+        else if (N == "asin" || N == "asinf") {
             Value *ret = AfterCI.CreateCall(rt_mpfr.PropAsinDError, {arg0, arg0_err});
             Value *x = AfterCI.CreateExtractValue(ret, {0}, "asin.val");
             Value *dx = AfterCI.CreateExtractValue(ret, {1}, "asin.err");
@@ -199,17 +304,17 @@ bool handleExternal(CallInst *CI, utils::RuntimeFns &rt,
                 insertCheckError(AfterCI, x, dx, CI, rt);
             }
         }
-        else if (N == "asinf") {
-            Value *ret = AfterCI.CreateCall(rt_mpfr.PropAsinFError, {arg0, arg0_err});
-            Value *x = AfterCI.CreateExtractValue(ret, {0}, "asinf.val");
-            Value *dx = AfterCI.CreateExtractValue(ret, {1}, "asinf.err");
+        // else if (N == "asinf") {
+        //     Value *ret = AfterCI.CreateCall(rt_mpfr.PropAsinFError, {arg0, arg0_err});
+        //     Value *x = AfterCI.CreateExtractValue(ret, {0}, "asinf.val");
+        //     Value *dx = AfterCI.CreateExtractValue(ret, {1}, "asinf.err");
 
-            ErrorMap[CI] = dx;
-            if (EnableDebugChecks) {
-                insertCheckError(AfterCI, x, dx, CI, rt);
-            }
-        }
-        else if (N == "acos") {
+        //     ErrorMap[CI] = dx;
+        //     if (EnableDebugChecks) {
+        //         insertCheckError(AfterCI, x, dx, CI, rt);
+        //     }
+        // }
+        else if (N == "acos" || N == "acosf") {
             Value *ret = AfterCI.CreateCall(rt_mpfr.PropAcosDError, {arg0, arg0_err});
             Value *x = AfterCI.CreateExtractValue(ret, {0}, "acos.val");
             Value *dx = AfterCI.CreateExtractValue(ret, {1}, "acos.err");
@@ -219,17 +324,17 @@ bool handleExternal(CallInst *CI, utils::RuntimeFns &rt,
                 insertCheckError(AfterCI, x, dx, CI, rt);
             }
         }
-        else if (N == "acosf") {
-            Value *ret = AfterCI.CreateCall(rt_mpfr.PropAcosFError, {arg0, arg0_err});
-            Value *x = AfterCI.CreateExtractValue(ret, {0}, "acosf.val");
-            Value *dx = AfterCI.CreateExtractValue(ret, {1}, "acosf.err");
+        // else if (N == "acosf") {
+        //     Value *ret = AfterCI.CreateCall(rt_mpfr.PropAcosFError, {arg0, arg0_err});
+        //     Value *x = AfterCI.CreateExtractValue(ret, {0}, "acosf.val");
+        //     Value *dx = AfterCI.CreateExtractValue(ret, {1}, "acosf.err");
 
-            ErrorMap[CI] = dx;
-            if (EnableDebugChecks) {
-                insertCheckError(AfterCI, x, dx, CI, rt);
-            }
-        }
-        else if (N == "atan") {
+        //     ErrorMap[CI] = dx;
+        //     if (EnableDebugChecks) {
+        //         insertCheckError(AfterCI, x, dx, CI, rt);
+        //     }
+        // }
+        else if (N == "atan" || N == "atanf") {
             Value *ret = AfterCI.CreateCall(rt_mpfr.PropAtanDError, {arg0, arg0_err});
             Value *x = AfterCI.CreateExtractValue(ret, {0}, "atan.val");
             Value *dx = AfterCI.CreateExtractValue(ret, {1}, "atan.err");
@@ -240,17 +345,17 @@ bool handleExternal(CallInst *CI, utils::RuntimeFns &rt,
             }
             llvm::errs() << "atan\n";
         }
-        else if (N == "atanf") {
-            Value *ret = AfterCI.CreateCall(rt_mpfr.PropAtanFError, {arg0, arg0_err});
-            Value *x = AfterCI.CreateExtractValue(ret, {0}, "atanf.val");
-            Value *dx = AfterCI.CreateExtractValue(ret, {1}, "atanf.err");
+        // else if (N == "atanf") {
+        //     Value *ret = AfterCI.CreateCall(rt_mpfr.PropAtanFError, {arg0, arg0_err});
+        //     Value *x = AfterCI.CreateExtractValue(ret, {0}, "atanf.val");
+        //     Value *dx = AfterCI.CreateExtractValue(ret, {1}, "atanf.err");
 
-            ErrorMap[CI] = dx;
-            if (EnableDebugChecks) {
-                insertCheckError(AfterCI, x, dx, CI, rt);
-            }
-        }
-        else if (N == "log") {
+        //     ErrorMap[CI] = dx;
+        //     if (EnableDebugChecks) {
+        //         insertCheckError(AfterCI, x, dx, CI, rt);
+        //     }
+        // }
+        else if (N == "log" || N == "logf") {
             Value *ret = AfterCI.CreateCall(rt_mpfr.PropLogDError, {arg0, arg0_err});
             Value *x = AfterCI.CreateExtractValue(ret, {0}, "log.val");
             Value *dx = AfterCI.CreateExtractValue(ret, {1}, "log.err");
@@ -260,17 +365,17 @@ bool handleExternal(CallInst *CI, utils::RuntimeFns &rt,
                 insertCheckError(AfterCI, x, dx, CI, rt);
             }
         }
-        else if (N == "logf") {
-            Value *ret = AfterCI.CreateCall(rt_mpfr.PropLogFError, {arg0, arg0_err});
-            Value *x = AfterCI.CreateExtractValue(ret, {0}, "logf.val");
-            Value *dx = AfterCI.CreateExtractValue(ret, {1}, "logf.err");
+        // else if (N == "logf") {
+        //     Value *ret = AfterCI.CreateCall(rt_mpfr.PropLogFError, {arg0, arg0_err});
+        //     Value *x = AfterCI.CreateExtractValue(ret, {0}, "logf.val");
+        //     Value *dx = AfterCI.CreateExtractValue(ret, {1}, "logf.err");
 
-            ErrorMap[CI] = dx;
-            if (EnableDebugChecks) {
-                insertCheckError(AfterCI, x, dx, CI, rt);
-            }
-        }
-        else if (N == "exp") {
+        //     ErrorMap[CI] = dx;
+        //     if (EnableDebugChecks) {
+        //         insertCheckError(AfterCI, x, dx, CI, rt);
+        //     }
+        // }
+        else if (N == "exp" || N == "expf") {
             // Value *arg0 = CI->getArgOperand(0);
             // Value *arg0_err = getError(arg0, rt.ZeroF, rt.ZeroD, ErrorMap);
             Value *ret = AfterCI.CreateCall(rt_mpfr.PropExpDError, {arg0, arg0_err});
@@ -282,20 +387,21 @@ bool handleExternal(CallInst *CI, utils::RuntimeFns &rt,
             }
             llvm::errs() << "CI::exp\n";
         }
-        else if (N == "expf") {
-            // Value *arg0 = CI->getArgOperand(0);
-            // Value *arg0_err = getError(arg0, rt.ZeroF, rt.ZeroD, ErrorMap);
-            Value *ret = AfterCI.CreateCall(rt_mpfr.PropExpFError, {arg0, arg0_err});
-            Value *x = AfterCI.CreateExtractValue(ret, {0}, "expf.val");
-            Value *dx = AfterCI.CreateExtractValue(ret, {1}, "expf.err");
-            ErrorMap[CI] = dx;
-            if (EnableDebugChecks) {
-                insertCheckError(AfterCI, x, dx, CI, rt);
-            }
-        }
-        else if (N == "pow") {
-            Value *arg1 = CI->getArgOperand(1);
-            Value *arg1_err = getError(arg1, rt.ZeroF, rt.ZeroD, ErrorMap);
+        // else if (N == "expf") {
+        //     // Value *arg0 = CI->getArgOperand(0);
+        //     // Value *arg0_err = getError(arg0, rt.ZeroF, rt.ZeroD, ErrorMap);
+        //     Value *ret = AfterCI.CreateCall(rt_mpfr.PropExpFError, {arg0, arg0_err});
+        //     Value *x = AfterCI.CreateExtractValue(ret, {0}, "expf.val");
+        //     Value *dx = AfterCI.CreateExtractValue(ret, {1}, "expf.err");
+        //     ErrorMap[CI] = dx;
+        //     if (EnableDebugChecks) {
+        //         insertCheckError(AfterCI, x, dx, CI, rt);
+        //     }
+        // }
+        else if (N == "pow" || N == "powf") {
+            Value *arg1_org = CI->getArgOperand(1);
+            Value *arg1 = isFloat ? AfterCI.CreateFPExt(arg1_org, rt.DoubleTy, "CI.arg1")   : arg1_org;
+            Value *arg1_err = getError(arg1, rt.ZeroD, ErrorMap);
             Value *ret = AfterCI.CreateCall(rt_mpfr.PropPowDError, {arg0, arg0_err, arg1, arg1_err});
             Value *x = AfterCI.CreateExtractValue(ret, {0}, "pow.val");
             Value *dx = AfterCI.CreateExtractValue(ret, {1}, "pow.err");
@@ -304,17 +410,17 @@ bool handleExternal(CallInst *CI, utils::RuntimeFns &rt,
                 insertCheckError(AfterCI, x, dx, CI, rt);
             }
         }
-        else if (N == "powf") {
-            Value *arg1 = CI->getArgOperand(1);
-            Value *arg1_err = getError(arg1, rt.ZeroF, rt.ZeroD, ErrorMap);
-            Value *ret = AfterCI.CreateCall(rt_mpfr.PropPowFError, {arg0, arg0_err, arg1, arg1_err});
-            Value *x = AfterCI.CreateExtractValue(ret, {0}, "powf.val");
-            Value *dx = AfterCI.CreateExtractValue(ret, {1}, "powf.err");
-            ErrorMap[CI] = dx;
-            if (EnableDebugChecks) {
-                insertCheckError(AfterCI, x, dx, CI, rt);
-            }
-        }
+        // else if (N == "powf") {
+        //     Value *arg1 = CI->getArgOperand(1);
+        //     Value *arg1_err = getError(arg1, rt.ZeroF, rt.ZeroD, ErrorMap);
+        //     Value *ret = AfterCI.CreateCall(rt_mpfr.PropPowFError, {arg0, arg0_err, arg1, arg1_err});
+        //     Value *x = AfterCI.CreateExtractValue(ret, {0}, "powf.val");
+        //     Value *dx = AfterCI.CreateExtractValue(ret, {1}, "powf.err");
+        //     ErrorMap[CI] = dx;
+        //     if (EnableDebugChecks) {
+        //         insertCheckError(AfterCI, x, dx, CI, rt);
+        //     }
+        // }
         else {
             return false;
         }
@@ -328,14 +434,21 @@ bool handleBinary(Instruction *BO, utils::RuntimeFns &rt,
     if (!BO->getType()->isDoubleTy() && !BO->getType()->isFloatTy()) {
         return false;
     }
-    Value *opr0 = BO->getOperand(0);
-    Value *opr1 = BO->getOperand(1);
-    Value *opr0_err = getError(opr0, rt.ZeroF, rt.ZeroD, ErrorMap);
-    Value *opr1_err = getError(opr1, rt.ZeroF, rt.ZeroD, ErrorMap);
     IRBuilder<> AfterBO(BO->getNextNode());
+    bool isFloat = BO->getType()->isFloatTy();
+    Value *opr0_org = BO->getOperand(0);
+    Value *opr1_org = BO->getOperand(1);
+    Value *x_org = BO;
+
+    Value *opr0 = isFloat ? AfterBO.CreateFPExt(opr0_org, rt.DoubleTy, "BO.opr0")   : opr0_org;
+    Value *opr1 = isFloat ? AfterBO.CreateFPExt(opr1_org, rt.DoubleTy, "BO.opr1")   : opr1_org;
+    Value *x = isFloat ? AfterBO.CreateFPExt(x_org, rt.DoubleTy, "BO.x")            : x_org;
+
+    Value *opr0_err = getError(opr0, rt.ZeroD, ErrorMap);
+    Value *opr1_err = getError(opr1, rt.ZeroD, ErrorMap);
     switch (BO->getOpcode()) {
         case Instruction::FAdd: {
-            Value *x = BO;
+            // Value *x = BO;
             Value *bp = AfterBO.CreateFSub(x, opr0, "fadd.bp");
             Value *ap = AfterBO.CreateFSub(x, bp, "fadd.ap");
             Value *da = AfterBO.CreateFSub(opr0, ap, "fadd.da");
@@ -346,17 +459,11 @@ bool handleBinary(Instruction *BO, utils::RuntimeFns &rt,
             ErrorMap[BO] = dx;
             if (EnableDebugChecks) {
                 insertCheckError(AfterBO, x, dx, BO, rt);
-                // if (BO->getType()->isDoubleTy()) {
-                //     AfterBO.CreateCall(rt.CheckErrorD, {x, dx, SiteId});
-                // }
-                // else {
-                //     AfterBO.CreateCall(rt.CheckErrorF, {x, dx, SiteId});
-                // }
             }
             return true;
         }
         case Instruction::FSub: {
-            Value *x = BO;
+            // Value *x = BO;
             Value *bp = AfterBO.CreateFSub(x, opr0, "fsub.bp");
             Value *ap = AfterBO.CreateFSub(x, bp, "fsub.ap");
             Value *da = AfterBO.CreateFSub(opr0, ap, "fsub.da");
@@ -371,11 +478,11 @@ bool handleBinary(Instruction *BO, utils::RuntimeFns &rt,
             return true;
         }
         case Instruction::FMul: {
-            Value *x = BO;
+            // Value *x = BO;
             Value *negVal = AfterBO.CreateFNeg(x, "fmul.negval");
             Value *fma = AfterBO.CreateIntrinsic(
                 Intrinsic::fma,
-                {opr0->getType()},
+                {rt.DoubleTy},
                 {opr0, opr1, negVal},
                 nullptr,
                 "mul.fma"
@@ -391,11 +498,11 @@ bool handleBinary(Instruction *BO, utils::RuntimeFns &rt,
             return true;
         }
         case Instruction::FDiv: {
-            Value *x = BO;
+            // Value *x = BO;
             Value *invopr0 = AfterBO.CreateFNeg(opr0, "fdiv.invopr0");
             Value *fma = AfterBO.CreateIntrinsic(
                 Intrinsic::fma,
-                {invopr0->getType()},
+                {rt.DoubleTy},
                 {x, opr1, invopr0},
                 nullptr,
                 "fdiv.fma"
@@ -404,7 +511,7 @@ bool handleBinary(Instruction *BO, utils::RuntimeFns &rt,
             Value *invval = AfterBO.CreateFNeg(x, "fdiv.invval");
             Value *numer = AfterBO.CreateIntrinsic(
                 Intrinsic::fma,
-                {invval->getType()},
+                {rt.DoubleTy},
                 {invval, opr1_err, da},
                 nullptr,
                 "fdiv.numer"
