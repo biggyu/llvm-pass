@@ -25,6 +25,8 @@ namespace utils {
         llvm::FunctionCallee ShadowLoadD;
         llvm::FunctionCallee ShadowLoadF;
 
+        // llvm::FunctionCallee CheckCancellation;
+        llvm::FunctionCallee CheckBranch;
         llvm::FunctionCallee CheckErrorD;
         llvm::FunctionCallee CheckErrorF;
         llvm::FunctionCallee RegisterFPSite;
@@ -36,6 +38,8 @@ namespace utils {
         llvm::FunctionType *ShadowLoadFTy;
         llvm::FunctionType *ShadowLoadDTy;
 
+        // llvm::FunctionType *CheckCancellationTy;
+        llvm::FunctionType *CheckBranchTy;
         llvm::FunctionType *CheckErrorFTy;
         llvm::FunctionType *CheckErrorDTy;
         llvm::FunctionType *RegisterFPSiteTy;

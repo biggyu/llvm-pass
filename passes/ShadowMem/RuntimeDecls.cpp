@@ -40,6 +40,16 @@ namespace utils {
             false
         );
 
+        // CheckCancellationTy = llvm::FunctionType::get(
+        //     VoidTy,
+        //     {DoubleTy, DoubleTy, DoubleTy},
+        //     false
+        // );
+        CheckBranchTy = llvm::FunctionType::get(
+            VoidTy,
+            {DoubleTy, DoubleTy, DoubleTy, DoubleTy, I32Ty},
+            false
+        );
         CheckErrorDTy = llvm::FunctionType::get(
             VoidTy,
             {DoubleTy, DoubleTy, I32Ty, I32Ty},
@@ -70,9 +80,11 @@ namespace utils {
         ShadowLoadF = M.getOrInsertFunction("shadow_load_float", ShadowLoadFTy);
         ShadowLoadD = M.getOrInsertFunction("shadow_load_double", ShadowLoadDTy);
 
+        // CheckCancellation = M.getOrInsertFunction("check_cancellation", CheckCancellationTy);
+        CheckBranch = M.getOrInsertFunction("check_branch", CheckBranchTy);
         CheckErrorF = M.getOrInsertFunction("check_error_float", CheckErrorFTy);
         CheckErrorD = M.getOrInsertFunction("check_error_double", CheckErrorDTy);
-        RegisterFPSite = M.getOrInsertFunction("register_fp_site", RegisterFPSiteTy);
+        // RegisterFPSite = M.getOrInsertFunction("register_fp_site", RegisterFPSiteTy);
         ReportDebugSummary = M.getOrInsertFunction("report_debug_summary", ReportDebugSummaryTy);
     }
 }

@@ -32,7 +32,7 @@ bool handleIntrinsic(IntrinsicInst *II, utils::RuntimeFns &rt,
     Value *arg0_org = II->getArgOperand(0);
     Value *arg0 = isFloat ? AfterII.CreateFPExt(arg0_org, rt.DoubleTy, "II.arg0")   : arg0_org;
 
-    Value *arg0_err = getError(arg0, rt.ZeroD, ErrorMap);
+    Value *arg0_err = getError(arg0_org, rt.ZeroD, ErrorMap);
     //TODO: Exception Handling(arg0 < 0)
     if (II->getIntrinsicID() == Intrinsic::sqrt) {
         Value *x_org = II;
@@ -137,7 +137,7 @@ bool handleIntrinsic(IntrinsicInst *II, utils::RuntimeFns &rt,
     else if (II->getIntrinsicID() == Intrinsic::pow) {
         Value *arg1_org = II->getArgOperand(1);
         Value *arg1 = isFloat ? AfterII.CreateFPExt(arg1_org, rt.DoubleTy, "II.arg1")   : arg1_org;
-        Value *arg1_err = getError(arg1, rt.ZeroD, ErrorMap);
+        Value *arg1_err = getError(arg1_org, rt.ZeroD, ErrorMap);
         Value *ret = AfterII.CreateCall(rt_mpfr.PropPowDError, {arg0, arg0_err});
         Value *x = AfterII.CreateExtractValue(ret, {0}, "pow.val");
         Value *dx = AfterII.CreateExtractValue(ret, {1}, "pow.err");
@@ -205,7 +205,7 @@ bool handleExternal(CallInst *CI, utils::RuntimeFns &rt,
     Value *arg0_org = CI->getArgOperand(0);
     Value *arg0 = isFloat ? AfterCI.CreateFPExt(arg0_org, rt.DoubleTy, "CI.arg0")   : arg0_org;
     
-    Value *arg0_err = getError(arg0, rt.ZeroD, ErrorMap);
+    Value *arg0_err = getError(arg0_org, rt.ZeroD, ErrorMap);
     if (Function *Callee = CI->getCalledFunction()) {
         StringRef N = Callee->getName();
         //TODO: Exception Handling(arg0 < 0)
@@ -401,7 +401,7 @@ bool handleExternal(CallInst *CI, utils::RuntimeFns &rt,
         else if (N == "pow" || N == "powf") {
             Value *arg1_org = CI->getArgOperand(1);
             Value *arg1 = isFloat ? AfterCI.CreateFPExt(arg1_org, rt.DoubleTy, "CI.arg1")   : arg1_org;
-            Value *arg1_err = getError(arg1, rt.ZeroD, ErrorMap);
+            Value *arg1_err = getError(arg1_org, rt.ZeroD, ErrorMap);
             Value *ret = AfterCI.CreateCall(rt_mpfr.PropPowDError, {arg0, arg0_err, arg1, arg1_err});
             Value *x = AfterCI.CreateExtractValue(ret, {0}, "pow.val");
             Value *dx = AfterCI.CreateExtractValue(ret, {1}, "pow.err");
@@ -444,8 +444,8 @@ bool handleBinary(Instruction *BO, utils::RuntimeFns &rt,
     Value *opr1 = isFloat ? AfterBO.CreateFPExt(opr1_org, rt.DoubleTy, "BO.opr1")   : opr1_org;
     Value *x = isFloat ? AfterBO.CreateFPExt(x_org, rt.DoubleTy, "BO.x")            : x_org;
 
-    Value *opr0_err = getError(opr0, rt.ZeroD, ErrorMap);
-    Value *opr1_err = getError(opr1, rt.ZeroD, ErrorMap);
+    Value *opr0_err = getError(opr0_org, rt.ZeroD, ErrorMap);
+    Value *opr1_err = getError(opr1_org, rt.ZeroD, ErrorMap);
     switch (BO->getOpcode()) {
         case Instruction::FAdd: {
             // Value *x = BO;
@@ -527,4 +527,29 @@ bool handleBinary(Instruction *BO, utils::RuntimeFns &rt,
         default:
             return false;
     }
+}
+
+bool handleFCmp(FCmpInst *FC, utils::RuntimeFns &rt,
+                DenseMap<const Value*, Value*> &ErrorMap) {
+    Value *opr0_org = FC->getOperand(0);
+    if (opr0_org->getType()->isDoubleTy() || opr0_org->getType()->isFloatTy()) {
+        return false;
+    }
+    bool isFloat = opr0_org->getType()->isFloatTy();
+    IRBuilder<> AfterFC(FC->getNextNode());
+    Value *opr1_org = FC->getOperand(1);
+
+    Value *opr0 = isFloat ? AfterFC.CreateFPExt(opr0_org, rt.DoubleTy, "FC.opr0") : opr0_org;
+    Value *opr1 = isFloat ? AfterFC.CreateFPExt(opr1_org, rt.DoubleTy, "FC.opr1") : opr1_org;
+
+    Value *opr0_err = getError(opr0_org, rt.ZeroD, ErrorMap);
+    Value *opr1_err = getError(opr1_org, rt.ZeroD, ErrorMap);
+
+    Value *pred = ConstantInt::get(rt.I32Ty, (int)FC->getPredicate());
+    // uint32_t id = getSiteId(FC);
+    // Value *SiteId = ConstantInt::get(rt.I32Ty, id);
+
+    AfterFC.CreateCall(rt.CheckBranch, {opr0, opr0_err, opr1, opr1_err, pred});
+    // AfterFC.CreateCall(rt.CheckBranch, {opr0, opr0_err, opr1, opr1_err, pred, SiteId});
+    return true;
 }

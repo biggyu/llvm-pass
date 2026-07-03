@@ -73,34 +73,34 @@ bool insertCheckError(IRBuilder<> &B,
     Value *SiteId = ConstantInt::get(rt.I32Ty, id);
     Value *Metric = ConstantInt::get(rt.I32Ty, DebugMetrics);
 
-    DebugLoc DL = Site->getDebugLoc();
+    // DebugLoc DL = Site->getDebugLoc();
 
-    std::string File = "<unknown>";
-    int Line, Col;
+    // std::string File = "<unknown>";
+    // int Line, Col;
 
-    if (DL) {
-        File = DL.get()->getFilename().str();
-        Line = DL.get()->getLine();
-        Col = DL.get()->getColumn();
-        // Line = DL->getLine();
-        // Col = DL->getColumn();
-    }
+    // if (DL) {
+    //     File = DL.get()->getFilename().str();
+    //     Line = DL.get()->getLine();
+    //     Col = DL.get()->getColumn();
+    //     // Line = DL->getLine();
+    //     // Col = DL->getColumn();
+    // }
 
-    std::string Func = Site->getFunction()->getName().str();
-    std::string Opcode = Site->getOpcodeName();
+    // std::string Func = Site->getFunction()->getName().str();
+    // std::string Opcode = Site->getOpcodeName();
 
-    Value *FileStr = B.CreateGlobalStringPtr(File);
-    Value *FuncStr = B.CreateGlobalStringPtr(Func);
-    Value *OpcodeStr = B.CreateGlobalStringPtr(Opcode);
+    // Value *FileStr = B.CreateGlobalStringPtr(File);
+    // Value *FuncStr = B.CreateGlobalStringPtr(Func);
+    // Value *OpcodeStr = B.CreateGlobalStringPtr(Opcode);
 
-    B.CreateCall(rt.RegisterFPSite, {
-        SiteId,
-        FuncStr,
-        FileStr,
-        ConstantInt::get(rt.I32Ty, Line),
-        ConstantInt::get(rt.I32Ty, Col),
-        OpcodeStr,
-    });
+    // B.CreateCall(rt.RegisterFPSite, {
+    //     SiteId,
+    //     FuncStr,
+    //     FileStr,
+    //     ConstantInt::get(rt.I32Ty, Line),
+    //     ConstantInt::get(rt.I32Ty, Col),
+    //     OpcodeStr,
+    // });
 
     if (x->getType()->isDoubleTy()) {
         B.CreateCall(rt.CheckErrorD, {x, dx, SiteId, Metric});

@@ -19,3 +19,6 @@ bool handleExternal(CallInst *CI, utils::RuntimeFns &rt,
 
 bool handleBinary(Instruction *BO, utils::RuntimeFns &rt,
                 DenseMap<const Value*, Value*> &ErrorMap);
+
+bool handleFCmp(FCmpInst *FC, utils::RuntimeFns &rt,
+                DenseMap<const Value*, Value*> &ErrorMap);
