@@ -19,7 +19,7 @@ static bool isRuntimeFunction(const Function &F) {
            N == "shadow_load_float"   ||
            N == "check_error_float"   ||
            N == "check_error_double"  ||
-           N == "register_fp_site"    ||
+           N == "check_branch"    ||
            N == "report_debug_summary";
 }
 
@@ -70,6 +70,11 @@ void runOnModule(llvm::Module &M) {
                     continue;
                 }
                 // handleBinary(BO, rt.ZeroF, rt.ZeroD, ErrorMap);
+            }
+            if (auto *FC = dyn_cast<FCmpInst>(I)) {
+                if(handleFCmp(FC, rt, ErrorMap)) {
+                    continue;
+                }
             }
         }
     }
