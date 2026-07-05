@@ -6,6 +6,7 @@ namespace utils {
     RuntimeFns::RuntimeFns(Module &Mod) : M(Mod), Ctx(Mod.getContext()) {
         VoidTy = llvm::Type::getVoidTy(Ctx);
         I32Ty = llvm::Type::getInt32Ty(Ctx);
+        I64Ty = llvm::Type::getInt64Ty(Ctx);
         FloatTy = llvm::Type::getFloatTy(Ctx);
         DoubleTy = llvm::Type::getDoubleTy(Ctx);
         PtrTy = llvm::PointerType::getUnqual(Ctx);
@@ -45,6 +46,16 @@ namespace utils {
         //     {DoubleTy, DoubleTy, DoubleTy},
         //     false
         // );
+        CheckConvSITy = llvm::FunctionType::get(
+            VoidTy,
+            {I32Ty, DoubleTy, DoubleTy},
+            false
+        );
+        CheckConvUITy = llvm::FunctionType::get(
+            VoidTy,
+            {I64Ty, DoubleTy, DoubleTy},
+            false
+        );
         CheckBranchTy = llvm::FunctionType::get(
             VoidTy,
             {DoubleTy, DoubleTy, DoubleTy, DoubleTy, I32Ty},
@@ -81,6 +92,8 @@ namespace utils {
         ShadowLoadD = M.getOrInsertFunction("shadow_load_double", ShadowLoadDTy);
 
         // CheckCancellation = M.getOrInsertFunction("check_cancellation", CheckCancellationTy);
+        CheckConvSI = M.getOrInsertFunction("check_conv_si", CheckConvSITy);
+        CheckConvUI = M.getOrInsertFunction("check_conv_ui", CheckConvUITy);
         CheckBranch = M.getOrInsertFunction("check_branch", CheckBranchTy);
         CheckErrorF = M.getOrInsertFunction("check_error_float", CheckErrorFTy);
         CheckErrorD = M.getOrInsertFunction("check_error_double", CheckErrorDTy);

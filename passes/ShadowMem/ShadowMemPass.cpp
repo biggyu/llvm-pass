@@ -44,35 +44,45 @@ void runOnModule(llvm::Module &M) {
             if (isa<PHINode>(I)) continue;
 
             if (auto *LI = dyn_cast<LoadInst>(I)) {
-                if(handleLoad(LI, rt, ErrorMap)) {
+                if (handleLoad(LI, rt, ErrorMap)) {
                     continue;
                 }
                 // handleLoad(LI, rt, ErrorMap);
                 // continue;
             }
             if (auto *SI = dyn_cast<StoreInst>(I)) {
-                if(handleStore(SI, rt, ErrorMap)) {
+                if (handleStore(SI, rt, ErrorMap)) {
                     continue;
                 }
             }
             if (auto *II = dyn_cast<IntrinsicInst>(I)) {
-                if(handleIntrinsic(II, rt, rt_mpfr, ErrorMap)) {
+                if (handleIntrinsic(II, rt, rt_mpfr, ErrorMap)) {
                     continue;
                 }
             }
             if (auto *CI = dyn_cast<CallInst>(I)) {
-                if(handleExternal(CI, rt, rt_mpfr, ErrorMap)) {
+                if (handleExternal(CI, rt, rt_mpfr, ErrorMap)) {
                     continue;
                 }
             }
             if (auto *BO = dyn_cast<BinaryOperator>(I)) {
-                if(handleBinary(BO, rt, ErrorMap)) {
+                if (handleBinary(BO, rt, ErrorMap)) {
                     continue;
                 }
                 // handleBinary(BO, rt.ZeroF, rt.ZeroD, ErrorMap);
             }
             if (auto *FC = dyn_cast<FCmpInst>(I)) {
-                if(handleFCmp(FC, rt, ErrorMap)) {
+                if (handleFCmp(FC, rt, ErrorMap)) {
+                    continue;
+                }
+            }
+            if (auto *CI = dyn_cast<FPToSIInst>(I)) {
+                if (handleFPToSI(CI, rt, ErrorMap)) {
+                    continue;
+                }
+            }
+            if (auto *CI = dyn_cast<FPToUIInst>(I)) {
+                if (handleFPToUI(CI, rt, ErrorMap)) {
                     continue;
                 }
             }

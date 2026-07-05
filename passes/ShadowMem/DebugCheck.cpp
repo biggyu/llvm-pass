@@ -27,9 +27,11 @@ static bool isRuntimeFunction(const Function &F) {
            N == "shadow_load_double"  ||
            N == "shadow_store_float"  ||
            N == "shadow_load_float"   ||
+           N == "check_conv_si"       ||
+           N == "check_conv_ui"       ||
            N == "check_error_float"   ||
            N == "check_error_double"  ||
-           N == "register_fp_site"    ||
+        //    N == "register_fp_site"    ||
            N == "report_debug_summary";
 }
 

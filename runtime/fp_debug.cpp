@@ -5,7 +5,7 @@
 #include <cstdint>
 #include <string>
 // #include <vector>
-// #include <cstring>
+#include <cstring>
 // #include <algorithm>
 // #include <unordered_map>
 // static uint64_t total_checks_double = 0;
@@ -18,13 +18,15 @@ enum class ErrorClass : uint8_t {
 
 struct GlobalStats {
     uint64_t above_thres = 0;
+    uint64_t relerr = 0;
     uint64_t nan = 0;
     uint64_t inf = 0;
     uint64_t branch_flips = 0;
-    uint64_t cancellation = 0;
+    uint64_t conv_cnt = 0;
 
     uint64_t exact = 0;
     uint64_t normal = 0;
+    uint64_t xzero = 0;
     uint64_t total_loss = 0;
     uint64_t total_checks = 0;
 };
@@ -133,7 +135,7 @@ static ErrorClass classify(T x, T dx) {
 // }
 
 template <typename T>
-static double relative_error(T x, T dx) {
+static double relative_error(T x, double dx) {
     if (!std::isfinite(x) || !std::isfinite(dx)) {
         return std::numeric_limits<double>::infinity();
     }
@@ -152,7 +154,7 @@ static constexpr double precision_bits() {
 }
 
 template <typename T>
-double incorrect_bits(T x, T dx, int metric) {
+double incorrect_bits_relerr(T x, double dx, int metric) {
     constexpr int p = std::is_same_v<T, float> ? 24 : 53;
     double relerr = relative_error<T>(x, dx);
 
@@ -189,17 +191,27 @@ double incorrect_bits_bitwise(T x, double dx) {
     return static_cast<double>(hi + 1);
 }
 
-// void check_cancellation(double a, double b, double result) {
-//     if (result == 0.0 || a == 0.0 || b == 0.0) {
-//         return;
-//     }
-//     int e_max = std::max(std::ilogb(a), std::ilogb(b));
-//     int e_res = std::ilogb(result);
-//     int cancelled = e_max - e_res;
-//     if (cancelled >= CANCELLATION_THRESHOLD) {
-//         G.cancellation++;
-//     }
-// }
+void check_conv_si(int val, double src, double src_err) {
+    double conv = src + src_err;
+    if(!std::isfinite(conv)) {
+        return;
+    }
+    int real_val = static_cast<int>(conv);
+    if (real_val != val) {
+        G.conv_cnt++;
+    }
+}
+
+void check_conv_ui(size_t val, double src, double src_err) {
+    double conv = src + src_err;
+    if(!std::isfinite(conv)) {
+        return;
+    }
+    size_t real_val = static_cast<size_t>(conv);
+    if (real_val != val) {
+        G.conv_cnt++;
+    }
+}
 
 bool eval_pred(double a, double b, int pred) {
     bool nan = std::isnan(a) || std::isnan(b);
@@ -240,37 +252,40 @@ template <typename T>
 static void check_error_impl(T x, double dx, int site_id, int metric) {
 // static void check_error_impl(T x, double dx, int site_id, int metric, uint64_t &total_checks, std::unordered_map<int, SiteStats> &sites) {
     ErrorClass errcls = classify<T>(x, dx);
-    double bits = incorrect_bits_bitwise(x, dx);
-    // double bits = incorrect_bits<T>(x, dx, metric);
+    double bitwise = incorrect_bits_bitwise(x, dx);
+    double relerr = incorrect_bits_relerr<T>(x, dx, metric);
     // double relerr = relative_error<T>(x, dx);
     // double precision = precision_bits<T>();
 
     G.total_checks++;
 
-    SiteStats &S = sites[site_id];
-    S.cnt++;
+    // SiteStats &S = sites[site_id];
+    // S.cnt++;
     switch (errcls) {
         case ErrorClass::Exact:
-            S.exact++;
+            G.exact++;
             break;
         case ErrorClass::Normal:
-            S.normal++;
+            G.normal++;
             break;
         case ErrorClass::TotalLoss:
-            S.total_loss++;
+            G.total_loss++;
             break;
         case ErrorClass::Inf:
-            S.inf++;
+            G.inf++;
             return;
         case ErrorClass::NaN:
-            S.nan++;
+            G.nan++;
             return;
         case ErrorClass::XZero:
-            S.xzero++;
+            G.xzero++;
             return;
     }
-    if (bits > 45.0) {
+    if (bitwise > 50.0) {
         G.above_thres++;
+    }
+    if (relerr > 50.0) {
+        G.relerr++;
     }
 }
 
@@ -371,5 +386,6 @@ extern "C" void report_debug_summary() {
     printf("Total NaN found %llu\n", (unsigned long long) G.nan);
     printf("Total Inf Found %llu\n", (unsigned long long) G.inf);
     printf("Total branch flips found %llu\n", (unsigned long long) G.branch_flips);
-    printf("Total catastrophic cancellation found %llu\n\n", (unsigned long long) G.cancellation);
+    printf("Total conversion errors found %llu\n\n", (unsigned long long) G.conv_cnt);
+    printf("Precision warnings %llu\n\n", (unsigned long long) G.relerr);
 }

@@ -12,6 +12,7 @@ namespace utils {
 
         llvm::Type *VoidTy;
         llvm::Type *I32Ty;
+        llvm::Type *I64Ty;
         llvm::Type *FloatTy;
         llvm::Type *DoubleTy;
         llvm::Type *PtrTy;
@@ -26,6 +27,8 @@ namespace utils {
         llvm::FunctionCallee ShadowLoadF;
 
         // llvm::FunctionCallee CheckCancellation;
+        llvm::FunctionCallee CheckConvSI;
+        llvm::FunctionCallee CheckConvUI;
         llvm::FunctionCallee CheckBranch;
         llvm::FunctionCallee CheckErrorD;
         llvm::FunctionCallee CheckErrorF;
@@ -39,6 +42,8 @@ namespace utils {
         llvm::FunctionType *ShadowLoadDTy;
 
         // llvm::FunctionType *CheckCancellationTy;
+        llvm::FunctionType *CheckConvSITy;
+        llvm::FunctionType *CheckConvUITy;
         llvm::FunctionType *CheckBranchTy;
         llvm::FunctionType *CheckErrorFTy;
         llvm::FunctionType *CheckErrorDTy;

@@ -17,8 +17,14 @@ bool handleExternal(CallInst *CI, utils::RuntimeFns &rt,
                 utils::RuntimeMPFRFns &rt_mpfr,
                 DenseMap<const Value*, Value*> &ErrorMap);
 
-bool handleBinary(Instruction *BO, utils::RuntimeFns &rt,
+bool handleBinary(BinaryOperator *BO, utils::RuntimeFns &rt,
                 DenseMap<const Value*, Value*> &ErrorMap);
 
 bool handleFCmp(FCmpInst *FC, utils::RuntimeFns &rt,
+                DenseMap<const Value*, Value*> &ErrorMap);
+
+bool handleFPToSI(FPToSIInst *CI, utils::RuntimeFns &rt,
+                DenseMap<const Value*, Value*> &ErrorMap);
+
+bool handleFPToUI(FPToUIInst *CI, utils::RuntimeFns &rt,
                 DenseMap<const Value*, Value*> &ErrorMap);

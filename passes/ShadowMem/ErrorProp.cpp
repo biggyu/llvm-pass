@@ -428,7 +428,7 @@ bool handleExternal(CallInst *CI, utils::RuntimeFns &rt,
     return false;
 }
 
-bool handleBinary(Instruction *BO, utils::RuntimeFns &rt,
+bool handleBinary(BinaryOperator *BO, utils::RuntimeFns &rt,
                 DenseMap<const Value*, Value*> &ErrorMap) {
     
     if (!BO->getType()->isDoubleTy() && !BO->getType()->isFloatTy()) {
@@ -551,5 +551,43 @@ bool handleFCmp(FCmpInst *FC, utils::RuntimeFns &rt,
 
     AfterFC.CreateCall(rt.CheckBranch, {opr0, opr0_err, opr1, opr1_err, pred});
     // AfterFC.CreateCall(rt.CheckBranch, {opr0, opr0_err, opr1, opr1_err, pred, SiteId});
+    return true;
+}
+
+bool handleFPToSI(FPToSIInst *CI, utils::RuntimeFns &rt,
+                      DenseMap<const Value*, Value*> &ErrorMap) {
+    Value *src_org = CI->getOperand(0);
+    if (!src_org->getType()->isDoubleTy() && !src_org->getType()->isFloatTy()) {
+        return false;
+    }
+    IRBuilder<> AfterCI(CI->getNextNode());
+    bool isFloat = src_org->getType()->isFloatTy();
+    Value *src = isFloat ? AfterCI.CreateFPExt(src_org, rt.DoubleTy, "conv.src") : src_org;
+    Value *src_err = getError(src_org, rt.ZeroD, ErrorMap);
+
+    Value *sval = CI;
+    if (CI->getType() != rt.I32Ty) {
+        sval = AfterCI.CreateSExtOrTrunc(CI, rt.I32Ty, "conv.sval");
+    }
+    AfterCI.CreateCall(rt.CheckConvSI, {sval, src, src_err});
+    return true;
+}
+
+bool handleFPToUI(FPToUIInst *CI, utils::RuntimeFns &rt,
+                      DenseMap<const Value*, Value*> &ErrorMap) {
+    Value *src_org = CI->getOperand(0);
+    if (!src_org->getType()->isDoubleTy() && !src_org->getType()->isFloatTy()) {
+        return false;
+    }
+    IRBuilder<> AfterCI(CI->getNextNode());
+    bool isFloat = src_org->getType()->isFloatTy();
+    Value *src = isFloat ? AfterCI.CreateFPExt(src_org, rt.DoubleTy, "conv.src") : src_org;
+    Value *src_err = getError(src_org, rt.ZeroD, ErrorMap);
+
+    Value *uval = CI;
+    if (CI->getType() != rt.I64Ty) {
+        uval = AfterCI.CreateSExtOrTrunc(CI, rt.I64Ty, "conv.uval");
+    }
+    AfterCI.CreateCall(rt.CheckConvUI, {uval, src, src_err});
     return true;
 }
