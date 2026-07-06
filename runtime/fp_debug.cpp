@@ -6,6 +6,7 @@
 #include <string>
 // #include <vector>
 #include <cstring>
+#include <climits>
 // #include <algorithm>
 // #include <unordered_map>
 // static uint64_t total_checks_double = 0;
@@ -18,7 +19,6 @@ enum class ErrorClass : uint8_t {
 
 struct GlobalStats {
     uint64_t above_thres = 0;
-    uint64_t relerr = 0;
     uint64_t nan = 0;
     uint64_t inf = 0;
     uint64_t branch_flips = 0;
@@ -101,18 +101,19 @@ static void load_threshold() {
     }
 }
 
-template <typename T>
-static ErrorClass classify(T x, T dx) {
+// template <typename T>
+// static ErrorClass classify(T x, T dx) {
+static ErrorClass classify(double x, double dx) {
     if (std::isnan(x) || std::isnan(dx)) {
         return ErrorClass::NaN;
     }
     if (std::isinf(x) || std::isinf(dx)) {
         return ErrorClass::Inf;
     }
-    if (dx == T(0)) {
+    if (dx == double(0)) {
         return ErrorClass::Exact;
     }
-    if (x == T(0)) {
+    if (x == double(0)) {
         return ErrorClass::XZero;
     }
     if (std::fabs(dx) >= std::fabs(x)) {
@@ -191,6 +192,32 @@ double incorrect_bits_bitwise(T x, double dx) {
     return static_cast<double>(hi + 1);
 }
 
+unsigned long ulp_dist(double x, double y) {
+    if (x == 0) {
+        x = 0;
+    }
+    if (y == 0) {
+        y = 0;
+    }
+    if (x != x) {
+        return ULLONG_MAX - 1;
+    }
+    if (y != y) {
+        return ULLONG_MAX - 1;
+    }
+    long long xx = *((long long *)&x);
+    xx = xx < 0 ? LLONG_MIN - xx : xx;
+    long long yy = *((long long *)&y);
+    yy = yy < 0 ? LLONG_MIN - yy : yy;
+    return xx >= yy ? xx - yy : yy - xx;
+}
+
+double incorrect_bits_ulp(double computed_val, double error) {
+    double shadow_rounded = error + computed_val;   
+    unsigned long ulp_err = ulp_dist(shadow_rounded, computed_val);
+    return log2((double)ulp_err + 1.0);
+}
+
 void check_conv_si(int val, double src, double src_err) {
     double conv = src + src_err;
     if(!std::isfinite(conv)) {
@@ -248,12 +275,12 @@ void check_branch(double a, double da, double b, double db, int pred) {
     }
 }
 
-template <typename T>
-static void check_error_impl(T x, double dx, int site_id, int metric) {
+void check_error(double x, double dx, int site_id, int metric) {
 // static void check_error_impl(T x, double dx, int site_id, int metric, uint64_t &total_checks, std::unordered_map<int, SiteStats> &sites) {
-    ErrorClass errcls = classify<T>(x, dx);
-    double bitwise = incorrect_bits_bitwise(x, dx);
-    double relerr = incorrect_bits_relerr<T>(x, dx, metric);
+    ErrorClass errcls = classify(x, dx);
+    double ulp = incorrect_bits_ulp(x, dx);
+    // double bitwise = incorrect_bits_bitwise(x, dx);
+    // double relerr = incorrect_bits_relerr<T>(x, dx, metric);
     // double relerr = relative_error<T>(x, dx);
     // double precision = precision_bits<T>();
 
@@ -281,21 +308,18 @@ static void check_error_impl(T x, double dx, int site_id, int metric) {
             G.xzero++;
             return;
     }
-    if (bitwise > 50.0) {
+    if (ulp >= 45.0) {
         G.above_thres++;
     }
-    if (relerr > 50.0) {
-        G.relerr++;
-    }
 }
 
-extern "C" void check_error_double(double x, double dx, int site_id, int metric) {
-    return check_error_impl<double>(x, dx, site_id, metric);
-}
+// extern "C" void check_error_double(double x, double dx, int site_id, int metric) {
+//     return check_error_impl<double>(x, dx, site_id, metric);
+// }
 
-extern "C" void check_error_float(float x, double dx, int site_id, int metric) {
-    return check_error_impl<float>(x, dx, site_id, metric);
-}
+// extern "C" void check_error_float(float x, double dx, int site_id, int metric) {
+//     return check_error_impl<float>(x, dx, site_id, metric);
+// }
 
 // template <typename T>
 // static void report_top_impl(std::unordered_map<int, SiteStats> &site_map) {
@@ -382,10 +406,10 @@ extern "C" void check_error_float(float x, double dx, int site_id, int metric) {
 // }
 
 extern "C" void report_debug_summary() {
-    printf("Error above 50 bits found %llu\n", (unsigned long long) G.above_thres);
+    printf("Error above 45 bits found %llu\n", (unsigned long long) G.above_thres);
     printf("Total NaN found %llu\n", (unsigned long long) G.nan);
     printf("Total Inf Found %llu\n", (unsigned long long) G.inf);
     printf("Total branch flips found %llu\n", (unsigned long long) G.branch_flips);
     printf("Total conversion errors found %llu\n\n", (unsigned long long) G.conv_cnt);
-    printf("Precision warnings %llu\n\n", (unsigned long long) G.relerr);
+    // printf("Precision warnings %llu\n\n", (unsigned long long) G.relerr);
 }

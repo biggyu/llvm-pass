@@ -30,8 +30,9 @@ namespace utils {
         llvm::FunctionCallee CheckConvSI;
         llvm::FunctionCallee CheckConvUI;
         llvm::FunctionCallee CheckBranch;
-        llvm::FunctionCallee CheckErrorD;
-        llvm::FunctionCallee CheckErrorF;
+        llvm::FunctionCallee CheckError;
+        // llvm::FunctionCallee CheckErrorD;
+        // llvm::FunctionCallee CheckErrorF;
         llvm::FunctionCallee RegisterFPSite;
         llvm::FunctionCallee ReportDebugSummary;
 
@@ -45,8 +46,9 @@ namespace utils {
         llvm::FunctionType *CheckConvSITy;
         llvm::FunctionType *CheckConvUITy;
         llvm::FunctionType *CheckBranchTy;
-        llvm::FunctionType *CheckErrorFTy;
-        llvm::FunctionType *CheckErrorDTy;
+        // llvm::FunctionType *CheckErrorFTy;
+        // llvm::FunctionType *CheckErrorDTy;
+        llvm::FunctionType *CheckErrorTy;
         llvm::FunctionType *RegisterFPSiteTy;
         llvm::FunctionType *ReportDebugSummaryTy;
         

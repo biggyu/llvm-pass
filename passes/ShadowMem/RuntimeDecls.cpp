@@ -61,16 +61,21 @@ namespace utils {
             {DoubleTy, DoubleTy, DoubleTy, DoubleTy, I32Ty},
             false
         );
-        CheckErrorDTy = llvm::FunctionType::get(
+        CheckErrorTy = llvm::FunctionType::get(
             VoidTy,
             {DoubleTy, DoubleTy, I32Ty, I32Ty},
             false
         );
-        CheckErrorFTy = llvm::FunctionType::get(
-            VoidTy,
-            {FloatTy, DoubleTy, I32Ty, I32Ty},
-            false
-        );
+        // CheckErrorDTy = llvm::FunctionType::get(
+        //     VoidTy,
+        //     {DoubleTy, DoubleTy, I32Ty, I32Ty},
+        //     false
+        // );
+        // CheckErrorFTy = llvm::FunctionType::get(
+        //     VoidTy,
+        //     {FloatTy, DoubleTy, I32Ty, I32Ty},
+        //     false
+        // );
 
         RegisterFPSiteTy = llvm::FunctionType::get(
             VoidTy,
@@ -95,8 +100,9 @@ namespace utils {
         CheckConvSI = M.getOrInsertFunction("check_conv_si", CheckConvSITy);
         CheckConvUI = M.getOrInsertFunction("check_conv_ui", CheckConvUITy);
         CheckBranch = M.getOrInsertFunction("check_branch", CheckBranchTy);
-        CheckErrorF = M.getOrInsertFunction("check_error_float", CheckErrorFTy);
-        CheckErrorD = M.getOrInsertFunction("check_error_double", CheckErrorDTy);
+        // CheckErrorF = M.getOrInsertFunction("check_error_float", CheckErrorFTy);
+        // CheckErrorD = M.getOrInsertFunction("check_error_double", CheckErrorDTy);
+        CheckError = M.getOrInsertFunction("check_error", CheckErrorTy);
         // RegisterFPSite = M.getOrInsertFunction("register_fp_site", RegisterFPSiteTy);
         ReportDebugSummary = M.getOrInsertFunction("report_debug_summary", ReportDebugSummaryTy);
     }

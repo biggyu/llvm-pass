@@ -29,8 +29,9 @@ static bool isRuntimeFunction(const Function &F) {
            N == "shadow_load_float"   ||
            N == "check_conv_si"       ||
            N == "check_conv_ui"       ||
-           N == "check_error_float"   ||
-           N == "check_error_double"  ||
+           N == "check_error"         ||
+        //    N == "check_error_float"   ||
+        //    N == "check_error_double"  ||
         //    N == "register_fp_site"    ||
            N == "report_debug_summary";
 }
@@ -105,13 +106,13 @@ bool insertCheckError(IRBuilder<> &B,
     // });
 
     if (x->getType()->isDoubleTy()) {
-        B.CreateCall(rt.CheckErrorD, {x, dx, SiteId, Metric});
+        B.CreateCall(rt.CheckError, {x, dx, SiteId, Metric});
         return true;
     }
-    if (x->getType()->isFloatTy()) {
-        B.CreateCall(rt.CheckErrorF, {x, dx, SiteId, Metric});
-        return true;
-    }
+    // if (x->getType()->isFloatTy()) {
+    //     B.CreateCall(rt.CheckErrorF, {x, dx, SiteId, Metric});
+    //     return true;
+    // }
     return false;
 }
 
