@@ -7,11 +7,14 @@ namespace utils {
         VoidTy = llvm::Type::getVoidTy(Ctx);
         BoolTy = llvm::Type::getInt1Ty(Ctx);
         I32Ty = llvm::Type::getInt32Ty(Ctx);
+        I64Ty = llvm::Type::getInt64Ty(Ctx);
         FloatTy = llvm::Type::getFloatTy(Ctx);
         DoubleTy = llvm::Type::getDoubleTy(Ctx);
         PtrTy = llvm::PointerType::getUnqual(Ctx);
+        FnPtrTy = llvm::PointerType::get(Ctx, 0);
+        
         ShadowEntryTy = llvm::StructType::create(Ctx, "ShadowEntry");
-        ShadowEntryTy->setBody({I32Ty, DoubleTy, DoubleTy, BoolTy, BoolTy, DoubleTy, DoubleTy, BoolTy}, false);
+        ShadowEntryTy->setBody({I64Ty, DoubleTy, DoubleTy, BoolTy, BoolTy, DoubleTy, DoubleTy, BoolTy}, false);
 
         ZeroD = llvm::ConstantFP::get(DoubleTy, 0.0);
         ZeroF = llvm::ConstantFP::get(FloatTy, 0.0);
@@ -32,26 +35,52 @@ namespace utils {
             {PtrTy, FloatTy, DoubleTy, DoubleTy, BoolTy, BoolTy, DoubleTy},
             false
         );
-        ShadowLoadTy = llvm::FunctionType::get(
+        ShadowLoadDTy = llvm::FunctionType::get(
             ShadowEntryTy,
-            {PtrTy},
+            {PtrTy, DoubleTy},
+            false
+        );
+        ShadowLoadFTy = llvm::FunctionType::get(
+            ShadowEntryTy,
+            {PtrTy, FloatTy},
+            false
+        );
+        ShadowStackPushTy = llvm::FunctionType::get(
+            VoidTy,
+            {DoubleTy, DoubleTy, DoubleTy, BoolTy, BoolTy, DoubleTy},
+            false
+        );
+        ShadowStackPopTy = llvm::FunctionType::get(
+            ShadowEntryTy,
+            {},
             false
         );
 
-        CheckErrorDTy = llvm::FunctionType::get(
+        CheckConvSITy = llvm::FunctionType::get(
             VoidTy,
-            {DoubleTy, DoubleTy, I32Ty, I32Ty},
+            {I32Ty, DoubleTy, DoubleTy},
             false
         );
-        CheckErrorFTy = llvm::FunctionType::get(
+        CheckConvUITy = llvm::FunctionType::get(
             VoidTy,
-            {FloatTy, FloatTy, I32Ty, I32Ty},
+            {I64Ty, DoubleTy, DoubleTy},
+            false
+        );
+        CheckBranchTy = llvm::FunctionType::get(
+            VoidTy,
+            {DoubleTy, DoubleTy, DoubleTy, DoubleTy, I64Ty, BoolTy},
             false
         );
 
-        RegisterFPSiteTy = llvm::FunctionType::get(
+        CheckErrorTy = llvm::FunctionType::get(
             VoidTy,
-            {I32Ty, PtrTy, PtrTy, I32Ty, I32Ty, PtrTy},
+            {DoubleTy, DoubleTy, I32Ty},
+            false
+        );
+
+        AtexitTy = llvm::FunctionType::get(
+            I32Ty,
+            {FnPtrTy},
             false
         );
 
@@ -61,28 +90,39 @@ namespace utils {
             false
         );
 
-        ConditionNumberDTy = llvm::FunctionType::get(
+        ConditionNumberTy = llvm::FunctionType::get(
             VoidTy,
             {I32Ty, DoubleTy, DoubleTy, DoubleTy, DoubleTy, BoolTy, BoolTy, I32Ty},
             false
         );
-        ConditionNumberFTy = llvm::FunctionType::get(
-            VoidTy,
-            {I32Ty, FloatTy, FloatTy, FloatTy, FloatTy, BoolTy, BoolTy, I32Ty},
-            false
-        );
+        // ConditionNumberDTy = llvm::FunctionType::get(
+        //     VoidTy,
+        //     {I32Ty, DoubleTy, DoubleTy, DoubleTy, DoubleTy, BoolTy, BoolTy, I32Ty},
+        //     false
+        // );
+        // ConditionNumberFTy = llvm::FunctionType::get(
+        //     VoidTy,
+        //     {I32Ty, FloatTy, FloatTy, FloatTy, FloatTy, BoolTy, BoolTy, I32Ty},
+        //     false
+        // );
 
         Printf = M.getOrInsertFunction("printf", PrintfTy);
         
         ShadowStoreF = M.getOrInsertFunction("shadow_store_float", ShadowStoreFTy);
         ShadowStoreD = M.getOrInsertFunction("shadow_store_double", ShadowStoreDTy);
-        ShadowLoad = M.getOrInsertFunction("shadow_load", ShadowLoadTy);
+        ShadowLoadF = M.getOrInsertFunction("shadow_load_float", ShadowLoadFTy);
+        ShadowLoadD = M.getOrInsertFunction("shadow_load_double", ShadowLoadDTy);
+        ShadowStackPush = M.getOrInsertFunction("shadow_stack_push", ShadowStackPushTy);
+        ShadowStackPop = M.getOrInsertFunction("shadow_stack_pop", ShadowStackPopTy);
 
-        CheckErrorF = M.getOrInsertFunction("check_error_float", CheckErrorFTy);
-        CheckErrorD = M.getOrInsertFunction("check_error_double", CheckErrorDTy);
-        RegisterFPSite = M.getOrInsertFunction("register_fp_site", RegisterFPSiteTy);
+        CheckConvSI = M.getOrInsertFunction("check_conv_si", CheckConvSITy);
+        CheckConvUI = M.getOrInsertFunction("check_conv_ui", CheckConvUITy);
+        CheckBranch = M.getOrInsertFunction("check_branch", CheckBranchTy);
+        CheckError = M.getOrInsertFunction("check_error", CheckErrorTy);
+        Atexit = M.getOrInsertFunction("atexit", AtexitTy);
         ReportDebugSummary = M.getOrInsertFunction("report_debug_summary", ReportDebugSummaryTy);
-        ConditionNumberF = M.getOrInsertFunction("condition_number_float", ConditionNumberFTy);
-        ConditionNumberD = M.getOrInsertFunction("condition_number_double", ConditionNumberDTy);
+        // ConditionNumberF = M.getOrInsertFunction("condition_number_float", ConditionNumberFTy);
+        // ConditionNumberD = M.getOrInsertFunction("condition_number_double", ConditionNumberDTy);
+        ConditionNumber = M.getOrInsertFunction("condition_number", ConditionNumberTy);
     }
 }

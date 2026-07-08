@@ -11,7 +11,7 @@ struct ShadowEntry{
     bool isExact;
     double ehat; // log value
 
-    double error;
+    double error;// eft/mpfr error
     bool used;
 };
 class ShadowTable {
@@ -36,55 +36,45 @@ public:
         std::memset(table, 0, sizeof(table));
     }
     void insert(void* key, double x, double rhat, double dx, bool sign, bool isExact, double ehat) {
-        uintptr_t k = (uintptr_t)key;
         size_t idx = hashPtr(key);
-        for (size_t probe = 0; probe < TABLE_SIZE; probe++) {
-            ShadowEntry &entry = table[idx];
-            if (!entry.used) {
-                entry.used = true;
-                entry.key = k;
-                entry.xhat = x;
-                entry.rhat = rhat;
-                entry.error = dx;
-                entry.sign = sign;
-                entry.isExact = isExact;
-                entry.ehat = ehat;
-                return;
-            }
-            //! Update value or just error
-            if (entry.key == k) {
-                entry.xhat = x;
-                entry.rhat = rhat;
-                entry.error = dx;
-                entry.sign = sign;
-                entry.isExact = isExact;
-                entry.ehat = ehat;
-                return;
-            }
-            idx = (idx + 1) & (TABLE_SIZE - 1); 
-        }
+        ShadowEntry &entry = table[idx];
+        entry.used = true;
+        entry.key = (uintptr_t)key;
+        entry.xhat = x;
+        entry.rhat = rhat;
+        entry.error = dx;
+        entry.sign = sign;
+        entry.isExact = isExact;
+        entry.ehat = ehat;
     }
-    // void insert(void* key, float x, double dx) {
-    //     insert(key, (double)x, dx);
-    // }
-    ShadowEntry* get(void* key) {
-        uintptr_t k = (uintptr_t)key;
-        size_t idx = hashPtr(key);
-        
-        for (size_t probe = 0; probe < TABLE_SIZE; probe++) {
-            ShadowEntry &entry = table[idx];
 
-            if (!entry.used) {
-                return nullptr;
-            }
-            if (entry.key == k) {
-                return &entry;
-            }
-            idx = (idx + 1) & (TABLE_SIZE - 1); 
+    ShadowEntry* get(void* key, double progVal) {
+        size_t idx = hashPtr(key);
+        ShadowEntry &entry = table[idx];
+        if(entry.used && entry.key == (uintptr_t)key && entry.xhat == progVal) {
+            return &entry;
         }
         return nullptr;
     }
-    // ShadowEntry* getFloat(void* key) {
-    //     return getDouble(key);
-    // }
+};
+
+//TODO: modify to DSLValue
+class ShadowStack {
+private:
+    ShadowEntry shadow_stack[256];
+    int top = 0;
+public:
+    void push(double x, double rhat, double dx, bool sign, bool isExact, double ehat) {
+        ShadowEntry &e = shadow_stack[top++];
+        e.used = true;
+        e.xhat = x;
+        e.rhat = rhat;
+        e.error = dx;
+        e.sign = sign;
+        e.isExact = isExact;
+        e.ehat = ehat;
+    }
+    ShadowEntry* pop() {
+        return &shadow_stack[--top];
+    }
 };

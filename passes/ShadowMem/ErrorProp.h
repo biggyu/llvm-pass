@@ -12,11 +12,29 @@ using namespace llvm;
 
 bool handleIntrinsic(IntrinsicInst *II, utils::RuntimeFns &rt,
                 utils::RuntimeMPFRFns &rt_mpfr,
-                DenseMap<const Value*, DSLValues> &ErrorMap);
+                DenseMap<const Value*, DSLValues> &DSLMap);
 
 bool handleExternal(CallInst *CI, utils::RuntimeFns &rt,
                 utils::RuntimeMPFRFns &rt_mpfr,
-                DenseMap<const Value*, DSLValues> &ErrorMap);
+                DenseMap<const Value*, DSLValues> &DSLMap);
 
-bool handleBinary(Instruction *BO, utils::RuntimeFns &rt,
-                DenseMap<const Value*, DSLValues> &ErrorMap);
+bool handleUnary(UnaryOperator *UO, utils::RuntimeFns &rt,
+                DenseMap<const Value*, DSLValues> &DSLMap);
+
+bool handleBinary(BinaryOperator *BO, utils::RuntimeFns &rt,
+                DenseMap<const Value*, DSLValues> &DSLMap);
+
+bool handleFCmp(FCmpInst *FC, utils::RuntimeFns &rt,
+                DenseMap<const Value*, DSLValues> &DSLMap);
+
+bool handleFPToSI(FPToSIInst *CI, utils::RuntimeFns &rt,
+                DenseMap<const Value*, DSLValues> &DSLMap);
+
+bool handleFPToUI(FPToUIInst *CI, utils::RuntimeFns &rt,
+                DenseMap<const Value*, DSLValues> &DSLMap);
+                
+bool handleSIToFP(SIToFPInst *SI, utils::RuntimeFns &rt,
+                DenseMap<const Value*, DSLValues> &DSLMap);
+                
+bool handleUIToFP(UIToFPInst *UI, utils::RuntimeFns &rt,
+                DenseMap<const Value*, DSLValues> &DSLMap);

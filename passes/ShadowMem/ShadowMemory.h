@@ -10,5 +10,9 @@ using namespace llvm;
 
 bool handleStore(StoreInst *SI, utils::RuntimeFns &rt, 
                 DenseMap<const Value*, DSLValues> &DSLMap);
+                
 bool handleLoad(LoadInst *LI, utils::RuntimeFns &rt, 
+                DenseMap<const Value*, DSLValues> &DSLMap);
+
+bool handleReturn(ReturnInst *RI, utils::RuntimeFns &rt, 
                 DenseMap<const Value*, DSLValues> &DSLMap);

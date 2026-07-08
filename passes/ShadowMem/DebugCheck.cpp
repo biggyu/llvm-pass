@@ -22,20 +22,6 @@ cl::opt<int> DebugMetrics(
     cl::init(0)
 );
 
-DenseSet<uint32_t> RegisteredSites;
-
-static bool isRuntimeFunction(const Function &F) {
-    StringRef N = F.getName();
-    return N == "shadow_store"              ||
-           N == "shadow_load"               ||
-           N == "check_error_float"         ||
-           N == "check_error_double"        ||
-           N == "register_fp_site"          ||
-           N == "report_debug_summary"      ||
-           N == "condition_number_float"    ||
-           N == "condition_number_double";
-}
-
 static uint32_t hash32string(llvm::StringRef S) {
     uint32_t H = 2166136261u;
     for (char c : S) {
@@ -79,53 +65,64 @@ bool insertCheckError(IRBuilder<> &B,
     Value *SiteId = ConstantInt::get(rt.I32Ty, id);
     Value *Metric = ConstantInt::get(rt.I32Ty, DebugMetrics);
 
-    DebugLoc DL = Site->getDebugLoc();
+    // DebugLoc DL = Site->getDebugLoc();
 
-    std::string File = "<unknown>";
-    int Line = 0, Col = 0;
+    // std::string File = "<unknown>";
+    // int Line, Col;
 
-    if (DL) {
-        File = DL.get()->getFilename().str();
-        Line = DL.get()->getLine();
-        Col = DL.get()->getColumn();
-        // Line = DL->getLine();
-        // Col = DL->getColumn();
-    }
+    // if (DL) {
+    //     File = DL.get()->getFilename().str();
+    //     Line = DL.get()->getLine();
+    //     Col = DL.get()->getColumn();
+    //     // Line = DL->getLine();
+    //     // Col = DL->getColumn();
+    // }
 
-    std::string Func = Site->getFunction()->getName().str();
-    std::string Opcode = Site->getOpcodeName();
+    // std::string Func = Site->getFunction()->getName().str();
+    // std::string Opcode = Site->getOpcodeName();
 
-    Value *FileStr = B.CreateGlobalStringPtr(File);
-    Value *FuncStr = B.CreateGlobalStringPtr(Func);
-    Value *OpcodeStr = B.CreateGlobalStringPtr(Opcode);
+    // Value *FileStr = B.CreateGlobalStringPtr(File);
+    // Value *FuncStr = B.CreateGlobalStringPtr(Func);
+    // Value *OpcodeStr = B.CreateGlobalStringPtr(Opcode);
 
-    if (RegisteredSites.insert(id).second) {
-        B.CreateCall(rt.RegisterFPSite, {
-            SiteId,
-            FuncStr,
-            FileStr,
-            ConstantInt::get(rt.I32Ty, Line),
-            ConstantInt::get(rt.I32Ty, Col),
-            OpcodeStr,
-        });
-    }
+    // B.CreateCall(rt.RegisterFPSite, {
+    //     SiteId,
+    //     FuncStr,
+    //     FileStr,
+    //     ConstantInt::get(rt.I32Ty, Line),
+    //     ConstantInt::get(rt.I32Ty, Col),
+    //     OpcodeStr,
+    // });
+
+    // if (x->getType()->isDoubleTy()) {
+    //     B.CreateCall(rt.CheckError, {x, dx, SiteId, Metric});
+    //     return true;
+    // }
+    // // if (x->getType()->isFloatTy()) {
+    //     B.CreateCall(rt.CheckErrorF, {x, dx, SiteId, Metric});
+    //     return true;
+    // }
 
     bool emitCond = (op != FpOp::Mul && op != FpOp::Div && op != FpOp::Sqrt && op != FpOp::Cbrt && op != FpOp::Unknown);
 
-    if (xDsl.xhat->getType()->isDoubleTy()) {
-        if (emitCond) {
-            B.CreateCall(rt.ConditionNumberD, {ConstantInt::get(rt.I32Ty, (uint32_t)op), aDsl.xhat, aDsl.error, bDsl.xhat, bDsl.error, aDsl.isExact, bDsl.isExact, SiteId});
-        }
-        B.CreateCall(rt.CheckErrorD, {xDsl.xhat, xDsl.error, SiteId, Metric});
-        return true;
+    // if (xDsl.xhat->getType()->isDoubleTy()) {
+    //     if (emitCond) {
+    //         B.CreateCall(rt.ConditionNumberD, {ConstantInt::get(rt.I32Ty, (uint32_t)op), aDsl.xhat, aDsl.error, bDsl.xhat, bDsl.error, aDsl.isExact, bDsl.isExact, SiteId});
+    //     }
+    //     // B.CreateCall(rt.CheckErrorD, {xDsl.xhat, xDsl.error, SiteId, Metric});
+    //     return true;
+    // }
+    // if (xDsl.xhat->getType()->isFloatTy()) {
+    //     if (emitCond) {
+    //         B.CreateCall(rt.ConditionNumberF, {ConstantInt::get(rt.I32Ty, (uint32_t)op), aDsl.xhat, aDsl.error, bDsl.xhat, bDsl.error, aDsl.isExact, bDsl.isExact, SiteId});
+    //     }
+    //     // B.CreateCall(rt.CheckErrorF, {xDsl.xhat, xDsl.error, SiteId, Metric});
+    //     return true;
+    // }
+    if (emitCond) {
+        B.CreateCall(rt.ConditionNumber, {ConstantInt::get(rt.I32Ty, (uint32_t)op), aDsl.xhat, aDsl.error, bDsl.xhat, bDsl.error, aDsl.isExact, bDsl.isExact, SiteId});
     }
-    if (xDsl.xhat->getType()->isFloatTy()) {
-        if (emitCond) {
-            B.CreateCall(rt.ConditionNumberF, {ConstantInt::get(rt.I32Ty, (uint32_t)op), aDsl.xhat, aDsl.error, bDsl.xhat, bDsl.error, aDsl.isExact, bDsl.isExact, SiteId});
-        }
-        B.CreateCall(rt.CheckErrorF, {xDsl.xhat, xDsl.error, SiteId, Metric});
-        return true;
-    }
+    B.CreateCall(rt.CheckError, {xDsl.xhat, xDsl.error, Metric});
     return false;
 }
 
@@ -134,14 +131,8 @@ bool insertReportInMain(Module &M, utils::RuntimeFns &rt) {
     if(!Main) {
         return false;
     }
-
-    for (BasicBlock &BB : *Main) {
-        Instruction *Term = BB.getTerminator();
-        if (auto *RI = dyn_cast<ReturnInst>(Term)) {
-            IRBuilder<> B(RI);
-            B.CreateCall(rt.ReportDebugSummary);
-        }
-    }
+    IRBuilder<> B(&*Main->getEntryBlock().getFirstInsertionPt());
+    B.CreateCall(rt.Atexit, {rt.ReportDebugSummary.getCallee()});
     return true;
 }
 

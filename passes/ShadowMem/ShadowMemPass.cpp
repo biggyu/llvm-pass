@@ -12,17 +12,20 @@
 
 using namespace llvm;
 
-static bool isRuntimeFunction(const Function &F) {
-    StringRef N = F.getName();
-    return N == "shadow_store_double" ||
-           N == "shadow_load_double"  ||
-           N == "shadow_store_float"  ||
-           N == "shadow_load_float"   ||
-           N == "check_error_float"   ||
-           N == "check_error_double"  ||
-           N == "register_fp_site"    ||
-           N == "report_debug_summary";
-}
+// bool isRuntimeFunction(const Function &F) {
+//     StringRef N = F.getName();
+//     return N == "shadow_store_double" ||
+//            N == "shadow_store_float"  ||
+//            N == "shadow_load_double"  ||
+//            N == "shadow_load_float"   ||
+//            N == "shadow_stack_push"   ||
+//            N == "shadow_stack_pop"    ||
+//            N == "check_conv_ui"       ||
+//            N == "check_conv_si"       ||
+//            N == "check_branch"        ||
+//            N == "check_error"         ||
+//            N == "report_debug_summary";
+// }
 
 void runOnModule(llvm::Module &M) {
     utils::RuntimeFns rt(M);
@@ -33,7 +36,18 @@ void runOnModule(llvm::Module &M) {
         if (F.isDeclaration()) continue;
         if (isRuntimeFunction(F)) continue;
 
+        // DenseMap<const Value*, Value*> ErrorMap;
         DenseMap<const Value*, DSLValues> DSLMap;
+
+        if (F.getName() != "main") {
+            IRBuilder<> Entry(&*F.getEntryBlock().getFirstInsertionPt());
+            for (Argument &param : F.args()) {
+                if (param.getType()->isDoubleTy() || param.getType()->isFloatTy()) {
+                    Value *entry = Entry.CreateCall(rt.ShadowStackPop, {});
+                    DSLMap[&param] = extractDSL(Entry, entry);
+                }
+            }
+        }
 
         SmallVector<Instruction*, 128> WorkList;
         for (BasicBlock &BB : F) {
@@ -45,7 +59,17 @@ void runOnModule(llvm::Module &M) {
             if (isa<PHINode>(I)) continue;
 
             if (auto *LI = dyn_cast<LoadInst>(I)) {
-                if(handleLoad(LI, rt, DSLMap)) {
+                if (handleLoad(LI, rt, DSLMap)) {
+                    continue;
+                }
+            }
+            if (auto *SI = dyn_cast<StoreInst>(I)) {
+                if (handleStore(SI, rt, DSLMap)) {
+                    continue;
+                }
+            }
+            if (auto *RI = dyn_cast<ReturnInst>(I)) {
+                if (handleReturn(RI, rt, DSLMap)) {
                     continue;
                 }
             }
@@ -55,17 +79,47 @@ void runOnModule(llvm::Module &M) {
                 }
             }
             if (auto *II = dyn_cast<IntrinsicInst>(I)) {
-                if(handleIntrinsic(II, rt, rt_mpfr, DSLMap)) {
+                if (handleIntrinsic(II, rt, rt_mpfr, DSLMap)) {
                     continue;
                 }
             }
             if (auto *CI = dyn_cast<CallInst>(I)) {
-                if(handleExternal(CI, rt, rt_mpfr, DSLMap)) {
+                if (handleExternal(CI, rt, rt_mpfr, DSLMap)) {
+                    continue;
+                }
+            }
+            if (auto *UO = dyn_cast<UnaryOperator>(I)) {
+                if (handleUnary(UO, rt, DSLMap)) {
                     continue;
                 }
             }
             if (auto *BO = dyn_cast<BinaryOperator>(I)) {
-                if(handleBinary(BO, rt, DSLMap)) {
+                if (handleBinary(BO, rt, DSLMap)) {
+                    continue;
+                }
+            }
+            if (auto *FC = dyn_cast<FCmpInst>(I)) {
+                if (handleFCmp(FC, rt, DSLMap)) {
+                    continue;
+                }
+            }
+            if (auto *CI = dyn_cast<FPToSIInst>(I)) {
+                if (handleFPToSI(CI, rt, DSLMap)) {
+                    continue;
+                }
+            }
+            if (auto *CI = dyn_cast<FPToUIInst>(I)) {
+                if (handleFPToUI(CI, rt, DSLMap)) {
+                    continue;
+                }
+            }
+            if (auto *SI = dyn_cast<SIToFPInst>(I)) {
+                if (handleSIToFP(SI, rt, DSLMap)) {
+                    continue;
+                }
+            }
+            if (auto *UI = dyn_cast<UIToFPInst>(I)) {
+                if (handleUIToFP(UI, rt, DSLMap)) {
                     continue;
                 }
             }

@@ -6,6 +6,9 @@ build/
 # Prerequisites
 *.d
 
+# Error Logs
+benchmarks/correctness_test/produced/*
+
 # Compiled Object files
 *.slo
 *.lo
