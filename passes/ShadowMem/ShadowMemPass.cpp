@@ -8,6 +8,7 @@
 #include "DebugCheck.h"
 #include "decls_fp.h"
 #include "decls_mpfr.h"
+#include "DSLValues.h"
 
 using namespace llvm;
 
@@ -26,6 +27,7 @@ using namespace llvm;
 //            N == "report_debug_summary";
 // }
 
+
 void runOnModule(llvm::Module &M) {
     utils::RuntimeFns rt(M);
     utils::RuntimeMPFRFns rt_mpfr(M);
@@ -35,14 +37,16 @@ void runOnModule(llvm::Module &M) {
         if (F.isDeclaration()) continue;
         if (isRuntimeFunction(F)) continue;
 
-        DenseMap<const Value*, Value*> ErrorMap;
+        // DenseMap<const Value*, Value*> ErrorMap;
+        DenseMap<const Value*, DSLValues> DSLMap;
 
         if (F.getName() != "main") {
             IRBuilder<> Entry(&*F.getEntryBlock().getFirstInsertionPt());
             for (Argument &param : F.args()) {
                 if (param.getType()->isDoubleTy() || param.getType()->isFloatTy()) {
                     Value *param_err = Entry.CreateCall(rt.ShadowStackPop, {});
-                    ErrorMap[&param] = param_err;
+                    //TODO: Modify to DSLMap
+                    // ErrorMap[&param] = param_err;
                 }
             }
         }
@@ -57,65 +61,70 @@ void runOnModule(llvm::Module &M) {
             if (isa<PHINode>(I)) continue;
 
             if (auto *LI = dyn_cast<LoadInst>(I)) {
-                if (handleLoad(LI, rt, ErrorMap)) {
+                if (handleLoad(LI, rt, DSLMap)) {
                     continue;
                 }
-                // handleLoad(LI, rt, ErrorMap);
+                // handleLoad(LI, rt, DSLMap);
                 // continue;
             }
             if (auto *SI = dyn_cast<StoreInst>(I)) {
-                if (handleStore(SI, rt, ErrorMap)) {
+                if (handleStore(SI, rt, DSLMap)) {
                     continue;
                 }
             }
             if (auto *RI = dyn_cast<ReturnInst>(I)) {
-                if (handleReturn(RI, rt, ErrorMap)) {
+                if (handleReturn(RI, rt, DSLMap)) {
+                    continue;
+                }
+            }
+            if (auto *SI = dyn_cast<StoreInst>(I)) {
+                if(handleStore(SI, rt, DSLMap)) {
                     continue;
                 }
             }
             if (auto *II = dyn_cast<IntrinsicInst>(I)) {
-                if (handleIntrinsic(II, rt, rt_mpfr, ErrorMap)) {
+                if (handleIntrinsic(II, rt, rt_mpfr, DSLMap)) {
                     continue;
                 }
             }
             if (auto *CI = dyn_cast<CallInst>(I)) {
-                if (handleExternal(CI, rt, rt_mpfr, ErrorMap)) {
+                if (handleExternal(CI, rt, rt_mpfr, DSLMap)) {
                     continue;
                 }
             }
             if (auto *UO = dyn_cast<UnaryOperator>(I)) {
-                if (handleUnary(UO, rt, ErrorMap)) {
+                if (handleUnary(UO, rt, DSLMap)) {
                     continue;
                 }
             }
             if (auto *BO = dyn_cast<BinaryOperator>(I)) {
-                if (handleBinary(BO, rt, ErrorMap)) {
+                if (handleBinary(BO, rt, DSLMap)) {
                     continue;
                 }
-                // handleBinary(BO, rt.ZeroF, rt.ZeroD, ErrorMap);
+                // handleBinary(BO, rt.ZeroF, rt.ZeroD, DSLMap);
             }
             if (auto *FC = dyn_cast<FCmpInst>(I)) {
-                if (handleFCmp(FC, rt, ErrorMap)) {
+                if (handleFCmp(FC, rt, DSLMap)) {
                     continue;
                 }
             }
             if (auto *CI = dyn_cast<FPToSIInst>(I)) {
-                if (handleFPToSI(CI, rt, ErrorMap)) {
+                if (handleFPToSI(CI, rt, DSLMap)) {
                     continue;
                 }
             }
             if (auto *CI = dyn_cast<FPToUIInst>(I)) {
-                if (handleFPToUI(CI, rt, ErrorMap)) {
+                if (handleFPToUI(CI, rt, DSLMap)) {
                     continue;
                 }
             }
             if (auto *SI = dyn_cast<SIToFPInst>(I)) {
-                if (handleSIToFP(SI, rt, ErrorMap)) {
+                if (handleSIToFP(SI, rt, DSLMap)) {
                     continue;
                 }
             }
             if (auto *UI = dyn_cast<UIToFPInst>(I)) {
-                if (handleUIToFP(UI, rt, ErrorMap)) {
+                if (handleUIToFP(UI, rt, DSLMap)) {
                     continue;
                 }
             }

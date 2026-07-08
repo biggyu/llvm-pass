@@ -3,14 +3,18 @@
 #include <cstddef>
 #include <cstring>
 
+struct ShadowEntry{
+    uintptr_t key;
+    double xhat; // value
+    double rhat; // residual
+    bool sign;
+    bool isExact;
+    double ehat; // log value
+
+    double error;
+    bool used;
+};
 class ShadowTable {
-public:
-    struct ShadowEntry{
-        uintptr_t key;
-        double value;
-        double error;
-        bool used;
-    };
 private:
     static const int TABLE_SIZE = 1 << 22;
     ShadowEntry table[TABLE_SIZE];
@@ -31,26 +35,30 @@ public:
     ShadowTable() {
         std::memset(table, 0, sizeof(table));
     }
-    void insert(void* key, double x, double dx) {
-        // uintptr_t k = (uintptr_t)key;
+    void insert(void* key, double x, double rhat, double dx, bool sign, bool isExact, double ehat) {
         size_t idx = hashPtr(key);
         ShadowEntry &entry = table[idx];
         entry.used = true;
         entry.key = (uintptr_t)key;
-        entry.value = x;
+        entry.xhat = x;
+        entry.rhat = rhat;
         entry.error = dx;
+        entry.sign = sign;
+        entry.isExact = isExact;
+        entry.ehat = ehat;
     }
 
-    double get(void* key, double progVal) {
+    ShadowEntry* get(void* key, double progVal) {
         size_t idx = hashPtr(key);
         ShadowEntry &entry = table[idx];
-        if(entry.used && entry.key == (uintptr_t)key && entry.value == progVal) {
-            return entry.error;
+        if(entry.used && entry.key == (uintptr_t)key && entry.xhat == progVal) {
+            return &entry;
         }
-        return 0.0;
+        return nullptr;
     }
 };
 
+//TODO: modify to DSLValue
 class ShadowStack {
 private:
     double shadow_stack[256];

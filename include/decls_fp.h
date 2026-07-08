@@ -19,6 +19,8 @@ namespace utils {
         llvm::Type *PtrTy;
         llvm::Type *FnPtrTy;
 
+        llvm::StructType *ShadowEntryTy;
+
         llvm::Constant *ZeroF;
         llvm::Constant *ZeroD;
 
@@ -36,6 +38,8 @@ namespace utils {
         llvm::FunctionCallee CheckError;
         llvm::FunctionCallee Atexit;
         llvm::FunctionCallee ReportDebugSummary;
+        llvm::FunctionCallee ConditionNumberD;
+        llvm::FunctionCallee ConditionNumberF;
 
         llvm::FunctionType *PrintfTy;
         llvm::FunctionType *ShadowStoreFTy;
@@ -51,6 +55,8 @@ namespace utils {
         llvm::FunctionType *CheckErrorTy;
         llvm::FunctionType *AtexitTy;
         llvm::FunctionType *ReportDebugSummaryTy;
+        llvm::FunctionType *ConditionNumberFTy;
+        llvm::FunctionType *ConditionNumberDTy;
         
         explicit RuntimeFns(llvm::Module &Mod);
     };

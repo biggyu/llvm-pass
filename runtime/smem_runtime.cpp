@@ -1,5 +1,5 @@
 #include "smem_runtime.h"
-#include "shadow_table.h"
+// #include "shadow_table.h"
 // #include <unordered_map>
 // #include <cstdint>
 #include <iostream>
@@ -28,19 +28,27 @@ struct ProfScope {
 #endif
 
 static ShadowTable s_tbl;
-extern "C" void shadow_store_double(void* addr, double x, double dx) {
+// extern "C" void shadow_store_double(void* addr, double x, double dx) {
+//     PROFILE(shadowstore);
+//     s_tbl.insert(addr, x, dx);
+// } 
+extern "C" void shadow_store_double(void* addr, double x, double rhat, double dx, bool sign, bool isExact, double ehat) {
     PROFILE(shadowstore);
-    s_tbl.insert(addr, x, dx);
-} 
-extern "C" double shadow_load_double(void* addr, double progVal) {
+    s_tbl.insert(addr, x, rhat, dx, sign, isExact, ehat);
+}
+extern "C" ShadowEntry* shadow_load_double(void* addr, double progVal) {
     PROFILE(shadowload);
     return s_tbl.get(addr, progVal);
 }
-extern "C" void shadow_store_float(void* addr, float x, double dx) {
+// extern "C" void shadow_store_float(void* addr, float x, double dx) {
+//     PROFILE(shadowstore);
+//     s_tbl.insert(addr, (double)x, dx);
+// } 
+extern "C" void shadow_store_float(void* addr, float x, double rhat, double dx, bool sign, bool isExact, double ehat) {
     PROFILE(shadowstore);
-    s_tbl.insert(addr, (double)x, dx);
+    s_tbl.insert(addr, (double)x, rhat, (double)dx, sign, isExact, ehat);
 } 
-extern "C" double shadow_load_float(void* addr, float progVal) {
+extern "C" ShadowEntry* shadow_load_float(void* addr, float progVal) {
     PROFILE(shadowload);
     return s_tbl.get(addr, (double)progVal);
 }

@@ -12,6 +12,9 @@ namespace utils {
         DoubleTy = llvm::Type::getDoubleTy(Ctx);
         PtrTy = llvm::PointerType::getUnqual(Ctx);
         FnPtrTy = llvm::PointerType::get(Ctx, 0);
+        
+        ShadowEntryTy = llvm::StructType::create(Ctx, "ShadowEntry");
+        ShadowEntryTy->setBody({I32Ty, DoubleTy, DoubleTy, BoolTy, BoolTy, DoubleTy, DoubleTy, BoolTy}, false);
 
         ZeroD = llvm::ConstantFP::get(DoubleTy, 0.0);
         ZeroF = llvm::ConstantFP::get(FloatTy, 0.0);
@@ -24,12 +27,12 @@ namespace utils {
 
         ShadowStoreDTy = llvm::FunctionType::get(
             VoidTy,
-            {PtrTy, DoubleTy, DoubleTy},
+            {PtrTy, DoubleTy, DoubleTy, DoubleTy, BoolTy, BoolTy, DoubleTy},
             false
         );
         ShadowStoreFTy = llvm::FunctionType::get(
             VoidTy,
-            {PtrTy, FloatTy, DoubleTy},
+            {PtrTy, FloatTy, DoubleTy, BoolTy, BoolTy, DoubleTy},
             false
         );
         ShadowLoadDTy = llvm::FunctionType::get(
@@ -68,9 +71,10 @@ namespace utils {
             {DoubleTy, DoubleTy, DoubleTy, DoubleTy, I64Ty, BoolTy},
             false
         );
+
         CheckErrorTy = llvm::FunctionType::get(
             VoidTy,
-            {DoubleTy, DoubleTy, I32Ty, I32Ty},
+            {DoubleTy, DoubleTy, I32Ty},
             false
         );
 
@@ -82,6 +86,18 @@ namespace utils {
 
         ReportDebugSummaryTy = llvm::FunctionType::get(
             VoidTy,
+            {},
+            false
+        );
+
+        ConditionNumberDTy = llvm::FunctionType::get(
+            VoidTy,
+            {I32Ty, DoubleTy, DoubleTy, DoubleTy, DoubleTy, BoolTy, BoolTy, I32Ty},
+            false
+        );
+        ConditionNumberFTy = llvm::FunctionType::get(
+            VoidTy,
+            {I32Ty, FloatTy, FloatTy, FloatTy, FloatTy, BoolTy, BoolTy, I32Ty},
             false
         );
 
@@ -100,5 +116,7 @@ namespace utils {
         CheckError = M.getOrInsertFunction("check_error", CheckErrorTy);
         Atexit = M.getOrInsertFunction("atexit", AtexitTy);
         ReportDebugSummary = M.getOrInsertFunction("report_debug_summary", ReportDebugSummaryTy);
+        ConditionNumberF = M.getOrInsertFunction("condition_number_float", ConditionNumberFTy);
+        ConditionNumberD = M.getOrInsertFunction("condition_number_double", ConditionNumberDTy);
     }
 }

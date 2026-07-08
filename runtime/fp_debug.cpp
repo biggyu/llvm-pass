@@ -1,5 +1,5 @@
 #include "fp_debug.h"
-
+#include "fp_condition.h"
 #include <cstdio>
 #include <cmath>
 #include <cstdint>
@@ -328,6 +328,7 @@ void check_error(double x, double dx, int site_id, int metric) {
 //     return check_error_impl<float>(x, dx, site_id, metric);
 // }
 
+
 // template <typename T>
 // static void report_top_impl(std::unordered_map<int, SiteStats> &site_map) {
 //     std::vector<std::pair<int, SiteStats>> sites;
@@ -390,13 +391,18 @@ void check_error(double x, double dx, int site_id, int metric) {
 //                (unsigned long long)S.warn_16,
 //                (unsigned long long)S.warn_prec);
 
-//         printf("    classes: exact=%llu normal=%llu total_loss=%llu inf=%llu nan=%llu xzero=%llu\n",
+//         printf("    classes: exact=%llu normal=%llu total_loss=%llu nan_inf=%llu xzero=%llu\n",
 //                (unsigned long long)S.exact,
 //                (unsigned long long)S.normal,
 //                (unsigned long long)S.total_loss,
-//                (unsigned long long)S.inf,
-//                (unsigned long long)S.nan,
+//                (unsigned long long)S.nan_or_inf,
 //                (unsigned long long)S.xzero);
+
+//         printf("    condition: max_gamma=%.3e kind=%s, cancellation_hits=%llu, sensitivity_hits=%llu, (operand=%.6e)\n",
+//                 S.max_gamma,
+//                 (unsigned long long)S.cond_cancellation,
+//                 (unsigned long long)S.cond_sensitivity,
+//                 S.sample_gamma_operand);
 
 //         printf("    sample: x=%.17e dx=%.17e\n",
 //                S.sample_x,
@@ -429,3 +435,18 @@ extern "C" void report_debug_summary() {
     fprintf(f, "Total conversion errors found %llu\n\n", (unsigned long long) G.conv_cnt);
     fclose(f);
 }
+
+// void report_cond_err(int site_id, int err_kind, double gamma, double operand) {
+//     SiteStats &S = double_sites[site_id];
+//     if (err_kind == (int)ErrKind::Cancellation) {
+//         S.cond_cancellation++;
+//     }
+//     else {
+//         S.cond_sensitivity++;
+//     }
+    
+//     if (gamma > S.max_gamma) {
+//         S.max_gamma = gamma;
+//         S.sample_gamma_operand = operand;
+//     }
+// }
