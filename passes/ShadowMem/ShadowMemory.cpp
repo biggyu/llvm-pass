@@ -3,20 +3,18 @@
 
 using namespace llvm;
 
-static Value* getError(Value *v, Constant *ZeroF, Constant *ZeroD, 
+static Value* getError(Value *v, Constant *ZeroD, 
                         DenseMap<const Value*, Value*> &ErrorMap) {
     auto it = ErrorMap.find(v);
     if (it != ErrorMap.end()) {
         return it->second;
     }
+    // if (!isa<ConstantFP>(v)) {
+    //     llvm::errs() << "ShadowMemory getError MISS on: ";
+    //     v->print(llvm::errs());
+    //     llvm::errs() << "\n";
+    // }
     return ZeroD;
-    // if (v->getType()->isDoubleTy()) {
-    //     return ZeroD;
-    // }
-    // if (v->getType()->isFloatTy()) {
-    //     return ZeroF;
-    // }
-    // return nullptr;
 }
 
 bool handleStore(StoreInst *SI, utils::RuntimeFns &rt, 
@@ -29,7 +27,7 @@ bool handleStore(StoreInst *SI, utils::RuntimeFns &rt,
         return false;
     }
     llvm::Value *ptr = SI->getPointerOperand();
-    llvm::Value *dx = getError(val, rt.ZeroF, rt.ZeroD, ErrorMap);
+    llvm::Value *dx = getError(val, rt.ZeroD, ErrorMap);
     IRBuilder<> AfterSI(SI->getNextNode());
     if (val->getType()->isDoubleTy()) {
         AfterSI.CreateCall(rt.ShadowStoreD, {ptr, val, dx});
@@ -46,6 +44,7 @@ bool handleLoad(LoadInst *LI, utils::RuntimeFns &rt,
         return false;
     }
     if (LI->isVolatile() || LI->isAtomic()) {
+        ErrorMap[LI] = rt.ZeroD;
         return false;
     }
     llvm::Value *dx, *ptr = LI->getPointerOperand();
@@ -58,5 +57,17 @@ bool handleLoad(LoadInst *LI, utils::RuntimeFns &rt,
     //     dx = AfterLI.CreateCall(rt.ShadowLoadF, {ptr});
     // }
     ErrorMap[LI] = dx;
+    return true;
+}
+
+bool handleReturn(ReturnInst *RI, utils::RuntimeFns &rt, 
+                DenseMap<const Value*, Value*> &ErrorMap) {
+    Value *ret = RI->getReturnValue();
+    if (!ret || (!ret->getType()->isDoubleTy() && !ret->getType()->isFloatTy())) {
+        return false;
+    }
+    IRBuilder<> B(RI);
+    Value *ret_err = getError(ret, rt.ZeroD, ErrorMap);
+    B.CreateCall(rt.ShadowStackPush, {ret_err});
     return true;
 }

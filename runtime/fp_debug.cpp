@@ -7,6 +7,7 @@
 // #include <vector>
 #include <cstring>
 #include <climits>
+#define ERRORTHRESHOLD 50.0
 // #include <algorithm>
 // #include <unordered_map>
 // static uint64_t total_checks_double = 0;
@@ -93,21 +94,19 @@ enum FCmpPred {
     FCMP_TRUE = 15,
 };
 
-static int CANCELLATION_THRESHOLD = 2;
-// static int CANCELLATION_THRESHOLD = DEFAULT_CANCELLATION_THRESHOLD;
-static void load_threshold() {
-    if (const char *env = std::getenv("CANCELLATION_THRESHOLD")) {
-        CANCELLATION_THRESHOLD = std::atoi(env);
-    }
-}
+// static int CANCELLATION_THRESHOLD = 2;
+// // static int CANCELLATION_THRESHOLD = DEFAULT_CANCELLATION_THRESHOLD;
+// static void load_threshold() {
+//     if (const char *env = std::getenv("CANCELLATION_THRESHOLD")) {
+//         CANCELLATION_THRESHOLD = std::atoi(env);
+//     }
+// }
 
-// template <typename T>
-// static ErrorClass classify(T x, T dx) {
 static ErrorClass classify(double x, double dx) {
-    if (std::isnan(x) || std::isnan(dx)) {
+    if (std::isnan(x)) {
         return ErrorClass::NaN;
     }
-    if (std::isinf(x) || std::isinf(dx)) {
+    if (std::isinf(x)) {
         return ErrorClass::Inf;
     }
     if (dx == double(0)) {
@@ -240,7 +239,7 @@ void check_conv_ui(size_t val, double src, double src_err) {
     }
 }
 
-bool eval_pred(double a, double b, int pred) {
+static bool eval_pred(double a, double b, size_t pred) {
     bool nan = std::isnan(a) || std::isnan(b);
     switch (pred) {
         case FCMP_FALSE: return false;
@@ -264,13 +263,21 @@ bool eval_pred(double a, double b, int pred) {
         default:        return false;
     }
 }
-void check_branch(double a, double da, double b, double db, int pred) {
-    double a_corr = a + da;
-    double b_corr = b + db;
+extern "C" void check_branch(double a, double da, double b, double db, size_t pred, bool computed_res) {
+    // double a_corr = a + da;
+    // double b_corr = b + db;
 
-    bool corrected = eval_pred(a_corr, b_corr, pred);
-    bool prog = eval_pred(a, b, pred);
-    if(corrected != prog) {
+    bool corrected = eval_pred(a + da, b + db, pred);
+    // bool prog = eval_pred(a, b, pred);
+    // if(corrected != prog) {
+    // printf("branch: a=%g da=%g b=%g db=%g pred=%zu prog=%d corr=%d\n", a, da, b, db, pred, computed_res, corrected);
+    // if (da != 0.0 || db != 0.0) {
+    //     printf("branch: a=%g da=%g b=%g db=%g pred=%zu prog=%d corr=%d\n", a, da, b, db, pred, computed_res, corrected);
+    // }
+    // if (a == 0.0 && da != 0.0) {
+    //     fprintf(stderr, "POTENTIAL FLIP: a=%g da=%g -> prog=%d corr=%d\n", a, da, (a==0.0), ((a+da)==0.0));
+    // }
+    if(corrected != computed_res) {
         G.branch_flips++;
     }
 }
@@ -308,7 +315,7 @@ void check_error(double x, double dx, int site_id, int metric) {
             G.xzero++;
             return;
     }
-    if (ulp >= 45.0) {
+    if (ulp >= ERRORTHRESHOLD) {
         G.above_thres++;
     }
 }
@@ -406,10 +413,19 @@ void check_error(double x, double dx, int site_id, int metric) {
 // }
 
 extern "C" void report_debug_summary() {
-    printf("Error above 45 bits found %llu\n", (unsigned long long) G.above_thres);
-    printf("Total NaN found %llu\n", (unsigned long long) G.nan);
-    printf("Total Inf Found %llu\n", (unsigned long long) G.inf);
-    printf("Total branch flips found %llu\n", (unsigned long long) G.branch_flips);
-    printf("Total conversion errors found %llu\n\n", (unsigned long long) G.conv_cnt);
-    // printf("Precision warnings %llu\n\n", (unsigned long long) G.relerr);
+    const char *dir = getenv("ERRLOG_DIR");
+    char path[1024];
+    if (dir && dir[0] != '\0') {
+        snprintf(path, sizeof(path), "%s/error.log", dir);
+    } else {
+        snprintf(path, sizeof(path), "examples/error.log");
+    }
+    FILE *f = fopen(path, "w");
+    if (!f) return;
+    fprintf(f, "Error above bits %d found %llu\n", (int)ERRORTHRESHOLD, (unsigned long long) G.above_thres);
+    fprintf(f, "Total NaN found %llu\n", (unsigned long long) G.nan);
+    fprintf(f, "Total Inf found %llu\n", (unsigned long long) G.inf);
+    fprintf(f, "Total branch flips found %llu\n", (unsigned long long) G.branch_flips);
+    fprintf(f, "Total conversion errors found %llu\n\n", (unsigned long long) G.conv_cnt);
+    fclose(f);
 }

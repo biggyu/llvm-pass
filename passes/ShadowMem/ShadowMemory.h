@@ -9,5 +9,9 @@ using namespace llvm;
 
 bool handleStore(StoreInst *SI, utils::RuntimeFns &rt, 
                 DenseMap<const Value*, Value*> &ErrorMap);
+                
 bool handleLoad(LoadInst *LI, utils::RuntimeFns &rt, 
+                DenseMap<const Value*, Value*> &ErrorMap);
+
+bool handleReturn(ReturnInst *RI, utils::RuntimeFns &rt, 
                 DenseMap<const Value*, Value*> &ErrorMap);

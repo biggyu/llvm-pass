@@ -11,11 +11,13 @@ namespace utils {
         llvm::LLVMContext &Ctx;
 
         llvm::Type *VoidTy;
+        llvm::Type *BoolTy;
         llvm::Type *I32Ty;
         llvm::Type *I64Ty;
         llvm::Type *FloatTy;
         llvm::Type *DoubleTy;
         llvm::Type *PtrTy;
+        llvm::Type *FnPtrTy;
 
         llvm::Constant *ZeroF;
         llvm::Constant *ZeroD;
@@ -25,15 +27,14 @@ namespace utils {
         llvm::FunctionCallee ShadowStoreF;
         llvm::FunctionCallee ShadowLoadD;
         llvm::FunctionCallee ShadowLoadF;
+        llvm::FunctionCallee ShadowStackPush;
+        llvm::FunctionCallee ShadowStackPop;
 
-        // llvm::FunctionCallee CheckCancellation;
         llvm::FunctionCallee CheckConvSI;
         llvm::FunctionCallee CheckConvUI;
         llvm::FunctionCallee CheckBranch;
         llvm::FunctionCallee CheckError;
-        // llvm::FunctionCallee CheckErrorD;
-        // llvm::FunctionCallee CheckErrorF;
-        llvm::FunctionCallee RegisterFPSite;
+        llvm::FunctionCallee Atexit;
         llvm::FunctionCallee ReportDebugSummary;
 
         llvm::FunctionType *PrintfTy;
@@ -41,15 +42,14 @@ namespace utils {
         llvm::FunctionType *ShadowStoreDTy;
         llvm::FunctionType *ShadowLoadFTy;
         llvm::FunctionType *ShadowLoadDTy;
+        llvm::FunctionType *ShadowStackPushTy;
+        llvm::FunctionType *ShadowStackPopTy;
 
-        // llvm::FunctionType *CheckCancellationTy;
         llvm::FunctionType *CheckConvSITy;
         llvm::FunctionType *CheckConvUITy;
         llvm::FunctionType *CheckBranchTy;
-        // llvm::FunctionType *CheckErrorFTy;
-        // llvm::FunctionType *CheckErrorDTy;
         llvm::FunctionType *CheckErrorTy;
-        llvm::FunctionType *RegisterFPSiteTy;
+        llvm::FunctionType *AtexitTy;
         llvm::FunctionType *ReportDebugSummaryTy;
         
         explicit RuntimeFns(llvm::Module &Mod);

@@ -21,21 +21,6 @@ cl::opt<int> DebugMetrics(
     cl::init(0)
 );
 
-static bool isRuntimeFunction(const Function &F) {
-    StringRef N = F.getName();
-    return N == "shadow_store_double" ||
-           N == "shadow_load_double"  ||
-           N == "shadow_store_float"  ||
-           N == "shadow_load_float"   ||
-           N == "check_conv_si"       ||
-           N == "check_conv_ui"       ||
-           N == "check_error"         ||
-        //    N == "check_error_float"   ||
-        //    N == "check_error_double"  ||
-        //    N == "register_fp_site"    ||
-           N == "report_debug_summary";
-}
-
 static uint32_t hash32string(llvm::StringRef S) {
     uint32_t H = 2166136261u;
     for (char c : S) {
@@ -121,14 +106,8 @@ bool insertReportInMain(Module &M, utils::RuntimeFns &rt) {
     if(!Main) {
         return false;
     }
-
-    for (BasicBlock &BB : *Main) {
-        Instruction *Term = BB.getTerminator();
-        if (auto *RI = dyn_cast<ReturnInst>(Term)) {
-            IRBuilder<> B(RI);
-            B.CreateCall(rt.ReportDebugSummary);
-        }
-    }
+    IRBuilder<> B(&*Main->getEntryBlock().getFirstInsertionPt());
+    B.CreateCall(rt.Atexit, {rt.ReportDebugSummary.getCallee()});
     return true;
 }
 

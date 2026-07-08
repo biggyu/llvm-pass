@@ -9,7 +9,7 @@ extern "C" {
 void check_conv_si(int val, double src, double src_err);
 void check_conv_ui(size_t val, double src, double src_err);
 
-void check_branch(double a, double da, double b, double db, int pred);
+void check_branch(double a, double da, double b, double db, size_t pred, bool computed_res);
 
 void check_error(double x, double dx, int site_id, int metric);
 // void check_error_double(double x, double dx, int site_id, int metric);

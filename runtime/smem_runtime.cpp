@@ -11,7 +11,7 @@ using ns = std::chrono::nanoseconds;
 struct OpProf {
     uint64_t calls = 0, ns = 0;
 };
-static shadowstore, shadowload
+static shadowstore, shadowload, shadowpush, shadowpop
 
 struct ProfScope {
     OpProf &p;
@@ -43,6 +43,17 @@ extern "C" void shadow_store_float(void* addr, float x, double dx) {
 extern "C" double shadow_load_float(void* addr, float progVal) {
     PROFILE(shadowload);
     return s_tbl.get(addr, (double)progVal);
+}
+
+static ShadowStack s_stk;
+extern "C" void shadow_stack_push(double err) {
+    PROFILE(shadowpush);
+    s_stk.push(err);
+}
+
+extern "C" double shadow_stack_pop() {
+    PROFILE(shadowpop);
+    return s_stk.pop();
 }
 
 extern "C" void report_smem_profile() {

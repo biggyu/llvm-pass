@@ -11,17 +11,20 @@
 
 using namespace llvm;
 
-static bool isRuntimeFunction(const Function &F) {
-    StringRef N = F.getName();
-    return N == "shadow_store_double" ||
-           N == "shadow_load_double"  ||
-           N == "shadow_store_float"  ||
-           N == "shadow_load_float"   ||
-           N == "check_error_float"   ||
-           N == "check_error_double"  ||
-           N == "check_branch"    ||
-           N == "report_debug_summary";
-}
+// bool isRuntimeFunction(const Function &F) {
+//     StringRef N = F.getName();
+//     return N == "shadow_store_double" ||
+//            N == "shadow_store_float"  ||
+//            N == "shadow_load_double"  ||
+//            N == "shadow_load_float"   ||
+//            N == "shadow_stack_push"   ||
+//            N == "shadow_stack_pop"    ||
+//            N == "check_conv_ui"       ||
+//            N == "check_conv_si"       ||
+//            N == "check_branch"        ||
+//            N == "check_error"         ||
+//            N == "report_debug_summary";
+// }
 
 void runOnModule(llvm::Module &M) {
     utils::RuntimeFns rt(M);
@@ -33,6 +36,16 @@ void runOnModule(llvm::Module &M) {
         if (isRuntimeFunction(F)) continue;
 
         DenseMap<const Value*, Value*> ErrorMap;
+
+        if (F.getName() != "main") {
+            IRBuilder<> Entry(&*F.getEntryBlock().getFirstInsertionPt());
+            for (Argument &param : F.args()) {
+                if (param.getType()->isDoubleTy() || param.getType()->isFloatTy()) {
+                    Value *param_err = Entry.CreateCall(rt.ShadowStackPop, {});
+                    ErrorMap[&param] = param_err;
+                }
+            }
+        }
 
         SmallVector<Instruction*, 128> WorkList;
         for (BasicBlock &BB : F) {
@@ -55,6 +68,11 @@ void runOnModule(llvm::Module &M) {
                     continue;
                 }
             }
+            if (auto *RI = dyn_cast<ReturnInst>(I)) {
+                if (handleReturn(RI, rt, ErrorMap)) {
+                    continue;
+                }
+            }
             if (auto *II = dyn_cast<IntrinsicInst>(I)) {
                 if (handleIntrinsic(II, rt, rt_mpfr, ErrorMap)) {
                     continue;
@@ -62,6 +80,11 @@ void runOnModule(llvm::Module &M) {
             }
             if (auto *CI = dyn_cast<CallInst>(I)) {
                 if (handleExternal(CI, rt, rt_mpfr, ErrorMap)) {
+                    continue;
+                }
+            }
+            if (auto *UO = dyn_cast<UnaryOperator>(I)) {
+                if (handleUnary(UO, rt, ErrorMap)) {
                     continue;
                 }
             }
@@ -83,6 +106,16 @@ void runOnModule(llvm::Module &M) {
             }
             if (auto *CI = dyn_cast<FPToUIInst>(I)) {
                 if (handleFPToUI(CI, rt, ErrorMap)) {
+                    continue;
+                }
+            }
+            if (auto *SI = dyn_cast<SIToFPInst>(I)) {
+                if (handleSIToFP(SI, rt, ErrorMap)) {
+                    continue;
+                }
+            }
+            if (auto *UI = dyn_cast<UIToFPInst>(I)) {
+                if (handleUIToFP(UI, rt, ErrorMap)) {
                     continue;
                 }
             }

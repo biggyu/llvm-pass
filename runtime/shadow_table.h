@@ -50,3 +50,16 @@ public:
         return 0.0;
     }
 };
+
+class ShadowStack {
+private:
+    double shadow_stack[256];
+    int top = 0;
+public:
+    void push(double err) {
+        shadow_stack[top++] = err;
+    }
+    double pop() {
+        return shadow_stack[--top];
+    }
+};
