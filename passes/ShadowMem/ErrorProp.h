@@ -21,7 +21,7 @@ bool handleExternal(CallInst *CI, utils::RuntimeFns &rt,
 bool handleUnary(UnaryOperator *UO, utils::RuntimeFns &rt,
                 DenseMap<const Value*, DSLValues> &DSLMap);
 
-bool handleBinary(Instruction *BO, utils::RuntimeFns &rt,
+bool handleBinary(BinaryOperator *BO, utils::RuntimeFns &rt,
                 DenseMap<const Value*, DSLValues> &DSLMap);
 
 bool handleFCmp(FCmpInst *FC, utils::RuntimeFns &rt,

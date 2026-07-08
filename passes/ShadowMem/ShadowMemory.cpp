@@ -3,21 +3,6 @@
 
 using namespace llvm;
 
-//! Move to getDSL()
-static Value* getError(Value *v, Constant *ZeroD, 
-                        DenseMap<const Value*, Value*> &ErrorMap) {
-    auto it = ErrorMap.find(v);
-    if (it != ErrorMap.end()) {
-        return it->second;
-    }
-    // if (!isa<ConstantFP>(v)) {
-    //     llvm::errs() << "ShadowMemory getError MISS on: ";
-    //     v->print(llvm::errs());
-    //     llvm::errs() << "\n";
-    // }
-    return ZeroD;
-}
-
 bool handleStore(StoreInst *SI, utils::RuntimeFns &rt, 
                 DenseMap<const Value*, DSLValues> &DSLMap) {
     llvm::Value *val = SI->getValueOperand();
@@ -28,7 +13,7 @@ bool handleStore(StoreInst *SI, utils::RuntimeFns &rt,
         return false;
     }
     llvm::Value *ptr = SI->getPointerOperand();
-    DSLValues dsl = getDSL(val, rt, DSLMap);
+    DSLValues dsl = getDSL(val, rt.ZeroD, DSLMap);
 
     IRBuilder<> AfterSI(SI->getNextNode());
 
@@ -49,9 +34,8 @@ bool handleLoad(LoadInst *LI, utils::RuntimeFns &rt,
         return false;
     }
     if (LI->isVolatile() || LI->isAtomic()) {
-        //TODO: Generate dummy DSLValue?
-        // DSLMap[LI] = rt.ZeroD;
-        return false;
+        DSLMap[LI] = getDSL(LI, rt.ZeroD, DSLMap);
+        return true;
     }
     llvm::Value *ptr = LI->getPointerOperand();
     IRBuilder<> AfterLI(LI->getNextNode());
@@ -70,16 +54,14 @@ bool handleLoad(LoadInst *LI, utils::RuntimeFns &rt,
     
 }
 
-//TODO: Modify to DSLValue
 bool handleReturn(ReturnInst *RI, utils::RuntimeFns &rt, 
-                DenseMap<const Value*, Value*> &ErrorMap) {
+                DenseMap<const Value*, DSLValues> &DSLMap) {
     Value *ret = RI->getReturnValue();
     if (!ret || (!ret->getType()->isDoubleTy() && !ret->getType()->isFloatTy())) {
         return false;
     }
     IRBuilder<> B(RI);
-    //! Move to getDSL
-    Value *ret_err = getError(ret, rt.ZeroD, ErrorMap);
-    B.CreateCall(rt.ShadowStackPush, {ret_err});
+    DSLValues ret_err = getDSL(ret, rt.ZeroD, DSLMap);
+    B.CreateCall(rt.ShadowStackPush, {ret_err.xhat, ret_err.rhat, ret_err.error, ret_err.sign, ret_err.isExact, ret_err.ehat});
     return true;
 }

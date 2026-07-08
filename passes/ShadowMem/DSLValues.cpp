@@ -3,22 +3,20 @@
 #include "llvm/ADT/DenseMap.h"
 #include "DSLValues.h"
 
-DSLValues getDSL(Value *v, utils::RuntimeFns &rt, 
+DSLValues getDSL(Value *v, Constant *ZeroD, 
                     DenseMap<const Value*, DSLValues> &DSLMap) {
     auto it = DSLMap.find(v);
     if (it != DSLMap.end()) {
         return it->second;
     }
     DSLValues d;
-    // bool isD = v->getType()->isDoubleTy();
-    // Constant *zfp = v->getType()->isDoubleTy() ? rt.ZeroD : rt.ZeroF;    
     d.xhat = v;
-    d.rhat = rt.ZeroD;
-    d.error = rt.ZeroD;
+    d.rhat = ZeroD;
+    d.error = ZeroD;
     llvm::LLVMContext &ctx = v->getContext();
     d.sign = ConstantInt::getFalse(ctx);
     d.isExact = ConstantInt::getTrue(ctx);
-    d.ehat = rt.ZeroD;
+    d.ehat = ZeroD;
     return d;
 }
 

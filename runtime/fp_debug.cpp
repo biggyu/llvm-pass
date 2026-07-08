@@ -282,7 +282,7 @@ extern "C" void check_branch(double a, double da, double b, double db, size_t pr
     }
 }
 
-void check_error(double x, double dx, int site_id, int metric) {
+void check_error(double x, double dx, int metric) {
 // static void check_error_impl(T x, double dx, int site_id, int metric, uint64_t &total_checks, std::unordered_map<int, SiteStats> &sites) {
     ErrorClass errcls = classify(x, dx);
     double ulp = incorrect_bits_ulp(x, dx);

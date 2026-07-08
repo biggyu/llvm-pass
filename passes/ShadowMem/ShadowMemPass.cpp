@@ -27,7 +27,6 @@ using namespace llvm;
 //            N == "report_debug_summary";
 // }
 
-
 void runOnModule(llvm::Module &M) {
     utils::RuntimeFns rt(M);
     utils::RuntimeMPFRFns rt_mpfr(M);
@@ -44,9 +43,8 @@ void runOnModule(llvm::Module &M) {
             IRBuilder<> Entry(&*F.getEntryBlock().getFirstInsertionPt());
             for (Argument &param : F.args()) {
                 if (param.getType()->isDoubleTy() || param.getType()->isFloatTy()) {
-                    Value *param_err = Entry.CreateCall(rt.ShadowStackPop, {});
-                    //TODO: Modify to DSLMap
-                    // ErrorMap[&param] = param_err;
+                    Value *entry = Entry.CreateCall(rt.ShadowStackPop, {});
+                    DSLMap[&param] = extractDSL(Entry, entry);
                 }
             }
         }
@@ -64,8 +62,6 @@ void runOnModule(llvm::Module &M) {
                 if (handleLoad(LI, rt, DSLMap)) {
                     continue;
                 }
-                // handleLoad(LI, rt, DSLMap);
-                // continue;
             }
             if (auto *SI = dyn_cast<StoreInst>(I)) {
                 if (handleStore(SI, rt, DSLMap)) {
@@ -101,7 +97,6 @@ void runOnModule(llvm::Module &M) {
                 if (handleBinary(BO, rt, DSLMap)) {
                     continue;
                 }
-                // handleBinary(BO, rt.ZeroF, rt.ZeroD, DSLMap);
             }
             if (auto *FC = dyn_cast<FCmpInst>(I)) {
                 if (handleFCmp(FC, rt, DSLMap)) {

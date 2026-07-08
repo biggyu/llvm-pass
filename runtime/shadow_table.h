@@ -11,7 +11,7 @@ struct ShadowEntry{
     bool isExact;
     double ehat; // log value
 
-    double error;
+    double error;// eft/mpfr error
     bool used;
 };
 class ShadowTable {
@@ -61,13 +61,20 @@ public:
 //TODO: modify to DSLValue
 class ShadowStack {
 private:
-    double shadow_stack[256];
+    ShadowEntry shadow_stack[256];
     int top = 0;
 public:
-    void push(double err) {
-        shadow_stack[top++] = err;
+    void push(double x, double rhat, double dx, bool sign, bool isExact, double ehat) {
+        ShadowEntry &e = shadow_stack[top++];
+        e.used = true;
+        e.xhat = x;
+        e.rhat = rhat;
+        e.error = dx;
+        e.sign = sign;
+        e.isExact = isExact;
+        e.ehat = ehat;
     }
-    double pop() {
-        return shadow_stack[--top];
+    ShadowEntry* pop() {
+        return &shadow_stack[--top];
     }
 };
