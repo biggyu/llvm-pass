@@ -6,6 +6,8 @@ namespace utils {
     RuntimeFns::RuntimeFns(Module &Mod) : M(Mod), Ctx(Mod.getContext()) {
         VoidTy = llvm::Type::getVoidTy(Ctx);
         BoolTy = llvm::Type::getInt1Ty(Ctx);
+        TrueVal = llvm::ConstantInt::getTrue(Ctx);
+        FalseVal = llvm::ConstantInt::getFalse(Ctx);
         I32Ty = llvm::Type::getInt32Ty(Ctx);
         I64Ty = llvm::Type::getInt64Ty(Ctx);
         FloatTy = llvm::Type::getFloatTy(Ctx);
@@ -91,7 +93,7 @@ namespace utils {
         );
 
         ConditionNumberTy = llvm::FunctionType::get(
-            VoidTy,
+            DoubleTy,
             {I32Ty, DoubleTy, DoubleTy, DoubleTy, DoubleTy, BoolTy, BoolTy, I32Ty},
             false
         );

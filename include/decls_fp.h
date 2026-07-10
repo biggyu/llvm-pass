@@ -12,6 +12,8 @@ namespace utils {
 
         llvm::Type *VoidTy;
         llvm::Type *BoolTy;
+        llvm::Value *TrueVal;
+        llvm::Value *FalseVal;
         llvm::Type *I32Ty;
         llvm::Type *I64Ty;
         llvm::Type *FloatTy;

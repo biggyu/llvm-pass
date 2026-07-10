@@ -493,17 +493,17 @@ fp_entryF PropFabsFError(float a, float da) {
     }
     return result;
 }
-fp_entryD PropFabsDError(double a, double da) {
-    fp_entryD result;
-    result.value = fabs(a);
-    if (a > 0.0) {
-        result.error = da;
-    }
-    else if (a < 0.0) {
-        result.error = -da;
-    }
-    else {
-        result.error = fabs(da);
-    }
-    return result;
-}   
+// fp_entryD PropFabsDError(double a, double da) {
+//     fp_entryD result;
+//     result.value = fabs(a);
+//     if (a > 0.0) {
+//         result.error = da;
+//     }
+//     else if (a < 0.0) {
+//         result.error = -da;
+//     }
+//     else {
+//         result.error = fabs(da);
+//     }
+//     return result;
+// }   

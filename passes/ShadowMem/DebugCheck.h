@@ -17,7 +17,7 @@ extern cl::opt<int> DebugMetrics;
 bool insertCheckError(IRBuilder<> &B,
                     const DSLValues &aDsl, 
                     const DSLValues &bDsl, 
-                    const DSLValues &xDsl, 
+                    DSLValues &xDsl, 
                     Instruction *Site, FpOp opcode, 
                     utils::RuntimeFns &rt);
 
