@@ -194,11 +194,30 @@ bool handleIntrinsic(IntrinsicInst *II, utils::RuntimeFns &rt,
         return true;
     }
     else if (II->getIntrinsicID() == Intrinsic::fabs) {
-        Value *ret = AfterII.CreateCall(rt_mpfr.PropFabsDError, {arg0, arg0_err});
-        Value *x = AfterII.CreateExtractValue(ret, {0}, "fabs.val");
-        Value *dx = AfterII.CreateExtractValue(ret, {1}, "fabs.err");
+        Value *x_true = AfterII.CreateFAdd(arg0, arg0_err, "fabs.x_true");
+        IntegerType *IntTy = AfterII.getIntNTy(arg0->getType()->getPrimitiveSizeInBits());
+        Value *sign_mask = ConstantInt::get(IntTy, APInt::getSignMask(IntTy->getBitWidth()));
+        Value *x_sign = AfterII.CreateAnd(AfterII.CreateBitCast(arg0, IntTy), sign_mask);
+        Value *x_true_sign = AfterII.CreateAnd(AfterII.CreateBitCast(x_true, IntTy), sign_mask);
+        Value *is_same_sign = AfterII.CreateICmpEQ(x_sign, x_true_sign);
 
-        DSLValues x_dsl = makeDSL(AfterII, x, dx, rt, rt.FalseVal);
+        Value *copy_x_sign = AfterII.CreateIntrinsic(Intrinsic::copysign, {arg0->getType()}, 
+                                                    {ConstantFP::get(arg0->getType(), 1.0), arg0});
+        Value *formula_same = AfterII.CreateFMul(copy_x_sign, arg0_err, "fabs.samesign");
+
+        Value *absX = AfterII.CreateIntrinsic(Intrinsic::fabs, {arg0->getType()}, {arg0}, nullptr, "fabs.val");
+        Value *absX_true = AfterII.CreateIntrinsic(Intrinsic::fabs, {arg0->getType()}, {x_true});
+        // FSub EFT
+        Value *diff = AfterII.CreateFSub(absX_true, absX, "fabs.diffsign");
+        Value *bp = AfterII.CreateFSub(diff, absX_true, "fsub.bp");
+        Value *ap = AfterII.CreateFSub(diff, bp, "fsub.ap");
+        Value *da = AfterII.CreateFSub(absX_true, ap, "fsub.da");
+        Value *db = AfterII.CreateFAdd(absX, bp, "fsub.db");
+        Value *formula_diff = AfterII.CreateFSub(da, db, "fsub.err");
+
+        Value *dx = AfterII.CreateSelect(is_same_sign, formula_same, formula_diff, "fabs.err");
+
+        DSLValues x_dsl = makeDSL(AfterII, absX, dx, rt, rt.FalseVal);
         DSLMap[II] = x_dsl;
         if (EnableDebugChecks) {
             insertCheckError(AfterII, arg0_dsl, arg0_dsl, x_dsl, II, FpOp::Unknown, rt);
@@ -489,6 +508,37 @@ bool handleExternal(CallInst *CI, utils::RuntimeFns &rt,
         //         insertCheckError(AfterCI, arg0_dsl, arg1_dsl, x_dsl, CI, FpOp::Pow, rt);
         //     }
         // }
+        else if (N == "fabs" || N == "fabsf") {
+            Value *x_true = AfterCI.CreateFAdd(arg0, arg0_err, "fabs.x_true");
+            IntegerType *IntTy = AfterCI.getIntNTy(arg0->getType()->getPrimitiveSizeInBits());
+            Value *sign_mask = ConstantInt::get(IntTy, APInt::getSignMask(IntTy->getBitWidth()));
+            Value *x_sign = AfterCI.CreateAnd(AfterCI.CreateBitCast(arg0, IntTy), sign_mask);
+            Value *x_true_sign = AfterCI.CreateAnd(AfterCI.CreateBitCast(x_true, IntTy), sign_mask);
+            Value *is_same_sign = AfterCI.CreateICmpEQ(x_sign, x_true_sign);
+
+            Value *copy_x_sign = AfterCI.CreateIntrinsic(Intrinsic::copysign, {arg0->getType()}, 
+                                                        {ConstantFP::get(arg0->getType(), 1.0), arg0});
+            Value *formula_same = AfterCI.CreateFMul(copy_x_sign, arg0_err, "fabs.samesign");
+
+            Value *absX = AfterCI.CreateIntrinsic(Intrinsic::fabs, {arg0->getType()}, {arg0}, nullptr, "fabs.val");
+            Value *absX_true = AfterCI.CreateIntrinsic(Intrinsic::fabs, {arg0->getType()}, {x_true});
+            // FSub EFT
+            Value *diff = AfterCI.CreateFSub(absX_true, absX, "fabs.diffsign");
+            Value *bp = AfterCI.CreateFSub(diff, absX_true, "fsub.bp");
+            Value *ap = AfterCI.CreateFSub(diff, bp, "fsub.ap");
+            Value *da = AfterCI.CreateFSub(absX_true, ap, "fsub.da");
+            Value *db = AfterCI.CreateFAdd(absX, bp, "fsub.db");
+            Value *formula_diff = AfterCI.CreateFSub(da, db, "fsub.err");
+
+            Value *dx = AfterCI.CreateSelect(is_same_sign, formula_same, formula_diff, "fabs.err");
+
+            DSLValues x_dsl = makeDSL(AfterCI, absX, dx, rt, rt.FalseVal);
+            DSLMap[CI] = x_dsl;
+            if (EnableDebugChecks) {
+                insertCheckError(AfterCI, arg0_dsl, arg0_dsl, x_dsl, CI, FpOp::Unknown, rt);
+            }
+            return true;
+        }
         else {
             Function *Callee = CI->getCalledFunction();
             if (Callee && !Callee->isDeclaration()) {
@@ -612,11 +662,12 @@ bool handleBinary(BinaryOperator *BO, utils::RuntimeFns &rt,
             Value *adb = AfterBO.CreateFMul(opr0, opr1_err, "fmul.adb");
             Value *tmp = AfterBO.CreateFAdd(fma, adb, "fmul.tmp");
             Value *bda = AfterBO.CreateFMul(opr1, opr0_err, "fmul.bda");
-            Value *dx = AfterBO.CreateFAdd(tmp, bda, "fmul.err");
+            // Ignoring second-order error term
+            // Value *dx = AfterBO.CreateFAdd(tmp, bda, "fmul.err");
             // Second-order
-            // Value *tmp2 = AfterBO.CreateFAdd(tmp, bda, "fmul.err");
-            // Value *dadb = AfterBO.CreateFMul(opr0_err, opr1_err, "fmul.dadb");
-            // Value *dx = AfterBO.CreateFAdd(tmp2, dadb, "fmul.err");
+            Value *tmp2 = AfterBO.CreateFAdd(tmp, bda, "fmul.err");
+            Value *dadb = AfterBO.CreateFMul(opr0_err, opr1_err, "fmul.dadb");
+            Value *dx = AfterBO.CreateFAdd(tmp2, dadb, "fmul.err");
             
             DSLValues x_dsl = makeDSL(AfterBO, x, dx, rt, rt.FalseVal);
             DSLMap[BO] = x_dsl;
