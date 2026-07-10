@@ -13,17 +13,16 @@ bool handleStore(StoreInst *SI, utils::RuntimeFns &rt,
         return false;
     }
     llvm::Value *ptr = SI->getPointerOperand();
-    DSLValues dsl = getDSL(val, rt.ZeroD, DSLMap);
-
     IRBuilder<> AfterSI(SI->getNextNode());
-
+    
+    DSLValues dsl = getDSL(AfterSI, val, rt, DSLMap);
     // AfterSI.CreateCall(rt.ShadowStoreD, {ptr, val, dsl.rhat, dsl.error, dsl.sign, dsl.isExact, dsl.ehat});
     // AfterSI.CreateCall(rt.ShadowStore, {ptr, val, dsl.rhat, dsl.sign, dsl.isExact, dsl.ehat, dsl.error});
     if (val->getType()->isDoubleTy()) {
-        AfterSI.CreateCall(rt.ShadowStoreD, {ptr, val, dsl.rhat, dsl.error, dsl.sign, dsl.isExact, dsl.ehat});
+        AfterSI.CreateCall(rt.ShadowStoreD, {ptr, val, dsl.rhat, dsl.sign, dsl.ehat, dsl.isExact, dsl.relerr});
     }
     else {
-        AfterSI.CreateCall(rt.ShadowStoreF, {ptr, val, dsl.rhat, dsl.error, dsl.sign, dsl.isExact, dsl.ehat});
+        AfterSI.CreateCall(rt.ShadowStoreF, {ptr, val, dsl.rhat, dsl.sign, dsl.ehat, dsl.isExact, dsl.relerr});
     }
     return true;
 }
@@ -33,12 +32,12 @@ bool handleLoad(LoadInst *LI, utils::RuntimeFns &rt,
     if (!LI->getType()->isDoubleTy() && !LI->getType()->isFloatTy()) {
         return false;
     }
+    IRBuilder<> AfterLI(LI->getNextNode());
     if (LI->isVolatile() || LI->isAtomic()) {
-        DSLMap[LI] = getDSL(LI, rt.ZeroD, DSLMap);
+        DSLMap[LI] = getDSL(AfterLI, LI, rt, DSLMap);
         return true;
     }
     llvm::Value *ptr = LI->getPointerOperand();
-    IRBuilder<> AfterLI(LI->getNextNode());
     // llvm::Value *entryPtr = AfterLI.CreateCall(rt.ShadowLoad, {ptr});
     
     llvm::Value *entryPtr = LI->getType()->isDoubleTy() ? AfterLI.CreateCall(rt.ShadowLoadD, {ptr, LI}) : AfterLI.CreateCall(rt.ShadowLoadF, {ptr, LI});
@@ -61,7 +60,7 @@ bool handleReturn(ReturnInst *RI, utils::RuntimeFns &rt,
         return false;
     }
     IRBuilder<> B(RI);
-    DSLValues ret_err = getDSL(ret, rt.ZeroD, DSLMap);
-    B.CreateCall(rt.ShadowStackPush, {ret_err.xhat, ret_err.rhat, ret_err.error, ret_err.sign, ret_err.isExact, ret_err.ehat});
+    DSLValues ret_err = getDSL(B, ret, rt, DSLMap);
+    B.CreateCall(rt.ShadowStackPush, {ret_err.xhat, ret_err.rhat, ret_err.sign, ret_err.ehat, ret_err.isExact, ret_err.relerr});
     return true;
 }

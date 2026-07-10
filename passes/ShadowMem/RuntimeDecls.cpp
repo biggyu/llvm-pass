@@ -27,12 +27,12 @@ namespace utils {
 
         ShadowStoreDTy = llvm::FunctionType::get(
             VoidTy,
-            {PtrTy, DoubleTy, DoubleTy, DoubleTy, BoolTy, BoolTy, DoubleTy},
+            {PtrTy, DoubleTy, DoubleTy, BoolTy, DoubleTy, BoolTy, DoubleTy},
             false
         );
         ShadowStoreFTy = llvm::FunctionType::get(
             VoidTy,
-            {PtrTy, FloatTy, DoubleTy, DoubleTy, BoolTy, BoolTy, DoubleTy},
+            {PtrTy, FloatTy, DoubleTy, BoolTy, DoubleTy, BoolTy, DoubleTy},
             false
         );
         ShadowLoadDTy = llvm::FunctionType::get(
@@ -47,7 +47,7 @@ namespace utils {
         );
         ShadowStackPushTy = llvm::FunctionType::get(
             VoidTy,
-            {DoubleTy, DoubleTy, DoubleTy, BoolTy, BoolTy, DoubleTy},
+            {DoubleTy, DoubleTy, BoolTy, DoubleTy, BoolTy, DoubleTy},
             false
         );
         ShadowStackPopTy = llvm::FunctionType::get(

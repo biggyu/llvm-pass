@@ -7,11 +7,13 @@ struct ShadowEntry{
     uintptr_t key;
     double xhat; // value
     double rhat; // residual
-    bool sign;
-    bool isExact;
-    double ehat; // log value
+    double relerr;
 
-    double error;// eft/mpfr error
+    bool sign;
+    double ehat; // log value
+    bool isExact;
+
+    // double error;// eft/mpfr error
     bool used;
 };
 class ShadowTable {
@@ -35,14 +37,14 @@ public:
     ShadowTable() {
         std::memset(table, 0, sizeof(table));
     }
-    void insert(void* key, double x, double rhat, double dx, bool sign, bool isExact, double ehat) {
+    void insert(void* key, double xhat, double rhat, bool sign, double ehat, bool isExact, double relerr) {
         size_t idx = hashPtr(key);
         ShadowEntry &entry = table[idx];
         entry.used = true;
         entry.key = (uintptr_t)key;
-        entry.xhat = x;
+        entry.xhat = xhat;
         entry.rhat = rhat;
-        entry.error = dx;
+        entry.relerr = relerr;
         entry.sign = sign;
         entry.isExact = isExact;
         entry.ehat = ehat;
@@ -58,18 +60,17 @@ public:
     }
 };
 
-//TODO: modify to DSLValue
 class ShadowStack {
 private:
     ShadowEntry shadow_stack[256];
     int top = 0;
 public:
-    void push(double x, double rhat, double dx, bool sign, bool isExact, double ehat) {
+    void push(double xhat, double rhat, bool sign, double ehat, bool isExact, double relerr) {
         ShadowEntry &e = shadow_stack[top++];
         e.used = true;
-        e.xhat = x;
+        e.xhat = xhat;
         e.rhat = rhat;
-        e.error = dx;
+        e.relerr = relerr;
         e.sign = sign;
         e.isExact = isExact;
         e.ehat = ehat;

@@ -32,13 +32,13 @@ static ShadowTable s_tbl;
 //     PROFILE(shadowstore);
 //     s_tbl.insert(addr, x, dx);
 // } 
-extern "C" void shadow_store_double(void* addr, double x, double rhat, double dx, bool sign, bool isExact, double ehat) {
+extern "C" void shadow_store_double(void* addr, double xhat, double rhat, bool sign, double ehat, bool isExact, double relerr) {
     PROFILE(shadowstore);
-    s_tbl.insert(addr, x, rhat, dx, sign, isExact, ehat);
+    s_tbl.insert(addr, xhat, rhat, sign, ehat, isExact, relerr);
 }
-extern "C" void shadow_store_float(void* addr, float x, double rhat, double dx, bool sign, bool isExact, double ehat) {
+extern "C" void shadow_store_float(void* addr, float xhat, double rhat, bool sign, double ehat, bool isExact, double relerr) {
     PROFILE(shadowstore);
-    s_tbl.insert(addr, (double)x, rhat, (double)dx, sign, isExact, ehat);
+    s_tbl.insert(addr, (double)xhat, rhat, sign, ehat, isExact, relerr);
 } 
 
 extern "C" ShadowEntry* shadow_load_double(void* addr, double progVal) {
@@ -61,23 +61,15 @@ extern "C" ShadowEntry* shadow_load_float(void* addr, float progVal) {
 }
 
 static ShadowStack s_stk;
-extern "C" void shadow_stack_push(double x, double rhat, double dx, bool sign, bool isExact, double ehat) {
+extern "C" void shadow_stack_push(double xhat, double rhat, bool sign, double ehat, bool isExact, double relerr) {
     PROFILE(shadowpush);
-    s_stk.push(x, rhat, dx, sign, isExact, ehat);
+    s_stk.push(xhat, rhat, sign, ehat, isExact, relerr);
 }
 
 extern "C" ShadowEntry* shadow_stack_pop() {
     PROFILE(shadowpop);
     return s_stk.pop();
 }
-// extern "C" void shadow_store_float(void* addr, double x, double rhat, double dx, bool sign, bool isExact, double ehat) {
-//     PROFILE(storef);
-//     s_tbl.insert(addr, x, rhat, dx, sign, isExact, ehat);
-// } 
-// extern "C" ShadowEntry* shadow_load_float(void* addr) {
-//     PROFILE(loadf);
-//     return s_tbl.get(addr);
-// }
 
 extern "C" void report_smem_profile() {
 #ifdef ENABLE_PROFILE
