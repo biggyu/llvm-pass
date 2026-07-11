@@ -62,8 +62,9 @@ bool handleIntrinsic(IntrinsicInst *II, utils::RuntimeFns &rt,
             "sqrt.fma"
         );
         Value *num = AfterII.CreateFAdd(arg0_err, fma, "sqrt.num");
-        Value *two = ConstantFP::get(x->getType(), 2.0);
-        Value *den = AfterII.CreateFMul(two, x, "sqrt.den");
+        Value *xPluse = AfterII.CreateFAdd(arg0, arg0_err, "sqrt.xpe");
+        Value *sqrtxPluse = AfterII.CreateIntrinsic(Intrinsic::sqrt, {rt.DoubleTy}, {xPluse}, nullptr, "sqrt.xpe_root");
+        Value *den = AfterII.CreateFAdd(x, sqrtxPluse, "sqrt.den");
         Value *dx = AfterII.CreateFDiv(num, den, "sqrt.err");
         
         DSLValues x_dsl = makeDSL(AfterII, x, dx, rt, rt.FalseVal);
@@ -285,8 +286,9 @@ bool handleExternal(CallInst *CI, utils::RuntimeFns &rt,
                 "sqrt.fma"
             );
             Value *num = AfterCI.CreateFAdd(arg0_err, fma, "sqrt.num");
-            Value *two = ConstantFP::get(x->getType(), 2.0);
-            Value *den = AfterCI.CreateFMul(two, x, "sqrt.den");
+            Value *xPluse = AfterCI.CreateFAdd(arg0, arg0_err, "sqrt.xpe");
+            Value *sqrtxPluse = AfterCI.CreateIntrinsic(Intrinsic::sqrt, {rt.DoubleTy}, {xPluse}, nullptr, "sqrt.xpe_root");
+            Value *den = AfterCI.CreateFAdd(x, sqrtxPluse, "sqrt.den");
             Value *dx = AfterCI.CreateFDiv(num, den, "sqrt.err");
             DSLValues x_dsl = makeDSL(AfterCI, x, dx, rt, rt.FalseVal);
             DSLMap[CI] = x_dsl;
