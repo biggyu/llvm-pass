@@ -1,5 +1,5 @@
 #pragma once
-#include "../runtime/shadow_table.h"
+#include "shadow_table.h"
 #ifdef __cplusplus
 extern "C" {
 #endif

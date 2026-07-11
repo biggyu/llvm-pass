@@ -32,6 +32,8 @@ void runOnModule(llvm::Module &M) {
     utils::RuntimeMPFRFns rt_mpfr(M);
     auto &Ctx = M.getContext();
 
+    std::unordered_map<uint32_t, utils::SiteDesc> SiteDescs;
+
     for (Function &F : M) {
         if (F.isDeclaration()) continue;
         if (isRuntimeFunction(F)) continue;
@@ -79,12 +81,12 @@ void runOnModule(llvm::Module &M) {
                 }
             }
             if (auto *II = dyn_cast<IntrinsicInst>(I)) {
-                if (handleIntrinsic(II, rt, rt_mpfr, DSLMap)) {
+                if (handleIntrinsic(II, rt, rt_mpfr, DSLMap, SiteDescs)) {
                     continue;
                 }
             }
             if (auto *CI = dyn_cast<CallInst>(I)) {
-                if (handleExternal(CI, rt, rt_mpfr, DSLMap)) {
+                if (handleExternal(CI, rt, rt_mpfr, DSLMap, SiteDescs)) {
                     continue;
                 }
             }
@@ -94,7 +96,7 @@ void runOnModule(llvm::Module &M) {
                 }
             }
             if (auto *BO = dyn_cast<BinaryOperator>(I)) {
-                if (handleBinary(BO, rt, DSLMap)) {
+                if (handleBinary(BO, rt, DSLMap, SiteDescs)) {
                     continue;
                 }
             }
@@ -125,6 +127,10 @@ void runOnModule(llvm::Module &M) {
             }
         }
     }
+    if (EnableDebugChecks && !SiteDescs.empty()) {
+        emitRegisterAllSites(M, SiteDescs, rt);
+    }
+
     if (EnableDebugChecks) {
     // if (EnableDebugChecks && EnableDebugAutoReport) {
         insertReportDebugSummary(M, rt);

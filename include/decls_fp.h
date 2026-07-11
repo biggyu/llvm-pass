@@ -1,11 +1,17 @@
 #pragma once
-
+#include <cstdint>
+#include <string>
 #include "llvm/IR/IRBuilder.h"
 #include "llvm/IR/Module.h"
 #include "llvm/IR/Type.h"
 #include "llvm/IR/Function.h"
 
 namespace utils {
+    struct SiteDesc {
+        uint32_t id;
+        std::string file, func, opcode;
+        int line, col;
+    };
     struct RuntimeFns {
         llvm::Module &M;
         llvm::LLVMContext &Ctx;
@@ -39,6 +45,7 @@ namespace utils {
         llvm::FunctionCallee CheckBranch;
         llvm::FunctionCallee CheckError;
         llvm::FunctionCallee Atexit;
+        llvm::FunctionCallee RegisterFPSite;
         llvm::FunctionCallee ReportDebugSummary;
         llvm::FunctionCallee ConditionNumber;
         // llvm::FunctionCallee ConditionNumberD;
@@ -57,6 +64,7 @@ namespace utils {
         llvm::FunctionType *CheckBranchTy;
         llvm::FunctionType *CheckErrorTy;
         llvm::FunctionType *AtexitTy;
+        llvm::FunctionType *RegisterFPSiteTy;
         llvm::FunctionType *ReportDebugSummaryTy;
         // llvm::FunctionType *ConditionNumberFTy;
         // llvm::FunctionType *ConditionNumberDTy;
