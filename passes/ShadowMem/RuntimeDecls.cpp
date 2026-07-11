@@ -76,7 +76,7 @@ namespace utils {
 
         CheckErrorTy = llvm::FunctionType::get(
             VoidTy,
-            {DoubleTy, DoubleTy, I32Ty},
+            {DoubleTy, DoubleTy, I32Ty, I32Ty},
             false
         );
 
@@ -86,6 +86,11 @@ namespace utils {
             false
         );
 
+        RegisterFPSiteTy = llvm::FunctionType::get(
+            VoidTy,
+            {I32Ty, PtrTy, PtrTy, I32Ty, I32Ty, PtrTy},
+            false
+        );
         ReportDebugSummaryTy = llvm::FunctionType::get(
             VoidTy,
             {},
@@ -122,6 +127,7 @@ namespace utils {
         CheckBranch = M.getOrInsertFunction("check_branch", CheckBranchTy);
         CheckError = M.getOrInsertFunction("check_error", CheckErrorTy);
         Atexit = M.getOrInsertFunction("atexit", AtexitTy);
+        RegisterFPSite = M.getOrInsertFunction("register_fp_site", RegisterFPSiteTy);
         ReportDebugSummary = M.getOrInsertFunction("report_debug_summary", ReportDebugSummaryTy);
         // ConditionNumberF = M.getOrInsertFunction("condition_number_float", ConditionNumberFTy);
         // ConditionNumberD = M.getOrInsertFunction("condition_number_double", ConditionNumberDTy);

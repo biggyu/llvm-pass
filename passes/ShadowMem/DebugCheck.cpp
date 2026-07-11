@@ -2,7 +2,9 @@
 #include <cstdint>
 #include <string>
 #include "llvm/IR/DebugInfoMetadata.h"
-#include "../runtime/fp_condition.h"
+#include "llvm/Transforms/Utils/ModuleUtils.h"
+
+static std::unordered_map<uint32_t, utils::SiteDesc> g_siteDesc;
 
 cl::opt<bool> EnableDebugChecks(
     "fp-debug-checks",
@@ -55,53 +57,39 @@ uint32_t getSiteId(const llvm::Instruction *I) {
     return hash32string(Key);
 }
 
+void recordSiteDesc(uint32_t id, Instruction *I) {
+    if (g_siteDesc.count(id)) {
+        return;
+    }
+    utils::SiteDesc d;
+    d.id = id;
+    if (DILocation *L = I->getDebugLoc()) {
+        d.file = L->getFilename().str();
+        d.line = L->getLine();
+        d.col = L->getColumn();
+    }
+    else {
+        d.file = "<unknown>";
+        d.line = 0;
+        d.col = 0;
+    }
+    d.func = I->getFunction()->getName().str();
+    d.opcode = I->getOpcodeName();
+    g_siteDesc[id] = std::move(d);
+}
+
 bool insertCheckError(IRBuilder<> &B,
                     const DSLValues &aDsl, 
                     const DSLValues &bDsl, 
                     DSLValues &xDsl, 
                     Instruction *Site, FpOp op,
-                    utils::RuntimeFns &rt) {
+                    utils::RuntimeFns &rt,
+                    std::unordered_map<uint32_t, utils::SiteDesc> &SiteDescs) {
     uint32_t id = getSiteId(Site);
     Value *SiteId = ConstantInt::get(rt.I32Ty, id);
     Value *Metric = ConstantInt::get(rt.I32Ty, DebugMetrics);
 
-    // DebugLoc DL = Site->getDebugLoc();
-
-    // std::string File = "<unknown>";
-    // int Line, Col;
-
-    // if (DL) {
-    //     File = DL.get()->getFilename().str();
-    //     Line = DL.get()->getLine();
-    //     Col = DL.get()->getColumn();
-    //     // Line = DL->getLine();
-    //     // Col = DL->getColumn();
-    // }
-
-    // std::string Func = Site->getFunction()->getName().str();
-    // std::string Opcode = Site->getOpcodeName();
-
-    // Value *FileStr = B.CreateGlobalStringPtr(File);
-    // Value *FuncStr = B.CreateGlobalStringPtr(Func);
-    // Value *OpcodeStr = B.CreateGlobalStringPtr(Opcode);
-
-    // B.CreateCall(rt.RegisterFPSite, {
-    //     SiteId,
-    //     FuncStr,
-    //     FileStr,
-    //     ConstantInt::get(rt.I32Ty, Line),
-    //     ConstantInt::get(rt.I32Ty, Col),
-    //     OpcodeStr,
-    // });
-
-    // if (x->getType()->isDoubleTy()) {
-    //     B.CreateCall(rt.CheckError, {x, dx, SiteId, Metric});
-    //     return true;
-    // }
-    // // if (x->getType()->isFloatTy()) {
-    //     B.CreateCall(rt.CheckErrorF, {x, dx, SiteId, Metric});
-    //     return true;
-    // }
+    recordSiteDesc(id, Site);
 
     bool emitCond = (op != FpOp::Mul && op != FpOp::Div && op != FpOp::Sqrt && op != FpOp::Cbrt && op != FpOp::Unknown);
 
@@ -113,11 +101,36 @@ bool insertCheckError(IRBuilder<> &B,
             bDsl.xhat, bDsl.relerr, 
             aDsl.isExact, bDsl.isExact, 
             SiteId});
-        Value *ci = ConstantFP::get(rt.DoubleTy, std::numeric_limits<double>::epsilon());
+        Value *ci = ConstantFP::get(rt.DoubleTy, std::numeric_limits<double>::epsilon() / 2.0);
         xDsl.relerr = B.CreateFAdd(Ex, ci, "x.relerr");
     }
-    B.CreateCall(rt.CheckError, {xDsl.xhat, xDsl.rhat, Metric});
+    B.CreateCall(rt.CheckError, {xDsl.xhat, xDsl.rhat, SiteId, Metric});
     return false;
+}
+
+void emitRegisterAllSites(Module &M, SmallVector<utils::SiteDesc> SiteDescs, utils::RuntimeFns &rt) {
+    LLVMContext &Ctx = M.getContext();
+    FunctionType *CtorTy = FunctionType::get(rt.VoidTy, false);
+    Function *Ctor = Function::Create(CtorTy, GlobalValue::InternalLinkage, "__fp_register_call", &M);
+    // BasicBlock *BB = BasicBlock::Create(Ctx, "entry", Ctor);
+    IRBuilder B(BasicBlock::Create(Ctx, "entry", Ctor));
+
+    for (const auto &kv : SiteDescs) {
+        // const utils::SiteDesc &d = kv.second;
+        Value *FuncStr = B.CreateGlobalStringPtr(kv.func);
+        Value *FileStr = B.CreateGlobalStringPtr(kv.file);
+        Value *OpStr = B.CreateGlobalStringPtr(kv.opcode);
+        B.CreateCall(rt.RegisterFPSite, {
+            ConstantInt::get(rt.I32Ty, kv.id), 
+            FuncStr,
+            FileStr,
+            ConstantInt::get(rt.I32Ty, kv.line),
+            ConstantInt::get(rt.I32Ty, kv.col),
+            OpStr,
+        });
+    }
+    B.CreateRetVoid();
+    appendToGlobalCtors(M, Ctor, 0);
 }
 
 bool insertReportInMain(Module &M, utils::RuntimeFns &rt) {

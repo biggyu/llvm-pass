@@ -4,7 +4,7 @@
 #include "llvm/IR/Instruction.h"
 #include "llvm/Support/CommandLine.h"
 #include "decls_fp.h"
-#include "../runtime/fp_condition.h"
+#include "fp_ops.h"
 #include "DSLValues.h"
 
 using namespace llvm;
@@ -19,11 +19,12 @@ bool insertCheckError(IRBuilder<> &B,
                     const DSLValues &bDsl, 
                     DSLValues &xDsl, 
                     Instruction *Site, FpOp opcode, 
-                    utils::RuntimeFns &rt);
+                    utils::RuntimeFns &rt,
+                    std::unordered_map<uint32_t, utils::SiteDesc> &SiteDescs);
 
+void emitRegisterAllSites(Module &M, std::unordered_map<uint32_t, utils::SiteDesc> SiteDescs, utils::RuntimeFns &rt);
 void insertReportDebugSummary(Module &M, utils::RuntimeFns &rt);
 // void insertCancellationCheck(IRBuilder<> &B, Value *opr0, Value *opr1, Value *x, Instruction *Site, utils::RuntimeFns &rt);
-// void registerFPSite(IRBuilder<> &B, Instruction *I, utils::RuntimeFns &rt);
 
 inline bool isRuntimeFunction(const Function &F) {
     StringRef N = F.getName();

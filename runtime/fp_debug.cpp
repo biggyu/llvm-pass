@@ -1,15 +1,17 @@
-#include "fp_debug.h"
-#include "fp_condition.h"
 #include <cstdio>
 #include <cmath>
 #include <cstdint>
 #include <string>
-// #include <vector>
+#include <vector>
 #include <cstring>
 #include <climits>
+#include <algorithm>
+#include <unordered_map>
+#include "fp_debug.h"
+#include "fp_condition.h"
+#include "fp_ops.h"
+#include "fp_runtime_state.h"
 #define ERRORTHRESHOLD 50.0
-// #include <algorithm>
-// #include <unordered_map>
 // static uint64_t total_checks_double = 0;
 // static uint64_t total_checks_float = 0;
 
@@ -18,60 +20,6 @@ enum class ErrorClass : uint8_t {
     NaN, Inf, XZero
 };
 
-struct GlobalStats {
-    uint64_t above_thres = 0;
-    uint64_t nan = 0;
-    uint64_t inf = 0;
-    uint64_t branch_flips = 0;
-    uint64_t conv_cnt = 0;
-
-    uint64_t exact = 0;
-    uint64_t normal = 0;
-    uint64_t xzero = 0;
-    uint64_t total_loss = 0;
-    uint64_t total_checks = 0;
-};
-static GlobalStats G;
-
-// struct SiteStats {
-//     uint64_t cnt = 0;
-//     uint64_t finite_cnt = 0;
-
-//     double sum_bits = 0.0;
-//     double max_bits = 0.0;
-
-//     double sum_err = 0.0;
-//     double max_relerr = 0.0;
-//     double max_abs_dx = 0.0;
-
-//     uint64_t warn_4 = 0;
-//     uint64_t warn_8 = 0;
-//     uint64_t warn_16 = 0;
-//     uint64_t warn_prec = 0;
-
-//     uint64_t exact = 0;
-//     uint64_t normal = 0;
-//     uint64_t total_loss = 0;
-//     uint64_t inf = 0;
-//     uint64_t nan = 0;
-//     uint64_t xzero = 0;
-
-//     double sample_x = 0.0;
-//     double sample_dx = 0.0;
-
-//     double sample_xzero_x = 0.0;
-//     double sample_xzero_dx = 0.0;
-// };
-
-// struct SiteInfo {
-//     std::string function;
-//     std::string file;
-//     int line = 0;
-//     int col = 0;
-//     std::string opcode;
-// };
-
-// static std::unordered_map<int, SiteStats> double_sites;
 // static std::unordered_map<int, SiteStats> float_sites;
 // static std::unordered_map<int, SiteInfo> site_infos;
 
@@ -94,14 +42,6 @@ enum FCmpPred {
     FCMP_TRUE = 15,
 };
 
-// static int CANCELLATION_THRESHOLD = 2;
-// // static int CANCELLATION_THRESHOLD = DEFAULT_CANCELLATION_THRESHOLD;
-// static void load_threshold() {
-//     if (const char *env = std::getenv("CANCELLATION_THRESHOLD")) {
-//         CANCELLATION_THRESHOLD = std::atoi(env);
-//     }
-// }
-
 static ErrorClass classify(double x, double dx) {
     if (std::isnan(x)) {
         return ErrorClass::NaN;
@@ -121,17 +61,17 @@ static ErrorClass classify(double x, double dx) {
     return ErrorClass::Normal;
 }
 
-// extern "C" void register_fp_site(int site_id, const char* function, const char *file, int line, int col, const char* opcode) {
-//     if (site_infos.find(site_id) != site_infos.end()) {
+// void register_fp_site(int site_id, const char* function, const char *file, int line, int col, const char* opcode) {
+//     if (cond_sites.find(site_id) != cond_sites.end()) {
 //         return;
 //     }
-//     SiteInfo info;
+//     CondSite info;
 //     info.function = function ? function : "<unknown>";
 //     info.file = file ? file : "<unknown>";
 //     info.line = line;
 //     info.col = col;
 //     info.opcode = opcode ? opcode : "<unknown>";
-//     site_infos[site_id] = std::move(info);
+//     cond_sites[site_id] = std::move(info);
 // }
 
 template <typename T>
@@ -282,8 +222,7 @@ extern "C" void check_branch(double a, double da, double b, double db, size_t pr
     }
 }
 
-void check_error(double x, double dx, int metric) {
-// static void check_error_impl(T x, double dx, int site_id, int metric, uint64_t &total_checks, std::unordered_map<int, SiteStats> &sites) {
+void check_error(double x, double dx, uint32_t site_id, int metric) {
     ErrorClass errcls = classify(x, dx);
     double ulp = incorrect_bits_ulp(x, dx);
     // double bitwise = incorrect_bits_bitwise(x, dx);
@@ -319,15 +258,6 @@ void check_error(double x, double dx, int metric) {
         G.above_thres++;
     }
 }
-
-// extern "C" void check_error_double(double x, double dx, int site_id, int metric) {
-//     return check_error_impl<double>(x, dx, site_id, metric);
-// }
-
-// extern "C" void check_error_float(float x, double dx, int site_id, int metric) {
-//     return check_error_impl<float>(x, dx, site_id, metric);
-// }
-
 
 // template <typename T>
 // static void report_top_impl(std::unordered_map<int, SiteStats> &site_map) {
@@ -436,17 +366,62 @@ extern "C" void report_debug_summary() {
     fclose(f);
 }
 
-// void report_cond_err(int site_id, int err_kind, double gamma, double operand) {
-//     SiteStats &S = double_sites[site_id];
-//     if (err_kind == (int)ErrKind::Cancellation) {
-//         S.cond_cancellation++;
-//     }
-//     else {
-//         S.cond_sensitivity++;
-//     }
+void check_cond_error(uint32_t site_id, int err_kind, double gamma, double operand) {
+    CondSite &C = cond_sites[site_id];
+    if (err_kind == (int)ErrKind::Cancellation) {
+        G.cond_cancellation++;
+        C.cancellation_hits++;
+    }
+    else {
+        G.cond_sensitivity++;
+        C.sensitivity_hits++;
+    }
     
-//     if (gamma > S.max_gamma) {
-//         S.max_gamma = gamma;
-//         S.sample_gamma_operand = operand;
-//     }
-// }
+    if (gamma > C.max_gamma) {
+        C.max_gamma = gamma;
+        C.sample_operand = operand;
+        C.worst_kind = (ErrKind)err_kind;
+    }
+}
+
+void report_cond_err() {   // called once at exit
+    if (cond_sites.empty()) {
+        printf("\n[condition-number] no sites flagged\n");
+        return;
+    }
+
+    // collect + sort by max_gamma (fragility ranking)
+    std::vector<std::pair<uint32_t, CondSite>> v(cond_sites.begin(), cond_sites.end());
+    std::sort(v.begin(), v.end(),
+        [](const auto &A, const auto &B){ return A.second.max_gamma > B.second.max_gamma; });
+
+    printf("\n--- [condition-number report] ---\n");
+    printf("detected=%llu cancellation=%llu sensitivity=%llu untyped=%llu suppressed=%llu\n",
+        (unsigned long long)G.cond_detected,
+        (unsigned long long)G.cond_cancellation,
+        (unsigned long long)G.cond_sensitivity,
+        (unsigned long long)G.cond_untyped,
+        (unsigned long long)G.cond_suppressed);
+
+    size_t limit = std::min<size_t>(10, v.size());
+    for (size_t i = 0; i < limit; i++) {
+        uint32_t id = v[i].first;
+        const CondSite &C = v[i].second;
+
+        auto it = site_infos.find(id);
+        if (it != site_infos.end()) {
+            const SiteInfo &S = it->second;
+            printf("[%zu] %s:%d:%d in %s (%s)\n",
+                i+1, S.file.c_str(), S.line, S.col,
+                S.function.c_str(), S.opcode.c_str());
+        } else {
+            printf("[%zu] site=%u <no source info>\n", i+1, id);
+        }
+        printf("    kind=%s  max_gamma=%.3e  cancellation_hits=%llu  sensitivity_hits=%llu  (operand=%.6e)\n",
+            C.worst_kind == ErrKind::Cancellation ? "cancellation" : "sensitivity",
+            C.max_gamma,
+            (unsigned long long)C.cancellation_hits,
+            (unsigned long long)C.sensitivity_hits,
+            C.sample_operand);
+    }
+}
