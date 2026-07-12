@@ -44,7 +44,7 @@ extern "C" ShadowEntry* shadow_load_double(void* addr, double progVal) {
     if (e) {
         return e;
     }
-    s_tbl.insert(addr, progVal, 0.0, 0.0, false, true, 0.0);
+    s_tbl.insert(addr, progVal, 0.0, false, 0.0, true, 0.0);
     return s_tbl.get(addr, progVal);
 }
 extern "C" ShadowEntry* shadow_load_float(void* addr, float progVal) {
@@ -53,7 +53,7 @@ extern "C" ShadowEntry* shadow_load_float(void* addr, float progVal) {
     if (e) {
         return e;
     }
-    s_tbl.insert(addr, (double)progVal, 0.0, 0.0, false, true, 0.0);
+    s_tbl.insert(addr, progVal, 0.0, false, 0.0, true, 0.0);
     return s_tbl.get(addr, (double)progVal);
 }
 
