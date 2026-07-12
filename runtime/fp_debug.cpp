@@ -12,16 +12,11 @@
 #include "fp_ops.h"
 #include "fp_runtime_state.h"
 #define ERRORTHRESHOLD 50.0
-// static uint64_t total_checks_double = 0;
-// static uint64_t total_checks_float = 0;
 
 enum class ErrorClass : uint8_t {
     Exact, Normal, TotalLoss,
     NaN, Inf, XZero
 };
-
-// static std::unordered_map<int, SiteStats> float_sites;
-// static std::unordered_map<int, SiteInfo> site_infos;
 
 enum FCmpPred {
     FCMP_FALSE = 0,
@@ -363,6 +358,13 @@ extern "C" void report_debug_summary() {
     fprintf(f, "Total Inf found %llu\n", (unsigned long long) G.inf);
     fprintf(f, "Total branch flips found %llu\n", (unsigned long long) G.branch_flips);
     fprintf(f, "Total conversion errors found %llu\n\n", (unsigned long long) G.conv_cnt);
+
+    fprintf(f, "Condition-number detections found %llu\n", (unsigned long long)G.cond_detected);
+    fprintf(f, "Total cancellation found %llu\n", (unsigned long long)G.cond_cancellation);
+    fprintf(f, "Total sensitivity found %llu\n", (unsigned long long)G.cond_sensitivity);
+    fprintf(f, "Total untyped found %llu\n", (unsigned long long)G.cond_untyped);
+    fprintf(f, "Total suppressed found %llu\n\n", (unsigned long long)G.cond_suppressed);
+
     fclose(f);
 }
 
