@@ -7,13 +7,10 @@ struct ShadowEntry{
     uintptr_t key;
     double xhat; // value
     double rhat; // residual
-    double relerr;
-
     bool sign;
     double ehat; // log value
     bool isExact;
-
-    // double error;// eft/mpfr error
+    double relerr;
     bool used;
 };
 class ShadowTable {

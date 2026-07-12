@@ -48,9 +48,7 @@ bool handleLoad(LoadInst *LI, utils::RuntimeFns &rt,
         //     dx = AfterLI.CreateCall(rt.ShadowLoadF, {ptr});
         // }
     DSLMap[LI] = extractDSL(AfterLI, entryPtr);
-    return true;
-
-    
+    return true;  
 }
 
 bool handleReturn(ReturnInst *RI, utils::RuntimeFns &rt, 

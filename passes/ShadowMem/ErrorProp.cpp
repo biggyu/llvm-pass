@@ -331,7 +331,6 @@ bool handleExternal(CallInst *CI, utils::RuntimeFns &rt,
             if (EnableDebugChecks) {
                 insertCheckError(AfterCI, arg0_dsl, arg0_dsl, x_dsl, CI, FpOp::Cos, rt, SiteDescs);
             }
-            llvm::errs() << "CI::sin\n";
         }
         // else if (N == "cosf") {
         //     Value *ret = AfterCI.CreateCall(rt_mpfr.PropCosFError, {arg0, arg0_err});
