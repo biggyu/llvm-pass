@@ -6,8 +6,19 @@ build/
 # Prerequisites
 *.d
 
-# Error Logs
-benchmarks/correctness_test/produced/*
+# External / large benchmark suites
+benchmarks/correctness_test/*
+benchmarks/fpbench/*
+*.log
+
+# Test Code
+tests/controlled/**/produced/
+tests/controlled/**/*.log
+
+# Editor / system files
+.DS_Store
+.vscode/
+.idea/
 
 # Compiled Object files
 *.slo
