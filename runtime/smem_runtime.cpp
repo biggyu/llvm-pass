@@ -38,23 +38,23 @@ extern "C" void shadow_store_float(void* addr, float xhat, double rhat, bool sig
     s_tbl.insert(addr, (double)xhat, rhat, sign, ehat, isExact, relerr);
 } 
 
-extern "C" ShadowEntry* shadow_load_double(void* addr, double progVal) {
+extern "C" ShadowEntry shadow_load_double(void* addr, double progVal) {
     PROFILE(shadowload);
     ShadowEntry *e = s_tbl.get(addr, progVal);
     if (e) {
-        return e;
+        return *e;
     }
     s_tbl.insert(addr, progVal, 0.0, false, 0.0, true, 0.0);
-    return s_tbl.get(addr, progVal);
+    return *s_tbl.get(addr, progVal);
 }
-extern "C" ShadowEntry* shadow_load_float(void* addr, float progVal) {
+extern "C" ShadowEntry shadow_load_float(void* addr, float progVal) {
     PROFILE(shadowload);
     ShadowEntry *e = s_tbl.get(addr, (double)progVal);
     if (e) {
-        return e;
+        return *e;
     }
     s_tbl.insert(addr, progVal, 0.0, false, 0.0, true, 0.0);
-    return s_tbl.get(addr, (double)progVal);
+    return *s_tbl.get(addr, (double)progVal);
 }
 
 static ShadowStack s_stk;
@@ -63,9 +63,20 @@ extern "C" void shadow_stack_push(double xhat, double rhat, bool sign, double eh
     s_stk.push(xhat, rhat, sign, ehat, isExact, relerr);
 }
 
-extern "C" ShadowEntry* shadow_stack_pop() {
+extern "C" ShadowEntry shadow_stack_pop() {
     PROFILE(shadowpop);
-    return s_stk.pop();
+    ShadowEntry *e = s_stk.pop();
+    if (e) {
+        return *e;
+    }
+    ShadowEntry z{};
+    z.xhat = 0.0;
+    z.rhat = 0.0;
+    z.sign = false;
+    z.ehat = 0.0;
+    z.isExact = true;
+    z.relerr = 0.0;
+    return z;
 }
 
 extern "C" void report_smem_profile() {
