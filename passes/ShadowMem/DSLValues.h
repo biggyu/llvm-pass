@@ -18,35 +18,32 @@ inline DSLValues makeDSL(IRBuilder<> &B,
                         Value *xhat, Value *rhat, 
                         utils::RuntimeFns &rt,
                         // Constant *ZeroF, Constant *ZeroD, 
-                        bool isExact) {
+                        Value *isExact) {
     LLVMContext &Ctx = xhat->getContext();
     
     DSLValues d;
-    d.xhat = xhat;
-    d.rhat = rhat;
-    if (isExact) {
-        d.relerr = rt.ZeroD;
-    }
-    else {
-        Value *absR = B.CreateUnaryIntrinsic(Intrinsic::fabs, rhat);
-        Value *absX = B.CreateUnaryIntrinsic(Intrinsic::fabs, xhat);
+    Value *xd = xhat->getType()->isFloatTy() ? B.CreateFPExt(xhat, rt.DoubleTy, "dsl.xhat") : xhat;
+    Value *rd = rhat->getType()->isFloatTy() ? B.CreateFPExt(rhat, rt.DoubleTy, "dsl.rhat") : rhat;
+    d.xhat = xd;
+    d.rhat = rd;
 
-        Value *isZero = B.CreateFCmpOEQ(absX, rt.ZeroD);
-        Value *inf = ConstantFP::get(rt.DoubleTy, std::numeric_limits<double>::infinity());
-        Value *ratio = B.CreateFDiv(absR, absX);
-        d.relerr = B.CreateSelect(isZero, inf, ratio, "dsl.relerr");
-    }
-    Value *x = B.CreateFAdd(xhat, rhat, "dsl.x");
-    Value *abs_x = B.CreateUnaryIntrinsic(Intrinsic::fabs, x);
+    Value *absR = B.CreateUnaryIntrinsic(Intrinsic::fabs, rd);
+    Value *absX = B.CreateUnaryIntrinsic(Intrinsic::fabs, xd);
 
-    Value *isZero = B.CreateFCmpOEQ(abs_x, rt.ZeroD);
-    Value *log_abs = B.CreateUnaryIntrinsic(Intrinsic::log2, abs_x);
+    Value *isZero = B.CreateFCmpOEQ(absX, rt.ZeroD);
+    Value *pos_inf = ConstantFP::get(rt.DoubleTy, std::numeric_limits<double>::infinity());
+    Value *ratio = B.CreateFDiv(absR, absX, "dsl.ratio");
+    Value *relerr_comp = B.CreateSelect(isZero, pos_inf, ratio, "dsl.relerr_comp");
+    d.relerr = B.CreateSelect(isExact, rt.ZeroD, relerr_comp, "dsl.relerr");
+
+    Value *neg_inf = ConstantFP::get(rt.DoubleTy, -std::numeric_limits<double>::infinity());
+    Value *log_abs = B.CreateUnaryIntrinsic(Intrinsic::log2, absX);
+    d.ehat = B.CreateSelect(isZero, neg_inf, log_abs, "dsl.ehat");
     
-    Value *negInf = ConstantFP::get(rt.DoubleTy, -std::numeric_limits<double>::infinity());
+    Value *x_true = B.CreateFAdd(xd, rd, "dsl.x_true");
+    d.sign = B.CreateFCmpOLT(x_true, rt.ZeroD, "dsl.sign");
 
-    d.ehat = B.CreateSelect(isZero, negInf, log_abs, "dsl.ehat");
-    d.sign = B.CreateFCmpOLT(x, rt.ZeroD, "dsl.sign");
-    d.isExact = ConstantInt::get(rt.BoolTy, isExact);
+    d.isExact = isExact;
     return d;
 }
 

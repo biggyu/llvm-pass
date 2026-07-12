@@ -38,5 +38,9 @@ inline bool isRuntimeFunction(const Function &F) {
            N == "check_conv_si"       ||
            N == "check_branch"        ||
            N == "check_error"         ||
+           N == "atexit"              ||
+           N == "register_fp_site"    ||
+           N == "condition_number"    ||
            N == "report_debug_summary";
 }
+    

@@ -16,7 +16,7 @@ namespace utils {
         FnPtrTy = llvm::PointerType::get(Ctx, 0);
         
         ShadowEntryTy = llvm::StructType::create(Ctx, "ShadowEntry");
-        ShadowEntryTy->setBody({I64Ty, DoubleTy, DoubleTy, BoolTy, BoolTy, DoubleTy, DoubleTy, BoolTy}, false);
+        ShadowEntryTy->setBody({I64Ty, DoubleTy, DoubleTy, BoolTy, DoubleTy, BoolTy, DoubleTy, BoolTy}, false);
 
         ZeroD = llvm::ConstantFP::get(DoubleTy, 0.0);
         ZeroF = llvm::ConstantFP::get(FloatTy, 0.0);

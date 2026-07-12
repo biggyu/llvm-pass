@@ -554,15 +554,16 @@ bool handleExternal(CallInst *CI, utils::RuntimeFns &rt,
                 for (auto it = args.rbegin(); it != args.rend(); ++it) {
                     if ((*it)->getType()->isDoubleTy() || (*it)->getType()->isFloatTy()) {
                         DSLValues d = getDSL(BeforeCI, ((*it)), rt, DSLMap);
-                        Value *rel_err = BeforeCI.CreateFDiv(d.rhat, d.xhat, "callee.rel_err");
-                        BeforeCI.CreateCall(rt.ShadowStackPush, {d.xhat, d.rhat, rel_err, d.sign, d.isExact, d.ehat});
+                        BeforeCI.CreateCall(rt.ShadowStackPush, {d.xhat, d.rhat, d.sign, d.ehat, d.isExact, d.relerr});
                     }
                 }
                 Value *ret_err = AfterCI.CreateCall(rt.ShadowStackPop, {});
                 DSLMap[CI] = extractDSL(AfterCI, ret_err);
             }
             else {
-                DSLMap[CI] = makeDSL(AfterCI, rt.ZeroD, rt.ZeroD, rt, rt.TrueVal);
+                if (CI->getType()->isDoubleTy() || CI->getType()->isFloatTy()) {
+                    DSLMap[CI] = makeDSL(AfterCI, CI, rt.ZeroD, rt, rt.TrueVal);
+                }
             }
             return true;
         }
@@ -582,7 +583,6 @@ bool handleUnary(UnaryOperator *UO, utils::RuntimeFns &rt,
     switch (UO->getOpcode()) {
         case Instruction::FNeg : {
             Value *dx = AfterUO.CreateFNeg(opr_err, "fneg.err");
-            //TODO: Modify
             DSLMap[UO] = makeDSL(AfterUO, UO, dx, rt, opr_dsl.isExact);
             return true;
         }

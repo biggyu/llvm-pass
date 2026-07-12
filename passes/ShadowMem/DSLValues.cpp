@@ -10,27 +10,33 @@ DSLValues getDSL(IRBuilder<> &B,
     if (it != DSLMap.end()) {
         return it->second;
     }
+
     DSLValues d;
-    d.xhat = v;
-    d.rhat = rt.ZeroD;
-    llvm::LLVMContext &ctx = v->getContext();
-    d.sign = ConstantInt::getFalse(ctx);
-    Value *abs = B.CreateUnaryIntrinsic(Intrinsic::fabs, v);
-    //? Only float and double?
-    Value *isZero = v->getType()->isFloatTy() ? B.CreateFCmpOEQ(abs, rt.ZeroF) : B.CreateFCmpOEQ(abs, rt.ZeroD);
-    // if (v->getType()->isFloatTy()) {
-    //     isZero = B.CreateFCmpOEQ(abs, rt.ZeroF);
-    // }
-    // else if (v->getType()->isDoubleTy()) {
-    //     isZero = B.CreateFCmpOEQ(abs, rt.ZeroD);
-    // }
-
-    Value *log_abs = B.CreateUnaryIntrinsic(Intrinsic::log2, abs);
-    Value *negInf = ConstantFP::get(rt.DoubleTy, -std::numeric_limits<double>::infinity());
-
-    d.ehat = B.CreateSelect(isZero, negInf, log_abs, "dsl.ehat");
-    d.isExact = ConstantInt::getTrue(ctx);
-    d.relerr = rt.ZeroD;
+    if (!v->getType()->isFloatTy() && !v->getType()->isDoubleTy()) {
+        d.xhat = rt.ZeroD;
+        d.rhat = rt.ZeroD;
+        d.sign = rt.FalseVal;
+        d.ehat = ConstantFP::get(rt.DoubleTy, -std::numeric_limits<double>::infinity());
+        d.isExact = rt.TrueVal;
+        d.relerr = rt.ZeroD;
+    }
+    else {
+        Value *xd = v->getType()->isFloatTy() ? B.CreateFPExt(v, rt.DoubleTy, "dsl.xhat") : v;
+        d.xhat = xd;
+        
+        d.rhat = rt.ZeroD;
+        d.sign = B.CreateFCmpOLT(xd, rt.ZeroD, "dsl.sign");
+    
+        Value *absX = B.CreateUnaryIntrinsic(Intrinsic::fabs, xd);
+        Value *isZero = B.CreateFCmpOEQ(absX, rt.ZeroD);
+    
+        Value *neg_inf = ConstantFP::get(rt.DoubleTy, -std::numeric_limits<double>::infinity());
+        Value *log_abs = B.CreateUnaryIntrinsic(Intrinsic::log2, absX);
+        d.ehat = B.CreateSelect(isZero, neg_inf, log_abs, "dsl.ehat");
+    
+        d.isExact = rt.TrueVal;
+        d.relerr = rt.ZeroD;
+    }
     return d;
 }
 

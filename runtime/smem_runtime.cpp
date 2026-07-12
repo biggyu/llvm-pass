@@ -28,10 +28,7 @@ struct ProfScope {
 #endif
 
 static ShadowTable s_tbl;
-// extern "C" void shadow_store_double(void* addr, double x, double dx) {
-//     PROFILE(shadowstore);
-//     s_tbl.insert(addr, x, dx);
-// } 
+
 extern "C" void shadow_store_double(void* addr, double xhat, double rhat, bool sign, double ehat, bool isExact, double relerr) {
     PROFILE(shadowstore);
     s_tbl.insert(addr, xhat, rhat, sign, ehat, isExact, relerr);

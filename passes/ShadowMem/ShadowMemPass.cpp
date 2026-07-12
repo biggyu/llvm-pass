@@ -75,11 +75,6 @@ void runOnModule(llvm::Module &M) {
                     continue;
                 }
             }
-            if (auto *SI = dyn_cast<StoreInst>(I)) {
-                if(handleStore(SI, rt, DSLMap)) {
-                    continue;
-                }
-            }
             if (auto *II = dyn_cast<IntrinsicInst>(I)) {
                 if (handleIntrinsic(II, rt, rt_mpfr, DSLMap, SiteDescs)) {
                     continue;

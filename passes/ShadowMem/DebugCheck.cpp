@@ -95,12 +95,12 @@ bool insertCheckError(IRBuilder<> &B,
 
     if (emitCond) {
         Value *Ex = B.CreateCall(rt.ConditionNumber, {
-            ConstantInt::get(rt.I32Ty, 
-            (uint32_t)op), 
+            ConstantInt::get(rt.I32Ty, (uint32_t)op), 
             aDsl.xhat, aDsl.relerr, 
             bDsl.xhat, bDsl.relerr, 
             aDsl.isExact, bDsl.isExact, 
-            SiteId});
+            SiteId
+        });
         Value *ci = ConstantFP::get(rt.DoubleTy, std::numeric_limits<double>::epsilon() / 2.0);
         xDsl.relerr = B.CreateFAdd(Ex, ci, "x.relerr");
     }
