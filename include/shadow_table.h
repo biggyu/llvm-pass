@@ -15,7 +15,7 @@ struct ShadowEntry{
 };
 class ShadowTable {
 private:
-    static const int TABLE_SIZE = 1 << 22;
+    static const int TABLE_SIZE = 1 << 24;
     ShadowEntry table[TABLE_SIZE];
 
     static inline uint64_t mix64(uint64_t x) {
@@ -59,7 +59,7 @@ public:
 
 class ShadowStack {
 private:
-    ShadowEntry shadow_stack[256];
+    ShadowEntry shadow_stack[1024];
     int top = 0;
 public:
     void push(double xhat, double rhat, bool sign, double ehat, bool isExact, double relerr) {

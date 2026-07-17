@@ -11,7 +11,7 @@ using ns = std::chrono::nanoseconds;
 struct OpProf {
     uint64_t calls = 0, ns = 0;
 };
-static shadowstore, shadowload, shadowpush, shadowpop
+static OpProf shadowstore, shadowload, shadowpush, shadowpop;
 
 struct ProfScope {
     OpProf &p;
@@ -21,7 +21,7 @@ struct ProfScope {
         p.ns += std::chrono::duration_cast<ns>(Clock::now() - t0).count();
         p.calls++;
     }
-}
+};
     #define PROFILE(slot) ProfScope _ps(slot)
 #else
     #define PROFILE(slot) ((void)0)
