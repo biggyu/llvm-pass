@@ -1,0 +1,168 @@
+<!doctype html>
+<html><head><meta charset="utf-8"/><title>Result for From Warwick Tucker's Validated Numerics</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" integrity="sha384-9tPv11A+glH/on/wEu99NVwDPwkMQESOocs/ZGXPoIiLE8MU/qkqUcZ3zzL+6DuH" crossorigin="anonymous"/><script src="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.js" integrity="sha384-U8Vrjwb8fuHMt6ewaCy8uqeUXv4oitYACKdB0VziCerzt011iQ/0TqlSlv8MReCm" crossorigin="anonymous"></script><script src="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/contrib/auto-render.min.js" integrity="sha384-aGfk5kvhIq5x1x5YdvCp4upKZYnA8ckafviDpmWEKp4afOZEqOli7gqSnh8I6enH" crossorigin="anonymous"></script><script src="https://unpkg.com/mathjs@4.4.2/dist/math.min.js"></script><script src="https://unpkg.com/d3@6.7.0/dist/d3.min.js"></script><script src="https://unpkg.com/@observablehq/plot@0.4.3/dist/plot.umd.min.js"></script><link rel="stylesheet" type="text/css" href="../report.css"/><script src="../report.js"></script></head><body><header><h1>From Warwick Tucker's Validated Numerics</h1><img src="../logo-car.png"/><nav><ul><li><a href="../index.html">Report</a></li><li><a href="timeline.html">Metrics</a></li></ul></nav></header><div id="large"><div>Percentage Accurate: <span class="number" title="Minimum Accuracy: 9.2% → 9.2%">9.2%<span class="unit"> → </span>9.2%</span></div><div>Time: <span class="number">1.6s</span></div><div>Alternatives: <span class="number">1</span></div><div>Speedup: <span class="number" title="Relative speed of fastest alternative that improves accuracy.">1.0×</span></div></div><section><details id="specification" class="programs"><summary><h2>Specification</h2><select><option>Math</option><option>FPCore</option><option>C</option><option>Fortran</option><option>Java</option><option>Python</option><option>Julia</option><option>MATLAB</option><option>Wolfram</option><option>TeX</option></select><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#spec" target="_blank">?</a></summary><div><div class="implementation" data-language="Math"><div class="program math">\[\begin{array}{l}
+
+\\
+\left(\left(333.75 \cdot {33096}^{6} + \left(77617 \cdot 77617\right) \cdot \left(\left(\left(\left(11 \cdot \left(77617 \cdot 77617\right)\right) \cdot \left(33096 \cdot 33096\right) + \left(-{33096}^{6}\right)\right) + -121 \cdot {33096}^{4}\right) + -2\right)\right) + 5.5 \cdot {33096}^{8}\right) + \frac{77617}{2 \cdot 33096}
+\end{array}
+\]</div></div><div class="implementation" data-language="FPCore"><pre class="program">
+(FPCore ()
+ :precision binary64
+ (+
+  (+
+   (+
+    (* 333.75 (pow 33096.0 6.0))
+    (*
+     (* 77617.0 77617.0)
+     (+
+      (+
+       (+
+        (* (* 11.0 (* 77617.0 77617.0)) (* 33096.0 33096.0))
+        (- (pow 33096.0 6.0)))
+       (* -121.0 (pow 33096.0 4.0)))
+      -2.0)))
+   (* 5.5 (pow 33096.0 8.0)))
+  (/ 77617.0 (* 2.0 33096.0))))</pre></div><div class="implementation" data-language="C"><pre class="program">
+double code() {
+	return (((333.75 * pow(33096.0, 6.0)) + ((77617.0 * 77617.0) * (((((11.0 * (77617.0 * 77617.0)) * (33096.0 * 33096.0)) + -pow(33096.0, 6.0)) + (-121.0 * pow(33096.0, 4.0))) + -2.0))) + (5.5 * pow(33096.0, 8.0))) + (77617.0 / (2.0 * 33096.0));
+}
+</pre></div><div class="implementation" data-language="Fortran"><pre class="program">
+real(8) function code()
+use fmin_fmax_functions
+    code = (((333.75d0 * (33096.0d0 ** 6.0d0)) + ((77617.0d0 * 77617.0d0) * (((((11.0d0 * (77617.0d0 * 77617.0d0)) * (33096.0d0 * 33096.0d0)) + -(33096.0d0 ** 6.0d0)) + ((-121.0d0) * (33096.0d0 ** 4.0d0))) + (-2.0d0)))) + (5.5d0 * (33096.0d0 ** 8.0d0))) + (77617.0d0 / (2.0d0 * 33096.0d0))
+end function
+</pre></div><div class="implementation" data-language="Java"><pre class="program">
+public static double code() {
+	return (((333.75 * Math.pow(33096.0, 6.0)) + ((77617.0 * 77617.0) * (((((11.0 * (77617.0 * 77617.0)) * (33096.0 * 33096.0)) + -Math.pow(33096.0, 6.0)) + (-121.0 * Math.pow(33096.0, 4.0))) + -2.0))) + (5.5 * Math.pow(33096.0, 8.0))) + (77617.0 / (2.0 * 33096.0));
+}
+</pre></div><div class="implementation" data-language="Python"><pre class="program">
+def code():
+	return (((333.75 * math.pow(33096.0, 6.0)) + ((77617.0 * 77617.0) * (((((11.0 * (77617.0 * 77617.0)) * (33096.0 * 33096.0)) + -math.pow(33096.0, 6.0)) + (-121.0 * math.pow(33096.0, 4.0))) + -2.0))) + (5.5 * math.pow(33096.0, 8.0))) + (77617.0 / (2.0 * 33096.0))
+</pre></div><div class="implementation" data-language="Julia"><pre class="program">
+function code()
+	return Float64(Float64(Float64(Float64(333.75 * (33096.0 ^ 6.0)) + Float64(Float64(77617.0 * 77617.0) * Float64(Float64(Float64(Float64(Float64(11.0 * Float64(77617.0 * 77617.0)) * Float64(33096.0 * 33096.0)) + Float64(-(33096.0 ^ 6.0))) + Float64(-121.0 * (33096.0 ^ 4.0))) + -2.0))) + Float64(5.5 * (33096.0 ^ 8.0))) + Float64(77617.0 / Float64(2.0 * 33096.0)))
+end
+</pre></div><div class="implementation" data-language="MATLAB"><pre class="program">
+function tmp = code()
+	tmp = (((333.75 * (33096.0 ^ 6.0)) + ((77617.0 * 77617.0) * (((((11.0 * (77617.0 * 77617.0)) * (33096.0 * 33096.0)) + -(33096.0 ^ 6.0)) + (-121.0 * (33096.0 ^ 4.0))) + -2.0))) + (5.5 * (33096.0 ^ 8.0))) + (77617.0 / (2.0 * 33096.0));
+end
+</pre></div><div class="implementation" data-language="Wolfram"><pre class="program">
+code[] := N[(N[(N[(N[(333.75 * N[Power[33096.0, 6.0], $MachinePrecision]), $MachinePrecision] + N[(N[(77617.0 * 77617.0), $MachinePrecision] * N[(N[(N[(N[(N[(11.0 * N[(77617.0 * 77617.0), $MachinePrecision]), $MachinePrecision] * N[(33096.0 * 33096.0), $MachinePrecision]), $MachinePrecision] + (-N[Power[33096.0, 6.0], $MachinePrecision])), $MachinePrecision] + N[(-121.0 * N[Power[33096.0, 4.0], $MachinePrecision]), $MachinePrecision]), $MachinePrecision] + -2.0), $MachinePrecision]), $MachinePrecision]), $MachinePrecision] + N[(5.5 * N[Power[33096.0, 8.0], $MachinePrecision]), $MachinePrecision]), $MachinePrecision] + N[(77617.0 / N[(2.0 * 33096.0), $MachinePrecision]), $MachinePrecision]), $MachinePrecision]
+</pre></div><div class="implementation" data-language="TeX"><pre class="program">\begin{array}{l}
+
+\\
+\left(\left(333.75 \cdot {33096}^{6} + \left(77617 \cdot 77617\right) \cdot \left(\left(\left(\left(11 \cdot \left(77617 \cdot 77617\right)\right) \cdot \left(33096 \cdot 33096\right) + \left(-{33096}^{6}\right)\right) + -121 \cdot {33096}^{4}\right) + -2\right)\right) + 5.5 \cdot {33096}^{8}\right) + \frac{77617}{2 \cdot 33096}
+\end{array}
+</pre></div></div><p>Sampling outcomes in <kbd>binary64</kbd> precision:</p><div class="bogosity"><div class="bogosity-valid" data-id="bogosity-valid" data-type="valid" data-timespan="1.0" title="valid (100.0%)"></div><div class="bogosity-unknown" data-id="bogosity-unknown" data-type="unknown" data-timespan="0" title="unknown (0.0%)"></div><div class="bogosity-infinite" data-id="bogosity-infinite" data-type="infinite" data-timespan="0" title="infinite (0.0%)"></div><div class="bogosity-unsamplable" data-id="bogosity-unsamplable" data-type="unsamplable" data-timespan="0" title="unsamplable (0.0%)"></div><div class="bogosity-invalid" data-id="bogosity-invalid" data-type="invalid" data-timespan="0" title="invalid (0.0%)"></div><div class="bogosity-precondition" data-id="bogosity-precondition" data-type="precondition" data-timespan="0" title="precondition (0.0%)"></div></div></details></section><figure id="graphs"><h2>Local Percentage Accuracy vs <span id="variables"></span><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#graph" target="_blank">?</a></h2><svg></svg><div id="functions"></div><figcaption>The average percentage accuracy by input value. Horizontal axis shows value of an input variable; the variable is choosen in the title. Vertical axis is accuracy; higher is better. Red represent the original program, while blue represents Herbie's suggestion. These can be toggled with buttons below the plot. The line is an average while dots represent individual samples.</figcaption></figure><section id="cost-accuracy" class="section" data-benchmark-name="From Warwick Tucker's Validated Numerics"><h2>Accuracy vs Speed<a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#cost-accuracy" target="_blank">?</a></h2><div class="figure-row"><svg></svg><div><p>Herbie found 1 alternatives:</p><table><thead><tr><th>Alternative</th><th class="numeric">Accuracy</th><th class="numeric">Speedup</th></tr></thead><tbody></tbody></table></div></div><figcaption>The accuracy (vertical axis) and speed (horizontal axis) of each alternatives. Up and to the right is better. The red square shows the initial program, and each blue circle shows an alternative.The line shows the best available speed-accuracy tradeoffs.</figcaption></section><section id="initial" class="programs"><h2>Initial Program: <span class="subhead"><data>9.2%</data> accurate, <data>1.0×</data> speedup</span><select><option>Math</option><option>FPCore</option><option>C</option><option>Fortran</option><option>Java</option><option>Python</option><option>Julia</option><option>MATLAB</option><option>Wolfram</option><option>TeX</option></select><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#alternatives" target="_blank">?</a></h2><div><div class="implementation" data-language="Math"><div class="program math">\[\begin{array}{l}
+
+\\
+\left(\left(333.75 \cdot {33096}^{6} + \left(77617 \cdot 77617\right) \cdot \left(\left(\left(\left(11 \cdot \left(77617 \cdot 77617\right)\right) \cdot \left(33096 \cdot 33096\right) + \left(-{33096}^{6}\right)\right) + -121 \cdot {33096}^{4}\right) + -2\right)\right) + 5.5 \cdot {33096}^{8}\right) + \frac{77617}{2 \cdot 33096}
+\end{array}
+\]</div></div><div class="implementation" data-language="FPCore"><pre class="program">
+(FPCore ()
+ :precision binary64
+ (+
+  (+
+   (+
+    (* 333.75 (pow 33096.0 6.0))
+    (*
+     (* 77617.0 77617.0)
+     (+
+      (+
+       (+
+        (* (* 11.0 (* 77617.0 77617.0)) (* 33096.0 33096.0))
+        (- (pow 33096.0 6.0)))
+       (* -121.0 (pow 33096.0 4.0)))
+      -2.0)))
+   (* 5.5 (pow 33096.0 8.0)))
+  (/ 77617.0 (* 2.0 33096.0))))</pre></div><div class="implementation" data-language="C"><pre class="program">
+double code() {
+	return (((333.75 * pow(33096.0, 6.0)) + ((77617.0 * 77617.0) * (((((11.0 * (77617.0 * 77617.0)) * (33096.0 * 33096.0)) + -pow(33096.0, 6.0)) + (-121.0 * pow(33096.0, 4.0))) + -2.0))) + (5.5 * pow(33096.0, 8.0))) + (77617.0 / (2.0 * 33096.0));
+}
+</pre></div><div class="implementation" data-language="Fortran"><pre class="program">
+real(8) function code()
+use fmin_fmax_functions
+    code = (((333.75d0 * (33096.0d0 ** 6.0d0)) + ((77617.0d0 * 77617.0d0) * (((((11.0d0 * (77617.0d0 * 77617.0d0)) * (33096.0d0 * 33096.0d0)) + -(33096.0d0 ** 6.0d0)) + ((-121.0d0) * (33096.0d0 ** 4.0d0))) + (-2.0d0)))) + (5.5d0 * (33096.0d0 ** 8.0d0))) + (77617.0d0 / (2.0d0 * 33096.0d0))
+end function
+</pre></div><div class="implementation" data-language="Java"><pre class="program">
+public static double code() {
+	return (((333.75 * Math.pow(33096.0, 6.0)) + ((77617.0 * 77617.0) * (((((11.0 * (77617.0 * 77617.0)) * (33096.0 * 33096.0)) + -Math.pow(33096.0, 6.0)) + (-121.0 * Math.pow(33096.0, 4.0))) + -2.0))) + (5.5 * Math.pow(33096.0, 8.0))) + (77617.0 / (2.0 * 33096.0));
+}
+</pre></div><div class="implementation" data-language="Python"><pre class="program">
+def code():
+	return (((333.75 * math.pow(33096.0, 6.0)) + ((77617.0 * 77617.0) * (((((11.0 * (77617.0 * 77617.0)) * (33096.0 * 33096.0)) + -math.pow(33096.0, 6.0)) + (-121.0 * math.pow(33096.0, 4.0))) + -2.0))) + (5.5 * math.pow(33096.0, 8.0))) + (77617.0 / (2.0 * 33096.0))
+</pre></div><div class="implementation" data-language="Julia"><pre class="program">
+function code()
+	return Float64(Float64(Float64(Float64(333.75 * (33096.0 ^ 6.0)) + Float64(Float64(77617.0 * 77617.0) * Float64(Float64(Float64(Float64(Float64(11.0 * Float64(77617.0 * 77617.0)) * Float64(33096.0 * 33096.0)) + Float64(-(33096.0 ^ 6.0))) + Float64(-121.0 * (33096.0 ^ 4.0))) + -2.0))) + Float64(5.5 * (33096.0 ^ 8.0))) + Float64(77617.0 / Float64(2.0 * 33096.0)))
+end
+</pre></div><div class="implementation" data-language="MATLAB"><pre class="program">
+function tmp = code()
+	tmp = (((333.75 * (33096.0 ^ 6.0)) + ((77617.0 * 77617.0) * (((((11.0 * (77617.0 * 77617.0)) * (33096.0 * 33096.0)) + -(33096.0 ^ 6.0)) + (-121.0 * (33096.0 ^ 4.0))) + -2.0))) + (5.5 * (33096.0 ^ 8.0))) + (77617.0 / (2.0 * 33096.0));
+end
+</pre></div><div class="implementation" data-language="Wolfram"><pre class="program">
+code[] := N[(N[(N[(N[(333.75 * N[Power[33096.0, 6.0], $MachinePrecision]), $MachinePrecision] + N[(N[(77617.0 * 77617.0), $MachinePrecision] * N[(N[(N[(N[(N[(11.0 * N[(77617.0 * 77617.0), $MachinePrecision]), $MachinePrecision] * N[(33096.0 * 33096.0), $MachinePrecision]), $MachinePrecision] + (-N[Power[33096.0, 6.0], $MachinePrecision])), $MachinePrecision] + N[(-121.0 * N[Power[33096.0, 4.0], $MachinePrecision]), $MachinePrecision]), $MachinePrecision] + -2.0), $MachinePrecision]), $MachinePrecision]), $MachinePrecision] + N[(5.5 * N[Power[33096.0, 8.0], $MachinePrecision]), $MachinePrecision]), $MachinePrecision] + N[(77617.0 / N[(2.0 * 33096.0), $MachinePrecision]), $MachinePrecision]), $MachinePrecision]
+</pre></div><div class="implementation" data-language="TeX"><pre class="program">\begin{array}{l}
+
+\\
+\left(\left(333.75 \cdot {33096}^{6} + \left(77617 \cdot 77617\right) \cdot \left(\left(\left(\left(11 \cdot \left(77617 \cdot 77617\right)\right) \cdot \left(33096 \cdot 33096\right) + \left(-{33096}^{6}\right)\right) + -121 \cdot {33096}^{4}\right) + -2\right)\right) + 5.5 \cdot {33096}^{8}\right) + \frac{77617}{2 \cdot 33096}
+\end{array}
+</pre></div></div></section><section id="alternative1" class="programs"><h2>Alternative 1: <span class="subhead"><data>9.2%</data> accurate, <data>1.0×</data> speedup</span><select><option>Math</option><option>FPCore</option><option>C</option><option>Fortran</option><option>Java</option><option>Python</option><option>Julia</option><option>MATLAB</option><option>Wolfram</option><option>TeX</option></select><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#alternatives" target="_blank">?</a></h2><div><div class="implementation" data-language="Math"><div class="program math">\[\begin{array}{l}
+
+\\
+\frac{77617}{2 \cdot 33096} + \left({33096}^{8} \cdot 5.5 + \left(\left(-2 + \left({33096}^{4} \cdot -121 + \left(\left(33096 \cdot 33096\right) \cdot \left(11 \cdot \left(77617 \cdot 77617\right)\right) - {33096}^{6}\right)\right)\right) \cdot \left(77617 \cdot 77617\right) + {33096}^{6} \cdot 333.75\right)\right)
+\end{array}
+\]</div></div><div class="implementation" data-language="FPCore"><pre class="program">
+(FPCore ()
+ :precision binary64
+ (+
+  (/ 77617.0 (* 2.0 33096.0))
+  (+
+   (* (pow 33096.0 8.0) 5.5)
+   (+
+    (*
+     (+
+      -2.0
+      (+
+       (* (pow 33096.0 4.0) -121.0)
+       (-
+        (* (* 33096.0 33096.0) (* 11.0 (* 77617.0 77617.0)))
+        (pow 33096.0 6.0))))
+     (* 77617.0 77617.0))
+    (* (pow 33096.0 6.0) 333.75)))))</pre></div><div class="implementation" data-language="C"><pre class="program">
+double code() {
+	return (77617.0 / (2.0 * 33096.0)) + ((pow(33096.0, 8.0) * 5.5) + (((-2.0 + ((pow(33096.0, 4.0) * -121.0) + (((33096.0 * 33096.0) * (11.0 * (77617.0 * 77617.0))) - pow(33096.0, 6.0)))) * (77617.0 * 77617.0)) + (pow(33096.0, 6.0) * 333.75)));
+}
+</pre></div><div class="implementation" data-language="Fortran"><pre class="program">
+real(8) function code()
+use fmin_fmax_functions
+    code = (77617.0d0 / (2.0d0 * 33096.0d0)) + (((33096.0d0 ** 8.0d0) * 5.5d0) + ((((-2.0d0) + (((33096.0d0 ** 4.0d0) * (-121.0d0)) + (((33096.0d0 * 33096.0d0) * (11.0d0 * (77617.0d0 * 77617.0d0))) - (33096.0d0 ** 6.0d0)))) * (77617.0d0 * 77617.0d0)) + ((33096.0d0 ** 6.0d0) * 333.75d0)))
+end function
+</pre></div><div class="implementation" data-language="Java"><pre class="program">
+public static double code() {
+	return (77617.0 / (2.0 * 33096.0)) + ((Math.pow(33096.0, 8.0) * 5.5) + (((-2.0 + ((Math.pow(33096.0, 4.0) * -121.0) + (((33096.0 * 33096.0) * (11.0 * (77617.0 * 77617.0))) - Math.pow(33096.0, 6.0)))) * (77617.0 * 77617.0)) + (Math.pow(33096.0, 6.0) * 333.75)));
+}
+</pre></div><div class="implementation" data-language="Python"><pre class="program">
+def code():
+	return (77617.0 / (2.0 * 33096.0)) + ((math.pow(33096.0, 8.0) * 5.5) + (((-2.0 + ((math.pow(33096.0, 4.0) * -121.0) + (((33096.0 * 33096.0) * (11.0 * (77617.0 * 77617.0))) - math.pow(33096.0, 6.0)))) * (77617.0 * 77617.0)) + (math.pow(33096.0, 6.0) * 333.75)))
+</pre></div><div class="implementation" data-language="Julia"><pre class="program">
+function code()
+	return Float64(Float64(77617.0 / Float64(2.0 * 33096.0)) + Float64(Float64((33096.0 ^ 8.0) * 5.5) + Float64(Float64(Float64(-2.0 + Float64(Float64((33096.0 ^ 4.0) * -121.0) + Float64(Float64(Float64(33096.0 * 33096.0) * Float64(11.0 * Float64(77617.0 * 77617.0))) - (33096.0 ^ 6.0)))) * Float64(77617.0 * 77617.0)) + Float64((33096.0 ^ 6.0) * 333.75))))
+end
+</pre></div><div class="implementation" data-language="MATLAB"><pre class="program">
+function tmp = code()
+	tmp = (77617.0 / (2.0 * 33096.0)) + (((33096.0 ^ 8.0) * 5.5) + (((-2.0 + (((33096.0 ^ 4.0) * -121.0) + (((33096.0 * 33096.0) * (11.0 * (77617.0 * 77617.0))) - (33096.0 ^ 6.0)))) * (77617.0 * 77617.0)) + ((33096.0 ^ 6.0) * 333.75)));
+end
+</pre></div><div class="implementation" data-language="Wolfram"><pre class="program">
+code[] := N[(N[(77617.0 / N[(2.0 * 33096.0), $MachinePrecision]), $MachinePrecision] + N[(N[(N[Power[33096.0, 8.0], $MachinePrecision] * 5.5), $MachinePrecision] + N[(N[(N[(-2.0 + N[(N[(N[Power[33096.0, 4.0], $MachinePrecision] * -121.0), $MachinePrecision] + N[(N[(N[(33096.0 * 33096.0), $MachinePrecision] * N[(11.0 * N[(77617.0 * 77617.0), $MachinePrecision]), $MachinePrecision]), $MachinePrecision] - N[Power[33096.0, 6.0], $MachinePrecision]), $MachinePrecision]), $MachinePrecision]), $MachinePrecision] * N[(77617.0 * 77617.0), $MachinePrecision]), $MachinePrecision] + N[(N[Power[33096.0, 6.0], $MachinePrecision] * 333.75), $MachinePrecision]), $MachinePrecision]), $MachinePrecision]), $MachinePrecision]
+</pre></div><div class="implementation" data-language="TeX"><pre class="program">\begin{array}{l}
+
+\\
+\frac{77617}{2 \cdot 33096} + \left({33096}^{8} \cdot 5.5 + \left(\left(-2 + \left({33096}^{4} \cdot -121 + \left(\left(33096 \cdot 33096\right) \cdot \left(11 \cdot \left(77617 \cdot 77617\right)\right) - {33096}^{6}\right)\right)\right) \cdot \left(77617 \cdot 77617\right) + {33096}^{6} \cdot 333.75\right)\right)
+\end{array}
+</pre></div></div><details><summary>Derivation</summary><ol class="history"><li><p>Initial program <span class="error" title="9.2% on training set">9.2%</span></p><div class="math">\[\left(\left(333.75 \cdot {33096}^{6} + \left(77617 \cdot 77617\right) \cdot \left(\left(\left(\left(11 \cdot \left(77617 \cdot 77617\right)\right) \cdot \left(33096 \cdot 33096\right) + \left(-{33096}^{6}\right)\right) + -121 \cdot {33096}^{4}\right) + -2\right)\right) + 5.5 \cdot {33096}^{8}\right) + \frac{77617}{2 \cdot 33096}
+\]</div></li><li>Add Preprocessing</li><li><p>Final simplification<span class="error" title="9.2% on training set">9.2%</span></p><div class="math">\[\leadsto \frac{77617}{2 \cdot 33096} + \left({33096}^{8} \cdot 5.5 + \left(\left(-2 + \left({33096}^{4} \cdot -121 + \left(\left(33096 \cdot 33096\right) \cdot \left(11 \cdot \left(77617 \cdot 77617\right)\right) - {33096}^{6}\right)\right)\right) \cdot \left(77617 \cdot 77617\right) + {33096}^{6} \cdot 333.75\right)\right)
+\]</div></li><li>Add Preprocessing</li></ol></details></section><section id="reproduce"><details><summary><h2>Reproduce</h2><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#reproduction" target="_blank">?</a></summary><pre class="shell"><code>herbie shell --seed 1528405439 
+(FPCore ()
+  :name "From Warwick Tucker's Validated Numerics"
+  :precision binary64
+  (+ (+ (+ (* 333.75 (pow 33096.0 6.0)) (* (* 77617.0 77617.0) (+ (+ (+ (* (* 11.0 (* 77617.0 77617.0)) (* 33096.0 33096.0)) (- (pow 33096.0 6.0))) (* -121.0 (pow 33096.0 4.0))) -2.0))) (* 5.5 (pow 33096.0 8.0))) (/ 77617.0 (* 2.0 33096.0))))
+</code></pre></details></section></body></html>

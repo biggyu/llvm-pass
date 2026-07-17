@@ -1,0 +1,40 @@
+<!doctype html>
+<html><head><meta charset="utf-8"/><title>Exception for Jmat.Real.gamma, branch z greater than 0.5</title><link rel="stylesheet" type="text/css" href="../report.css"/><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" integrity="sha384-9tPv11A+glH/on/wEu99NVwDPwkMQESOocs/ZGXPoIiLE8MU/qkqUcZ3zzL+6DuH" crossorigin="anonymous"/><script src="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.js" integrity="sha384-U8Vrjwb8fuHMt6ewaCy8uqeUXv4oitYACKdB0VziCerzt011iQ/0TqlSlv8MReCm" crossorigin="anonymous"></script><script src="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/contrib/auto-render.min.js" integrity="sha384-aGfk5kvhIq5x1x5YdvCp4upKZYnA8ckafviDpmWEKp4afOZEqOli7gqSnh8I6enH" crossorigin="anonymous"></script><script src="../report.js"></script></head><body><header><h1>Jmat.Real.gamma, branch z greater than 0.5</h1><img src="./logo-car.png"/><nav><ul><li><a href="../index.html">Report</a></li><li><a href="timeline.html">Metrics</a></li></ul></nav></header><ul class="warnings"><li><h2>could not determine a ground truth<a href="https://herbie.uwplse.org/doc/2.2/faq.html#ground-truth"> (more)</a></h2><ol class="extra"><li>z = 1.9325260258426443e+37</li></ol></li></ul><section><details id="specification" class="programs"><summary><h2>Specification</h2><select><option>Math</option><option>FPCore</option><option>TeX</option></select><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#spec" target="_blank">?</a></summary><div><div id="precondition"><div class="program math">\[z &gt; 0.5\]</div></div><div class="implementation" data-language="Math"><div class="program math">\[\begin{array}{l}
+
+\\
+\begin{array}{l}
+t_0 := \left(z - 1\right) + 7\\
+t_1 := t\_0 + 0.5\\
+\left(\left(\sqrt{\mathsf{PI}\left(\right) \cdot 2} \cdot {t\_1}^{\left(\left(z - 1\right) + 0.5\right)}\right) \cdot e^{-t\_1}\right) \cdot \left(\left(\left(\left(\left(\left(\left(\left(0.9999999999998099 + \frac{676.5203681218851}{\left(z - 1\right) + 1}\right) + \frac{-1259.1392167224028}{\left(z - 1\right) + 2}\right) + \frac{771.3234287776531}{\left(z - 1\right) + 3}\right) + \frac{-176.6150291621406}{\left(z - 1\right) + 4}\right) + \frac{12.507343278686905}{\left(z - 1\right) + 5}\right) + \frac{-0.13857109526572012}{\left(z - 1\right) + 6}\right) + \frac{9.984369578019572 \cdot 10^{-6}}{t\_0}\right) + \frac{1.5056327351493116 \cdot 10^{-7}}{\left(z - 1\right) + 8}\right)
+\end{array}
+\end{array}
+\]</div></div><div class="implementation" data-language="FPCore"><pre class="program">
+(FPCore (z)
+ :precision binary64
+ (let* ((t_0 (+ (- z 1.0) 7.0)) (t_1 (+ t_0 0.5)))
+   (*
+    (* (* (sqrt (* (PI) 2.0)) (pow t_1 (+ (- z 1.0) 0.5))) (exp (- t_1)))
+    (+
+     (+
+      (+
+       (+
+        (+
+         (+
+          (+
+           (+ 0.9999999999998099 (/ 676.5203681218851 (+ (- z 1.0) 1.0)))
+           (/ -1259.1392167224028 (+ (- z 1.0) 2.0)))
+          (/ 771.3234287776531 (+ (- z 1.0) 3.0)))
+         (/ -176.6150291621406 (+ (- z 1.0) 4.0)))
+        (/ 12.507343278686905 (+ (- z 1.0) 5.0)))
+       (/ -0.13857109526572012 (+ (- z 1.0) 6.0)))
+      (/ 9.984369578019572e-6 t_0))
+     (/ 1.5056327351493116e-7 (+ (- z 1.0) 8.0))))))</pre></div><div class="implementation" data-language="TeX"><pre class="program">\begin{array}{l}
+
+\\
+\begin{array}{l}
+t_0 := \left(z - 1\right) + 7\\
+t_1 := t\_0 + 0.5\\
+\left(\left(\sqrt{\mathsf{PI}\left(\right) \cdot 2} \cdot {t\_1}^{\left(\left(z - 1\right) + 0.5\right)}\right) \cdot e^{-t\_1}\right) \cdot \left(\left(\left(\left(\left(\left(\left(\left(0.9999999999998099 + \frac{676.5203681218851}{\left(z - 1\right) + 1}\right) + \frac{-1259.1392167224028}{\left(z - 1\right) + 2}\right) + \frac{771.3234287776531}{\left(z - 1\right) + 3}\right) + \frac{-176.6150291621406}{\left(z - 1\right) + 4}\right) + \frac{12.507343278686905}{\left(z - 1\right) + 5}\right) + \frac{-0.13857109526572012}{\left(z - 1\right) + 6}\right) + \frac{9.984369578019572 \cdot 10^{-6}}{t\_0}\right) + \frac{1.5056327351493116 \cdot 10^{-7}}{\left(z - 1\right) + 8}\right)
+\end{array}
+\end{array}
+</pre></div></div></details></section><section id="user-error" class="error"><h2>Cannot sample enough valid points. <a href="https://herbie.uwplse.org/doc/2.2/faq.html#sample-valid-points">(more)</a></h2></section></body></html>

@@ -1,0 +1,85 @@
+<!doctype html>
+<html><head><meta charset="utf-8"/><title>Result for Sample trimmed logistic on [-pi, pi]</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" integrity="sha384-9tPv11A+glH/on/wEu99NVwDPwkMQESOocs/ZGXPoIiLE8MU/qkqUcZ3zzL+6DuH" crossorigin="anonymous"/><script src="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.js" integrity="sha384-U8Vrjwb8fuHMt6ewaCy8uqeUXv4oitYACKdB0VziCerzt011iQ/0TqlSlv8MReCm" crossorigin="anonymous"></script><script src="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/contrib/auto-render.min.js" integrity="sha384-aGfk5kvhIq5x1x5YdvCp4upKZYnA8ckafviDpmWEKp4afOZEqOli7gqSnh8I6enH" crossorigin="anonymous"></script><script src="https://unpkg.com/mathjs@4.4.2/dist/math.min.js"></script><script src="https://unpkg.com/d3@6.7.0/dist/d3.min.js"></script><script src="https://unpkg.com/@observablehq/plot@0.4.3/dist/plot.umd.min.js"></script><link rel="stylesheet" type="text/css" href="../report.css"/><script src="../report.js"></script></head><body><header><h1>Sample trimmed logistic on [-pi, pi]</h1><img src="../logo-car.png"/><nav><ul><li><a href="../index.html">Report</a></li><li><a href="timeline.html">Metrics</a></li></ul></nav></header><div id="large"><div>Percentage Accurate: <span class="number" title="Minimum Accuracy: 96.9% → 96.9%">98.4%<span class="unit"> → </span>98.4%</span></div><div>Time: <span class="number">1.8s</span></div><div>Alternatives: <span class="number">1</span></div><div>Speedup: <span class="number" title="Relative speed of fastest alternative that improves accuracy.">1.0×</span></div></div><section><details id="specification" class="programs"><summary><h2>Specification</h2><select><option>Math</option><option>FPCore</option><option>TeX</option></select><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#spec" target="_blank">?</a></summary><div><div id="precondition"><div class="program math">\[\left(2.328306437 \cdot 10^{-10} \leq u \land u \leq 1\right) \land \left(0 \leq s \land s \leq 1.0651631\right)\]</div></div><div class="implementation" data-language="Math"><div class="program math">\[\begin{array}{l}
+
+\\
+\begin{array}{l}
+t_0 := \frac{1}{1 + e^{\frac{\mathsf{PI}\left(\right)}{s}}}\\
+\left(-s\right) \cdot \log \left(\frac{1}{u \cdot \left(\frac{1}{1 + e^{\frac{-\mathsf{PI}\left(\right)}{s}}} - t\_0\right) + t\_0} - 1\right)
+\end{array}
+\end{array}
+\]</div></div><div class="implementation" data-language="FPCore"><pre class="program">
+(FPCore (u s)
+ :precision binary32
+ (let* ((t_0 (/ 1.0 (+ 1.0 (exp (/ (PI) s))))))
+   (*
+    (- s)
+    (log
+     (-
+      (/ 1.0 (+ (* u (- (/ 1.0 (+ 1.0 (exp (/ (- (PI)) s)))) t_0)) t_0))
+      1.0)))))</pre></div><div class="implementation" data-language="TeX"><pre class="program">\begin{array}{l}
+
+\\
+\begin{array}{l}
+t_0 := \frac{1}{1 + e^{\frac{\mathsf{PI}\left(\right)}{s}}}\\
+\left(-s\right) \cdot \log \left(\frac{1}{u \cdot \left(\frac{1}{1 + e^{\frac{-\mathsf{PI}\left(\right)}{s}}} - t\_0\right) + t\_0} - 1\right)
+\end{array}
+\end{array}
+</pre></div></div><p>Sampling outcomes in <kbd>binary32</kbd> precision:</p><div class="bogosity"><div class="bogosity-valid" data-id="bogosity-valid" data-type="valid" data-timespan="0.015510884244151913" title="valid (1.6%)"></div><div class="bogosity-unknown" data-id="bogosity-unknown" data-type="unknown" data-timespan="0" title="unknown (0.0%)"></div><div class="bogosity-infinite" data-id="bogosity-infinite" data-type="infinite" data-timespan="0" title="infinite (0.0%)"></div><div class="bogosity-unsamplable" data-id="bogosity-unsamplable" data-type="unsamplable" data-timespan="0" title="unsamplable (0.0%)"></div><div class="bogosity-invalid" data-id="bogosity-invalid" data-type="invalid" data-timespan="0.0" title="invalid (0.0%)"></div><div class="bogosity-precondition" data-id="bogosity-precondition" data-type="precondition" data-timespan="0.9844891157558481" title="precondition (98.4%)"></div></div></details></section><figure id="graphs"><h2>Local Percentage Accuracy vs <span id="variables"></span><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#graph" target="_blank">?</a></h2><svg></svg><div id="functions"></div><figcaption>The average percentage accuracy by input value. Horizontal axis shows value of an input variable; the variable is choosen in the title. Vertical axis is accuracy; higher is better. Red represent the original program, while blue represents Herbie's suggestion. These can be toggled with buttons below the plot. The line is an average while dots represent individual samples.</figcaption></figure><section id="cost-accuracy" class="section" data-benchmark-name="Sample trimmed logistic on [-pi, pi]"><h2>Accuracy vs Speed<a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#cost-accuracy" target="_blank">?</a></h2><div class="figure-row"><svg></svg><div><p>Herbie found 1 alternatives:</p><table><thead><tr><th>Alternative</th><th class="numeric">Accuracy</th><th class="numeric">Speedup</th></tr></thead><tbody></tbody></table></div></div><figcaption>The accuracy (vertical axis) and speed (horizontal axis) of each alternatives. Up and to the right is better. The red square shows the initial program, and each blue circle shows an alternative.The line shows the best available speed-accuracy tradeoffs.</figcaption></section><section id="initial" class="programs"><h2>Initial Program: <span class="subhead"><data>98.4%</data> accurate, <data>1.0×</data> speedup</span><select><option>Math</option><option>FPCore</option><option>TeX</option></select><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#alternatives" target="_blank">?</a></h2><div><div class="implementation" data-language="Math"><div class="program math">\[\begin{array}{l}
+
+\\
+\begin{array}{l}
+t_0 := \frac{1}{1 + e^{\frac{\mathsf{PI}\left(\right)}{s}}}\\
+\left(-s\right) \cdot \log \left(\frac{1}{u \cdot \left(\frac{1}{1 + e^{\frac{-\mathsf{PI}\left(\right)}{s}}} - t\_0\right) + t\_0} - 1\right)
+\end{array}
+\end{array}
+\]</div></div><div class="implementation" data-language="FPCore"><pre class="program">
+(FPCore (u s)
+ :precision binary32
+ (let* ((t_0 (/ 1.0 (+ 1.0 (exp (/ (PI) s))))))
+   (*
+    (- s)
+    (log
+     (-
+      (/ 1.0 (+ (* u (- (/ 1.0 (+ 1.0 (exp (/ (- (PI)) s)))) t_0)) t_0))
+      1.0)))))</pre></div><div class="implementation" data-language="TeX"><pre class="program">\begin{array}{l}
+
+\\
+\begin{array}{l}
+t_0 := \frac{1}{1 + e^{\frac{\mathsf{PI}\left(\right)}{s}}}\\
+\left(-s\right) \cdot \log \left(\frac{1}{u \cdot \left(\frac{1}{1 + e^{\frac{-\mathsf{PI}\left(\right)}{s}}} - t\_0\right) + t\_0} - 1\right)
+\end{array}
+\end{array}
+</pre></div></div></section><section id="alternative1" class="programs"><h2>Alternative 1: <span class="subhead"><data>98.4%</data> accurate, <data>1.0×</data> speedup</span><select><option>Math</option><option>FPCore</option><option>TeX</option></select><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#alternatives" target="_blank">?</a></h2><div><div class="implementation" data-language="Math"><div class="program math">\[\begin{array}{l}
+
+\\
+\begin{array}{l}
+t_0 := \frac{1}{e^{\frac{\mathsf{PI}\left(\right)}{s}} + 1}\\
+\log \left(\frac{1}{\left(\frac{1}{e^{\frac{-\mathsf{PI}\left(\right)}{s}} + 1} - t\_0\right) \cdot u + t\_0} - 1\right) \cdot \left(-s\right)
+\end{array}
+\end{array}
+\]</div></div><div class="implementation" data-language="FPCore"><pre class="program">
+(FPCore (u s)
+ :precision binary32
+ (let* ((t_0 (/ 1.0 (+ (exp (/ (PI) s)) 1.0))))
+   (*
+    (log
+     (-
+      (/ 1.0 (+ (* (- (/ 1.0 (+ (exp (/ (- (PI)) s)) 1.0)) t_0) u) t_0))
+      1.0))
+    (- s))))</pre></div><div class="implementation" data-language="TeX"><pre class="program">\begin{array}{l}
+
+\\
+\begin{array}{l}
+t_0 := \frac{1}{e^{\frac{\mathsf{PI}\left(\right)}{s}} + 1}\\
+\log \left(\frac{1}{\left(\frac{1}{e^{\frac{-\mathsf{PI}\left(\right)}{s}} + 1} - t\_0\right) \cdot u + t\_0} - 1\right) \cdot \left(-s\right)
+\end{array}
+\end{array}
+</pre></div></div><details><summary>Derivation</summary><ol class="history"><li><p>Initial program <span class="error" title="98.4% on training set">98.9%</span></p><div class="math">\[\left(-s\right) \cdot \log \left(\frac{1}{u \cdot \left(\frac{1}{1 + e^{\frac{-\mathsf{PI}\left(\right)}{s}}} - \frac{1}{1 + e^{\frac{\mathsf{PI}\left(\right)}{s}}}\right) + \frac{1}{1 + e^{\frac{\mathsf{PI}\left(\right)}{s}}}} - 1\right)
+\]</div></li><li>Add Preprocessing</li><li><p>Final simplification<span class="error" title="98.4% on training set">98.9%</span></p><div class="math">\[\leadsto \log \left(\frac{1}{\left(\frac{1}{e^{\frac{-\mathsf{PI}\left(\right)}{s}} + 1} - \frac{1}{e^{\frac{\mathsf{PI}\left(\right)}{s}} + 1}\right) \cdot u + \frac{1}{e^{\frac{\mathsf{PI}\left(\right)}{s}} + 1}} - 1\right) \cdot \left(-s\right)
+\]</div></li><li>Add Preprocessing</li></ol></details></section><section id="reproduce"><details><summary><h2>Reproduce</h2><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#reproduction" target="_blank">?</a></summary><pre class="shell"><code>herbie shell --seed 1528405439 
+(FPCore (u s)
+  :name "Sample trimmed logistic on [-pi, pi]"
+  :precision binary32
+  :pre (and (and (&lt;= 2.328306437e-10 u) (&lt;= u 1.0)) (and (&lt;= 0.0 s) (&lt;= s 1.0651631)))
+  (* (- s) (log (- (/ 1.0 (+ (* u (- (/ 1.0 (+ 1.0 (exp (/ (- (PI)) s)))) (/ 1.0 (+ 1.0 (exp (/ (PI) s)))))) (/ 1.0 (+ 1.0 (exp (/ (PI) s)))))) 1.0))))
+</code></pre></details></section></body></html>

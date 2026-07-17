@@ -1,0 +1,317 @@
+<!doctype html>
+<html><head><meta charset="utf-8"/><title>Result for Numeric.SpecFunctions:logGamma from math-functions-0.1.5.2, D</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" integrity="sha384-9tPv11A+glH/on/wEu99NVwDPwkMQESOocs/ZGXPoIiLE8MU/qkqUcZ3zzL+6DuH" crossorigin="anonymous"/><script src="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.js" integrity="sha384-U8Vrjwb8fuHMt6ewaCy8uqeUXv4oitYACKdB0VziCerzt011iQ/0TqlSlv8MReCm" crossorigin="anonymous"></script><script src="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/contrib/auto-render.min.js" integrity="sha384-aGfk5kvhIq5x1x5YdvCp4upKZYnA8ckafviDpmWEKp4afOZEqOli7gqSnh8I6enH" crossorigin="anonymous"></script><script src="https://unpkg.com/mathjs@4.4.2/dist/math.min.js"></script><script src="https://unpkg.com/d3@6.7.0/dist/d3.min.js"></script><script src="https://unpkg.com/@observablehq/plot@0.4.3/dist/plot.umd.min.js"></script><link rel="stylesheet" type="text/css" href="../report.css"/><script src="../report.js"></script></head><body><header><h1>Numeric.SpecFunctions:logGamma from math-functions-0.1.5.2, D</h1><img src="../logo-car.png"/><nav><ul><li><a href="../index.html">Report</a></li><li><a href="timeline.html">Metrics</a></li></ul></nav></header><div id="large"><div>Percentage Accurate: <span class="number" title="Minimum Accuracy: 0.0% → 0.0%">50.7%<span class="unit"> → </span>50.7%</span></div><div>Time: <span class="number">2.6s</span></div><div>Alternatives: <span class="number">1</span></div><div>Speedup: <span class="number" title="Relative speed of fastest alternative that improves accuracy.">1.0×</span></div></div><section><details id="specification" class="programs"><summary><h2>Specification</h2><select><option>Math</option><option>FPCore</option><option>C</option><option>Fortran</option><option>Java</option><option>Python</option><option>Julia</option><option>MATLAB</option><option>Wolfram</option><option>TeX</option></select><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#spec" target="_blank">?</a></summary><div><div class="implementation" data-language="Math"><div class="program math">\[\begin{array}{l}
+
+\\
+x + \frac{y \cdot \left(\left(\left(\left(z \cdot 3.13060547623 + 11.1667541262\right) \cdot z + t\right) \cdot z + a\right) \cdot z + b\right)}{\left(\left(\left(z + 15.234687407\right) \cdot z + 31.4690115749\right) \cdot z + 11.9400905721\right) \cdot z + 0.607771387771}
+\end{array}
+\]</div></div><div class="implementation" data-language="FPCore"><pre class="program">
+(FPCore (x y z t a b)
+ :precision binary64
+ (+
+  x
+  (/
+   (*
+    y
+    (+ (* (+ (* (+ (* (+ (* z 3.13060547623) 11.1667541262) z) t) z) a) z) b))
+   (+
+    (* (+ (* (+ (* (+ z 15.234687407) z) 31.4690115749) z) 11.9400905721) z)
+    0.607771387771))))</pre></div><div class="implementation" data-language="C"><pre class="program">
+double code(double x, double y, double z, double t, double a, double b) {
+	return x + ((y * ((((((((z * 3.13060547623) + 11.1667541262) * z) + t) * z) + a) * z) + b)) / (((((((z + 15.234687407) * z) + 31.4690115749) * z) + 11.9400905721) * z) + 0.607771387771));
+}
+</pre></div><div class="implementation" data-language="Fortran"><pre class="program">
+real(8) function code(x, y, z, t, a, b)
+use fmin_fmax_functions
+    real(8), intent (in) :: x
+    real(8), intent (in) :: y
+    real(8), intent (in) :: z
+    real(8), intent (in) :: t
+    real(8), intent (in) :: a
+    real(8), intent (in) :: b
+    code = x + ((y * ((((((((z * 3.13060547623d0) + 11.1667541262d0) * z) + t) * z) + a) * z) + b)) / (((((((z + 15.234687407d0) * z) + 31.4690115749d0) * z) + 11.9400905721d0) * z) + 0.607771387771d0))
+end function
+</pre></div><div class="implementation" data-language="Java"><pre class="program">
+public static double code(double x, double y, double z, double t, double a, double b) {
+	return x + ((y * ((((((((z * 3.13060547623) + 11.1667541262) * z) + t) * z) + a) * z) + b)) / (((((((z + 15.234687407) * z) + 31.4690115749) * z) + 11.9400905721) * z) + 0.607771387771));
+}
+</pre></div><div class="implementation" data-language="Python"><pre class="program">
+def code(x, y, z, t, a, b):
+	return x + ((y * ((((((((z * 3.13060547623) + 11.1667541262) * z) + t) * z) + a) * z) + b)) / (((((((z + 15.234687407) * z) + 31.4690115749) * z) + 11.9400905721) * z) + 0.607771387771))
+</pre></div><div class="implementation" data-language="Julia"><pre class="program">
+function code(x, y, z, t, a, b)
+	return Float64(x + Float64(Float64(y * Float64(Float64(Float64(Float64(Float64(Float64(Float64(Float64(z * 3.13060547623) + 11.1667541262) * z) + t) * z) + a) * z) + b)) / Float64(Float64(Float64(Float64(Float64(Float64(Float64(z + 15.234687407) * z) + 31.4690115749) * z) + 11.9400905721) * z) + 0.607771387771)))
+end
+</pre></div><div class="implementation" data-language="MATLAB"><pre class="program">
+function tmp = code(x, y, z, t, a, b)
+	tmp = x + ((y * ((((((((z * 3.13060547623) + 11.1667541262) * z) + t) * z) + a) * z) + b)) / (((((((z + 15.234687407) * z) + 31.4690115749) * z) + 11.9400905721) * z) + 0.607771387771));
+end
+</pre></div><div class="implementation" data-language="Wolfram"><pre class="program">
+code[x_, y_, z_, t_, a_, b_] := N[(x + N[(N[(y * N[(N[(N[(N[(N[(N[(N[(N[(z * 3.13060547623), $MachinePrecision] + 11.1667541262), $MachinePrecision] * z), $MachinePrecision] + t), $MachinePrecision] * z), $MachinePrecision] + a), $MachinePrecision] * z), $MachinePrecision] + b), $MachinePrecision]), $MachinePrecision] / N[(N[(N[(N[(N[(N[(N[(z + 15.234687407), $MachinePrecision] * z), $MachinePrecision] + 31.4690115749), $MachinePrecision] * z), $MachinePrecision] + 11.9400905721), $MachinePrecision] * z), $MachinePrecision] + 0.607771387771), $MachinePrecision]), $MachinePrecision]), $MachinePrecision]
+</pre></div><div class="implementation" data-language="TeX"><pre class="program">\begin{array}{l}
+
+\\
+x + \frac{y \cdot \left(\left(\left(\left(z \cdot 3.13060547623 + 11.1667541262\right) \cdot z + t\right) \cdot z + a\right) \cdot z + b\right)}{\left(\left(\left(z + 15.234687407\right) \cdot z + 31.4690115749\right) \cdot z + 11.9400905721\right) \cdot z + 0.607771387771}
+\end{array}
+</pre></div></div><p>Sampling outcomes in <kbd>binary64</kbd> precision:</p><div class="bogosity"><div class="bogosity-valid" data-id="bogosity-valid" data-type="valid" data-timespan="0.9318805938755751" title="valid (93.2%)"></div><div class="bogosity-unknown" data-id="bogosity-unknown" data-type="unknown" data-timespan="0" title="unknown (0.0%)"></div><div class="bogosity-infinite" data-id="bogosity-infinite" data-type="infinite" data-timespan="0.06519329257565752" title="infinite (6.5%)"></div><div class="bogosity-unsamplable" data-id="bogosity-unsamplable" data-type="unsamplable" data-timespan="0" title="unsamplable (0.0%)"></div><div class="bogosity-invalid" data-id="bogosity-invalid" data-type="invalid" data-timespan="0.0" title="invalid (0.0%)"></div><div class="bogosity-precondition" data-id="bogosity-precondition" data-type="precondition" data-timespan="0.002926113548767373" title="precondition (0.3%)"></div></div></details></section><figure id="graphs"><h2>Local Percentage Accuracy vs <span id="variables"></span><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#graph" target="_blank">?</a></h2><svg></svg><div id="functions"></div><figcaption>The average percentage accuracy by input value. Horizontal axis shows value of an input variable; the variable is choosen in the title. Vertical axis is accuracy; higher is better. Red represent the original program, while blue represents Herbie's suggestion. These can be toggled with buttons below the plot. The line is an average while dots represent individual samples.</figcaption></figure><section id="cost-accuracy" class="section" data-benchmark-name="Numeric.SpecFunctions:logGamma from math-functions-0.1.5.2, D"><h2>Accuracy vs Speed<a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#cost-accuracy" target="_blank">?</a></h2><div class="figure-row"><svg></svg><div><p>Herbie found 1 alternatives:</p><table><thead><tr><th>Alternative</th><th class="numeric">Accuracy</th><th class="numeric">Speedup</th></tr></thead><tbody></tbody></table></div></div><figcaption>The accuracy (vertical axis) and speed (horizontal axis) of each alternatives. Up and to the right is better. The red square shows the initial program, and each blue circle shows an alternative.The line shows the best available speed-accuracy tradeoffs.</figcaption></section><section id="initial" class="programs"><h2>Initial Program: <span class="subhead"><data>50.7%</data> accurate, <data>1.0×</data> speedup</span><select><option>Math</option><option>FPCore</option><option>C</option><option>Fortran</option><option>Java</option><option>Python</option><option>Julia</option><option>MATLAB</option><option>Wolfram</option><option>TeX</option></select><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#alternatives" target="_blank">?</a></h2><div><div class="implementation" data-language="Math"><div class="program math">\[\begin{array}{l}
+
+\\
+x + \frac{y \cdot \left(\left(\left(\left(z \cdot 3.13060547623 + 11.1667541262\right) \cdot z + t\right) \cdot z + a\right) \cdot z + b\right)}{\left(\left(\left(z + 15.234687407\right) \cdot z + 31.4690115749\right) \cdot z + 11.9400905721\right) \cdot z + 0.607771387771}
+\end{array}
+\]</div></div><div class="implementation" data-language="FPCore"><pre class="program">
+(FPCore (x y z t a b)
+ :precision binary64
+ (+
+  x
+  (/
+   (*
+    y
+    (+ (* (+ (* (+ (* (+ (* z 3.13060547623) 11.1667541262) z) t) z) a) z) b))
+   (+
+    (* (+ (* (+ (* (+ z 15.234687407) z) 31.4690115749) z) 11.9400905721) z)
+    0.607771387771))))</pre></div><div class="implementation" data-language="C"><pre class="program">
+double code(double x, double y, double z, double t, double a, double b) {
+	return x + ((y * ((((((((z * 3.13060547623) + 11.1667541262) * z) + t) * z) + a) * z) + b)) / (((((((z + 15.234687407) * z) + 31.4690115749) * z) + 11.9400905721) * z) + 0.607771387771));
+}
+</pre></div><div class="implementation" data-language="Fortran"><pre class="program">
+real(8) function code(x, y, z, t, a, b)
+use fmin_fmax_functions
+    real(8), intent (in) :: x
+    real(8), intent (in) :: y
+    real(8), intent (in) :: z
+    real(8), intent (in) :: t
+    real(8), intent (in) :: a
+    real(8), intent (in) :: b
+    code = x + ((y * ((((((((z * 3.13060547623d0) + 11.1667541262d0) * z) + t) * z) + a) * z) + b)) / (((((((z + 15.234687407d0) * z) + 31.4690115749d0) * z) + 11.9400905721d0) * z) + 0.607771387771d0))
+end function
+</pre></div><div class="implementation" data-language="Java"><pre class="program">
+public static double code(double x, double y, double z, double t, double a, double b) {
+	return x + ((y * ((((((((z * 3.13060547623) + 11.1667541262) * z) + t) * z) + a) * z) + b)) / (((((((z + 15.234687407) * z) + 31.4690115749) * z) + 11.9400905721) * z) + 0.607771387771));
+}
+</pre></div><div class="implementation" data-language="Python"><pre class="program">
+def code(x, y, z, t, a, b):
+	return x + ((y * ((((((((z * 3.13060547623) + 11.1667541262) * z) + t) * z) + a) * z) + b)) / (((((((z + 15.234687407) * z) + 31.4690115749) * z) + 11.9400905721) * z) + 0.607771387771))
+</pre></div><div class="implementation" data-language="Julia"><pre class="program">
+function code(x, y, z, t, a, b)
+	return Float64(x + Float64(Float64(y * Float64(Float64(Float64(Float64(Float64(Float64(Float64(Float64(z * 3.13060547623) + 11.1667541262) * z) + t) * z) + a) * z) + b)) / Float64(Float64(Float64(Float64(Float64(Float64(Float64(z + 15.234687407) * z) + 31.4690115749) * z) + 11.9400905721) * z) + 0.607771387771)))
+end
+</pre></div><div class="implementation" data-language="MATLAB"><pre class="program">
+function tmp = code(x, y, z, t, a, b)
+	tmp = x + ((y * ((((((((z * 3.13060547623) + 11.1667541262) * z) + t) * z) + a) * z) + b)) / (((((((z + 15.234687407) * z) + 31.4690115749) * z) + 11.9400905721) * z) + 0.607771387771));
+end
+</pre></div><div class="implementation" data-language="Wolfram"><pre class="program">
+code[x_, y_, z_, t_, a_, b_] := N[(x + N[(N[(y * N[(N[(N[(N[(N[(N[(N[(N[(z * 3.13060547623), $MachinePrecision] + 11.1667541262), $MachinePrecision] * z), $MachinePrecision] + t), $MachinePrecision] * z), $MachinePrecision] + a), $MachinePrecision] * z), $MachinePrecision] + b), $MachinePrecision]), $MachinePrecision] / N[(N[(N[(N[(N[(N[(N[(z + 15.234687407), $MachinePrecision] * z), $MachinePrecision] + 31.4690115749), $MachinePrecision] * z), $MachinePrecision] + 11.9400905721), $MachinePrecision] * z), $MachinePrecision] + 0.607771387771), $MachinePrecision]), $MachinePrecision]), $MachinePrecision]
+</pre></div><div class="implementation" data-language="TeX"><pre class="program">\begin{array}{l}
+
+\\
+x + \frac{y \cdot \left(\left(\left(\left(z \cdot 3.13060547623 + 11.1667541262\right) \cdot z + t\right) \cdot z + a\right) \cdot z + b\right)}{\left(\left(\left(z + 15.234687407\right) \cdot z + 31.4690115749\right) \cdot z + 11.9400905721\right) \cdot z + 0.607771387771}
+\end{array}
+</pre></div></div></section><section id="alternative1" class="programs"><h2>Alternative 1: <span class="subhead"><data>50.7%</data> accurate, <data>1.0×</data> speedup</span><select><option>Math</option><option>FPCore</option><option>C</option><option>Fortran</option><option>Java</option><option>Python</option><option>Julia</option><option>MATLAB</option><option>Wolfram</option><option>TeX</option></select><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#alternatives" target="_blank">?</a></h2><div><div class="implementation" data-language="Math"><div class="program math">\[\begin{array}{l}
+
+\\
+\frac{\left(b + \left(a + \left(t + \left(11.1667541262 + 3.13060547623 \cdot z\right) \cdot z\right) \cdot z\right) \cdot z\right) \cdot y}{0.607771387771 + \left(11.9400905721 + \left(31.4690115749 + \left(15.234687407 + z\right) \cdot z\right) \cdot z\right) \cdot z} + x
+\end{array}
+\]</div></div><div class="implementation" data-language="FPCore"><pre class="program">
+(FPCore (x y z t a b)
+ :precision binary64
+ (+
+  (/
+   (*
+    (+ b (* (+ a (* (+ t (* (+ 11.1667541262 (* 3.13060547623 z)) z)) z)) z))
+    y)
+   (+
+    0.607771387771
+    (* (+ 11.9400905721 (* (+ 31.4690115749 (* (+ 15.234687407 z) z)) z)) z)))
+  x))</pre></div><div class="implementation" data-language="C"><pre class="program">
+double code(double x, double y, double z, double t, double a, double b) {
+	return (((b + ((a + ((t + ((11.1667541262 + (3.13060547623 * z)) * z)) * z)) * z)) * y) / (0.607771387771 + ((11.9400905721 + ((31.4690115749 + ((15.234687407 + z) * z)) * z)) * z))) + x;
+}
+</pre></div><div class="implementation" data-language="Fortran"><pre class="program">
+real(8) function code(x, y, z, t, a, b)
+use fmin_fmax_functions
+    real(8), intent (in) :: x
+    real(8), intent (in) :: y
+    real(8), intent (in) :: z
+    real(8), intent (in) :: t
+    real(8), intent (in) :: a
+    real(8), intent (in) :: b
+    code = (((b + ((a + ((t + ((11.1667541262d0 + (3.13060547623d0 * z)) * z)) * z)) * z)) * y) / (0.607771387771d0 + ((11.9400905721d0 + ((31.4690115749d0 + ((15.234687407d0 + z) * z)) * z)) * z))) + x
+end function
+</pre></div><div class="implementation" data-language="Java"><pre class="program">
+public static double code(double x, double y, double z, double t, double a, double b) {
+	return (((b + ((a + ((t + ((11.1667541262 + (3.13060547623 * z)) * z)) * z)) * z)) * y) / (0.607771387771 + ((11.9400905721 + ((31.4690115749 + ((15.234687407 + z) * z)) * z)) * z))) + x;
+}
+</pre></div><div class="implementation" data-language="Python"><pre class="program">
+def code(x, y, z, t, a, b):
+	return (((b + ((a + ((t + ((11.1667541262 + (3.13060547623 * z)) * z)) * z)) * z)) * y) / (0.607771387771 + ((11.9400905721 + ((31.4690115749 + ((15.234687407 + z) * z)) * z)) * z))) + x
+</pre></div><div class="implementation" data-language="Julia"><pre class="program">
+function code(x, y, z, t, a, b)
+	return Float64(Float64(Float64(Float64(b + Float64(Float64(a + Float64(Float64(t + Float64(Float64(11.1667541262 + Float64(3.13060547623 * z)) * z)) * z)) * z)) * y) / Float64(0.607771387771 + Float64(Float64(11.9400905721 + Float64(Float64(31.4690115749 + Float64(Float64(15.234687407 + z) * z)) * z)) * z))) + x)
+end
+</pre></div><div class="implementation" data-language="MATLAB"><pre class="program">
+function tmp = code(x, y, z, t, a, b)
+	tmp = (((b + ((a + ((t + ((11.1667541262 + (3.13060547623 * z)) * z)) * z)) * z)) * y) / (0.607771387771 + ((11.9400905721 + ((31.4690115749 + ((15.234687407 + z) * z)) * z)) * z))) + x;
+end
+</pre></div><div class="implementation" data-language="Wolfram"><pre class="program">
+code[x_, y_, z_, t_, a_, b_] := N[(N[(N[(N[(b + N[(N[(a + N[(N[(t + N[(N[(11.1667541262 + N[(3.13060547623 * z), $MachinePrecision]), $MachinePrecision] * z), $MachinePrecision]), $MachinePrecision] * z), $MachinePrecision]), $MachinePrecision] * z), $MachinePrecision]), $MachinePrecision] * y), $MachinePrecision] / N[(0.607771387771 + N[(N[(11.9400905721 + N[(N[(31.4690115749 + N[(N[(15.234687407 + z), $MachinePrecision] * z), $MachinePrecision]), $MachinePrecision] * z), $MachinePrecision]), $MachinePrecision] * z), $MachinePrecision]), $MachinePrecision]), $MachinePrecision] + x), $MachinePrecision]
+</pre></div><div class="implementation" data-language="TeX"><pre class="program">\begin{array}{l}
+
+\\
+\frac{\left(b + \left(a + \left(t + \left(11.1667541262 + 3.13060547623 \cdot z\right) \cdot z\right) \cdot z\right) \cdot z\right) \cdot y}{0.607771387771 + \left(11.9400905721 + \left(31.4690115749 + \left(15.234687407 + z\right) \cdot z\right) \cdot z\right) \cdot z} + x
+\end{array}
+</pre></div></div><details><summary>Derivation</summary><ol class="history"><li><p>Initial program <span class="error" title="50.7% on training set">53.1%</span></p><div class="math">\[x + \frac{y \cdot \left(\left(\left(\left(z \cdot 3.13060547623 + 11.1667541262\right) \cdot z + t\right) \cdot z + a\right) \cdot z + b\right)}{\left(\left(\left(z + 15.234687407\right) \cdot z + 31.4690115749\right) \cdot z + 11.9400905721\right) \cdot z + 0.607771387771}
+\]</div></li><li>Add Preprocessing</li><li><p>Final simplification<span class="error" title="50.7% on training set">53.1%</span></p><div class="math">\[\leadsto \frac{\left(b + \left(a + \left(t + \left(11.1667541262 + 3.13060547623 \cdot z\right) \cdot z\right) \cdot z\right) \cdot z\right) \cdot y}{0.607771387771 + \left(11.9400905721 + \left(31.4690115749 + \left(15.234687407 + z\right) \cdot z\right) \cdot z\right) \cdot z} + x
+\]</div></li><li>Add Preprocessing</li></ol></details></section><section id="target1" class="programs"><h2>Developer Target 1: <span class="subhead"><data>100.0%</data> accurate, <data>0.8×</data> speedup</span><select><option>Math</option><option>FPCore</option><option>C</option><option>Fortran</option><option>Java</option><option>Python</option><option>Julia</option><option>MATLAB</option><option>Wolfram</option><option>TeX</option></select><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#target" target="_blank">?</a></h2><div><div class="implementation" data-language="Math"><div class="program math">\[\begin{array}{l}
+
+\\
+\begin{array}{l}
+t_1 := x + \left(\left(3.13060547623 - \frac{36.527041698806414}{z}\right) + \frac{t}{z \cdot z}\right) \cdot \frac{y}{1}\\
+\mathbf{if}\;z &lt; -6.499344996252632 \cdot 10^{+53}:\\
+\;\;\;\;t\_1\\
+
+\mathbf{elif}\;z &lt; 7.066965436914287 \cdot 10^{+59}:\\
+\;\;\;\;x + \frac{y}{\frac{\left(\left(\left(z + 15.234687407\right) \cdot z + 31.4690115749\right) \cdot z + 11.9400905721\right) \cdot z + 0.607771387771}{\left(\left(\left(z \cdot 3.13060547623 + 11.1667541262\right) \cdot z + t\right) \cdot z + a\right) \cdot z + b}}\\
+
+\mathbf{else}:\\
+\;\;\;\;t\_1\\
+
+
+\end{array}
+\end{array}
+\]</div></div><div class="implementation" data-language="FPCore"><pre class="program">
+(FPCore (x y z t a b)
+ :precision binary64
+ (let* ((t_1
+         (+
+          x
+          (*
+           (+ (- 3.13060547623 (/ 36.527041698806414 z)) (/ t (* z z)))
+           (/ y 1.0)))))
+   (if (&lt; z -6.499344996252632e+53)
+     t_1
+     (if (&lt; z 7.066965436914287e+59)
+       (+
+        x
+        (/
+         y
+         (/
+          (+
+           (*
+            (+ (* (+ (* (+ z 15.234687407) z) 31.4690115749) z) 11.9400905721)
+            z)
+           0.607771387771)
+          (+
+           (* (+ (* (+ (* (+ (* z 3.13060547623) 11.1667541262) z) t) z) a) z)
+           b))))
+       t_1))))</pre></div><div class="implementation" data-language="C"><pre class="program">
+double code(double x, double y, double z, double t, double a, double b) {
+	double t_1 = x + (((3.13060547623 - (36.527041698806414 / z)) + (t / (z * z))) * (y / 1.0));
+	double tmp;
+	if (z &lt; -6.499344996252632e+53) {
+		tmp = t_1;
+	} else if (z &lt; 7.066965436914287e+59) {
+		tmp = x + (y / ((((((((z + 15.234687407) * z) + 31.4690115749) * z) + 11.9400905721) * z) + 0.607771387771) / ((((((((z * 3.13060547623) + 11.1667541262) * z) + t) * z) + a) * z) + b)));
+	} else {
+		tmp = t_1;
+	}
+	return tmp;
+}
+</pre></div><div class="implementation" data-language="Fortran"><pre class="program">
+real(8) function code(x, y, z, t, a, b)
+use fmin_fmax_functions
+    real(8), intent (in) :: x
+    real(8), intent (in) :: y
+    real(8), intent (in) :: z
+    real(8), intent (in) :: t
+    real(8), intent (in) :: a
+    real(8), intent (in) :: b
+    real(8) :: t_1
+    real(8) :: tmp
+    t_1 = x + (((3.13060547623d0 - (36.527041698806414d0 / z)) + (t / (z * z))) * (y / 1.0d0))
+    if (z &lt; (-6.499344996252632d+53)) then
+        tmp = t_1
+    else if (z &lt; 7.066965436914287d+59) then
+        tmp = x + (y / ((((((((z + 15.234687407d0) * z) + 31.4690115749d0) * z) + 11.9400905721d0) * z) + 0.607771387771d0) / ((((((((z * 3.13060547623d0) + 11.1667541262d0) * z) + t) * z) + a) * z) + b)))
+    else
+        tmp = t_1
+    end if
+    code = tmp
+end function
+</pre></div><div class="implementation" data-language="Java"><pre class="program">
+public static double code(double x, double y, double z, double t, double a, double b) {
+	double t_1 = x + (((3.13060547623 - (36.527041698806414 / z)) + (t / (z * z))) * (y / 1.0));
+	double tmp;
+	if (z &lt; -6.499344996252632e+53) {
+		tmp = t_1;
+	} else if (z &lt; 7.066965436914287e+59) {
+		tmp = x + (y / ((((((((z + 15.234687407) * z) + 31.4690115749) * z) + 11.9400905721) * z) + 0.607771387771) / ((((((((z * 3.13060547623) + 11.1667541262) * z) + t) * z) + a) * z) + b)));
+	} else {
+		tmp = t_1;
+	}
+	return tmp;
+}
+</pre></div><div class="implementation" data-language="Python"><pre class="program">
+def code(x, y, z, t, a, b):
+	t_1 = x + (((3.13060547623 - (36.527041698806414 / z)) + (t / (z * z))) * (y / 1.0))
+	tmp = 0
+	if z &lt; -6.499344996252632e+53:
+		tmp = t_1
+	elif z &lt; 7.066965436914287e+59:
+		tmp = x + (y / ((((((((z + 15.234687407) * z) + 31.4690115749) * z) + 11.9400905721) * z) + 0.607771387771) / ((((((((z * 3.13060547623) + 11.1667541262) * z) + t) * z) + a) * z) + b)))
+	else:
+		tmp = t_1
+	return tmp
+</pre></div><div class="implementation" data-language="Julia"><pre class="program">
+function code(x, y, z, t, a, b)
+	t_1 = Float64(x + Float64(Float64(Float64(3.13060547623 - Float64(36.527041698806414 / z)) + Float64(t / Float64(z * z))) * Float64(y / 1.0)))
+	tmp = 0.0
+	if (z &lt; -6.499344996252632e+53)
+		tmp = t_1;
+	elseif (z &lt; 7.066965436914287e+59)
+		tmp = Float64(x + Float64(y / Float64(Float64(Float64(Float64(Float64(Float64(Float64(Float64(z + 15.234687407) * z) + 31.4690115749) * z) + 11.9400905721) * z) + 0.607771387771) / Float64(Float64(Float64(Float64(Float64(Float64(Float64(Float64(z * 3.13060547623) + 11.1667541262) * z) + t) * z) + a) * z) + b))));
+	else
+		tmp = t_1;
+	end
+	return tmp
+end
+</pre></div><div class="implementation" data-language="MATLAB"><pre class="program">
+function tmp_2 = code(x, y, z, t, a, b)
+	t_1 = x + (((3.13060547623 - (36.527041698806414 / z)) + (t / (z * z))) * (y / 1.0));
+	tmp = 0.0;
+	if (z &lt; -6.499344996252632e+53)
+		tmp = t_1;
+	elseif (z &lt; 7.066965436914287e+59)
+		tmp = x + (y / ((((((((z + 15.234687407) * z) + 31.4690115749) * z) + 11.9400905721) * z) + 0.607771387771) / ((((((((z * 3.13060547623) + 11.1667541262) * z) + t) * z) + a) * z) + b)));
+	else
+		tmp = t_1;
+	end
+	tmp_2 = tmp;
+end
+</pre></div><div class="implementation" data-language="Wolfram"><pre class="program">
+code[x_, y_, z_, t_, a_, b_] := Block[{t$95$1 = N[(x + N[(N[(N[(3.13060547623 - N[(36.527041698806414 / z), $MachinePrecision]), $MachinePrecision] + N[(t / N[(z * z), $MachinePrecision]), $MachinePrecision]), $MachinePrecision] * N[(y / 1.0), $MachinePrecision]), $MachinePrecision]), $MachinePrecision]}, If[Less[z, -6.499344996252632e+53], t$95$1, If[Less[z, 7.066965436914287e+59], N[(x + N[(y / N[(N[(N[(N[(N[(N[(N[(N[(z + 15.234687407), $MachinePrecision] * z), $MachinePrecision] + 31.4690115749), $MachinePrecision] * z), $MachinePrecision] + 11.9400905721), $MachinePrecision] * z), $MachinePrecision] + 0.607771387771), $MachinePrecision] / N[(N[(N[(N[(N[(N[(N[(N[(z * 3.13060547623), $MachinePrecision] + 11.1667541262), $MachinePrecision] * z), $MachinePrecision] + t), $MachinePrecision] * z), $MachinePrecision] + a), $MachinePrecision] * z), $MachinePrecision] + b), $MachinePrecision]), $MachinePrecision]), $MachinePrecision]), $MachinePrecision], t$95$1]]]
+</pre></div><div class="implementation" data-language="TeX"><pre class="program">\begin{array}{l}
+
+\\
+\begin{array}{l}
+t_1 := x + \left(\left(3.13060547623 - \frac{36.527041698806414}{z}\right) + \frac{t}{z \cdot z}\right) \cdot \frac{y}{1}\\
+\mathbf{if}\;z &lt; -6.499344996252632 \cdot 10^{+53}:\\
+\;\;\;\;t\_1\\
+
+\mathbf{elif}\;z &lt; 7.066965436914287 \cdot 10^{+59}:\\
+\;\;\;\;x + \frac{y}{\frac{\left(\left(\left(z + 15.234687407\right) \cdot z + 31.4690115749\right) \cdot z + 11.9400905721\right) \cdot z + 0.607771387771}{\left(\left(\left(z \cdot 3.13060547623 + 11.1667541262\right) \cdot z + t\right) \cdot z + a\right) \cdot z + b}}\\
+
+\mathbf{else}:\\
+\;\;\;\;t\_1\\
+
+
+\end{array}
+\end{array}
+</pre></div></div></section><section id="reproduce"><details><summary><h2>Reproduce</h2><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#reproduction" target="_blank">?</a></summary><pre class="shell"><code>herbie shell --seed 1528405439 
+(FPCore (x y z t a b)
+  :name "Numeric.SpecFunctions:logGamma from math-functions-0.1.5.2, D"
+  :precision binary64
+
+  :alt
+  (! :herbie-platform default (if (&lt; z -649934499625263200000000000000000000000000000000000000) (+ x (* (+ (- 313060547623/100000000000 (/ 18263520849403207/500000000000000 z)) (/ t (* z z))) (/ y 1))) (if (&lt; z 706696543691428700000000000000000000000000000000000000000000) (+ x (/ y (/ (+ (* (+ (* (+ (* (+ z 15234687407/1000000000) z) 314690115749/10000000000) z) 119400905721/10000000000) z) 607771387771/1000000000000) (+ (* (+ (* (+ (* (+ (* z 313060547623/100000000000) 55833770631/5000000000) z) t) z) a) z) b)))) (+ x (* (+ (- 313060547623/100000000000 (/ 18263520849403207/500000000000000 z)) (/ t (* z z))) (/ y 1))))))
+
+  (+ x (/ (* y (+ (* (+ (* (+ (* (+ (* z 3.13060547623) 11.1667541262) z) t) z) a) z) b)) (+ (* (+ (* (+ (* (+ z 15.234687407) z) 31.4690115749) z) 11.9400905721) z) 0.607771387771))))
+</code></pre></details></section></body></html>

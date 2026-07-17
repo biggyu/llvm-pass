@@ -1,0 +1,186 @@
+<!doctype html>
+<html><head><meta charset="utf-8"/><title>Result for Henrywood and Agarwal, Equation (13)</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" integrity="sha384-9tPv11A+glH/on/wEu99NVwDPwkMQESOocs/ZGXPoIiLE8MU/qkqUcZ3zzL+6DuH" crossorigin="anonymous"/><script src="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.js" integrity="sha384-U8Vrjwb8fuHMt6ewaCy8uqeUXv4oitYACKdB0VziCerzt011iQ/0TqlSlv8MReCm" crossorigin="anonymous"></script><script src="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/contrib/auto-render.min.js" integrity="sha384-aGfk5kvhIq5x1x5YdvCp4upKZYnA8ckafviDpmWEKp4afOZEqOli7gqSnh8I6enH" crossorigin="anonymous"></script><script src="https://unpkg.com/mathjs@4.4.2/dist/math.min.js"></script><script src="https://unpkg.com/d3@6.7.0/dist/d3.min.js"></script><script src="https://unpkg.com/@observablehq/plot@0.4.3/dist/plot.umd.min.js"></script><link rel="stylesheet" type="text/css" href="../report.css"/><script src="../report.js"></script></head><body><header><h1>Henrywood and Agarwal, Equation (13)</h1><img src="../logo-car.png"/><nav><ul><li><a href="../index.html">Report</a></li><li><a href="timeline.html">Metrics</a></li></ul></nav></header><div id="large"><div>Percentage Accurate: <span class="number" title="Minimum Accuracy: 0.0% → 0.0%">50.0%<span class="unit"> → </span>50.0%</span></div><div>Time: <span class="number">2.2s</span></div><div>Alternatives: <span class="number">1</span></div><div>Speedup: <span class="number" title="Relative speed of fastest alternative that improves accuracy.">1.0×</span></div></div><section><details id="specification" class="programs"><summary><h2>Specification</h2><select><option>Math</option><option>FPCore</option><option>C</option><option>Fortran</option><option>Java</option><option>Python</option><option>Julia</option><option>MATLAB</option><option>Wolfram</option><option>TeX</option></select><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#spec" target="_blank">?</a></summary><div><div class="implementation" data-language="Math"><div class="program math">\[\begin{array}{l}
+
+\\
+\begin{array}{l}
+t_0 := \frac{c0 \cdot \left(d \cdot d\right)}{\left(w \cdot h\right) \cdot \left(D \cdot D\right)}\\
+\frac{c0}{2 \cdot w} \cdot \left(t\_0 + \sqrt{t\_0 \cdot t\_0 - M \cdot M}\right)
+\end{array}
+\end{array}
+\]</div></div><div class="implementation" data-language="FPCore"><pre class="program">
+(FPCore (c0 w h D d M)
+ :precision binary64
+ (let* ((t_0 (/ (* c0 (* d d)) (* (* w h) (* D D)))))
+   (* (/ c0 (* 2.0 w)) (+ t_0 (sqrt (- (* t_0 t_0) (* M M)))))))</pre></div><div class="implementation" data-language="C"><pre class="program">
+double code(double c0, double w, double h, double D, double d, double M) {
+	double t_0 = (c0 * (d * d)) / ((w * h) * (D * D));
+	return (c0 / (2.0 * w)) * (t_0 + sqrt(((t_0 * t_0) - (M * M))));
+}
+</pre></div><div class="implementation" data-language="Fortran"><pre class="program">
+real(8) function code(c0, w, h, d, d_1, m)
+use fmin_fmax_functions
+    real(8), intent (in) :: c0
+    real(8), intent (in) :: w
+    real(8), intent (in) :: h
+    real(8), intent (in) :: d
+    real(8), intent (in) :: d_1
+    real(8), intent (in) :: m
+    real(8) :: t_0
+    t_0 = (c0 * (d_1 * d_1)) / ((w * h) * (d * d))
+    code = (c0 / (2.0d0 * w)) * (t_0 + sqrt(((t_0 * t_0) - (m * m))))
+end function
+</pre></div><div class="implementation" data-language="Java"><pre class="program">
+public static double code(double c0, double w, double h, double D, double d, double M) {
+	double t_0 = (c0 * (d * d)) / ((w * h) * (D * D));
+	return (c0 / (2.0 * w)) * (t_0 + Math.sqrt(((t_0 * t_0) - (M * M))));
+}
+</pre></div><div class="implementation" data-language="Python"><pre class="program">
+def code(c0, w, h, D, d, M):
+	t_0 = (c0 * (d * d)) / ((w * h) * (D * D))
+	return (c0 / (2.0 * w)) * (t_0 + math.sqrt(((t_0 * t_0) - (M * M))))
+</pre></div><div class="implementation" data-language="Julia"><pre class="program">
+function code(c0, w, h, D, d, M)
+	t_0 = Float64(Float64(c0 * Float64(d * d)) / Float64(Float64(w * h) * Float64(D * D)))
+	return Float64(Float64(c0 / Float64(2.0 * w)) * Float64(t_0 + sqrt(Float64(Float64(t_0 * t_0) - Float64(M * M)))))
+end
+</pre></div><div class="implementation" data-language="MATLAB"><pre class="program">
+function tmp = code(c0, w, h, D, d, M)
+	t_0 = (c0 * (d * d)) / ((w * h) * (D * D));
+	tmp = (c0 / (2.0 * w)) * (t_0 + sqrt(((t_0 * t_0) - (M * M))));
+end
+</pre></div><div class="implementation" data-language="Wolfram"><pre class="program">
+code[c0_, w_, h_, D_, d_, M_] := Block[{t$95$0 = N[(N[(c0 * N[(d * d), $MachinePrecision]), $MachinePrecision] / N[(N[(w * h), $MachinePrecision] * N[(D * D), $MachinePrecision]), $MachinePrecision]), $MachinePrecision]}, N[(N[(c0 / N[(2.0 * w), $MachinePrecision]), $MachinePrecision] * N[(t$95$0 + N[Sqrt[N[(N[(t$95$0 * t$95$0), $MachinePrecision] - N[(M * M), $MachinePrecision]), $MachinePrecision]], $MachinePrecision]), $MachinePrecision]), $MachinePrecision]]
+</pre></div><div class="implementation" data-language="TeX"><pre class="program">\begin{array}{l}
+
+\\
+\begin{array}{l}
+t_0 := \frac{c0 \cdot \left(d \cdot d\right)}{\left(w \cdot h\right) \cdot \left(D \cdot D\right)}\\
+\frac{c0}{2 \cdot w} \cdot \left(t\_0 + \sqrt{t\_0 \cdot t\_0 - M \cdot M}\right)
+\end{array}
+\end{array}
+</pre></div></div><p>Sampling outcomes in <kbd>binary64</kbd> precision:</p><div class="bogosity"><div class="bogosity-valid" data-id="bogosity-valid" data-type="valid" data-timespan="0.33298862242014604" title="valid (33.3%)"></div><div class="bogosity-unknown" data-id="bogosity-unknown" data-type="unknown" data-timespan="0" title="unknown (0.0%)"></div><div class="bogosity-infinite" data-id="bogosity-infinite" data-type="infinite" data-timespan="0.1589263879732515" title="infinite (15.9%)"></div><div class="bogosity-unsamplable" data-id="bogosity-unsamplable" data-type="unsamplable" data-timespan="0" title="unsamplable (0.0%)"></div><div class="bogosity-invalid" data-id="bogosity-invalid" data-type="invalid" data-timespan="0.505158876057835" title="invalid (50.5%)"></div><div class="bogosity-precondition" data-id="bogosity-precondition" data-type="precondition" data-timespan="0.002926113548767373" title="precondition (0.3%)"></div></div></details></section><figure id="graphs"><h2>Local Percentage Accuracy vs <span id="variables"></span><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#graph" target="_blank">?</a></h2><svg></svg><div id="functions"></div><figcaption>The average percentage accuracy by input value. Horizontal axis shows value of an input variable; the variable is choosen in the title. Vertical axis is accuracy; higher is better. Red represent the original program, while blue represents Herbie's suggestion. These can be toggled with buttons below the plot. The line is an average while dots represent individual samples.</figcaption></figure><section id="cost-accuracy" class="section" data-benchmark-name="Henrywood and Agarwal, Equation (13)"><h2>Accuracy vs Speed<a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#cost-accuracy" target="_blank">?</a></h2><div class="figure-row"><svg></svg><div><p>Herbie found 1 alternatives:</p><table><thead><tr><th>Alternative</th><th class="numeric">Accuracy</th><th class="numeric">Speedup</th></tr></thead><tbody></tbody></table></div></div><figcaption>The accuracy (vertical axis) and speed (horizontal axis) of each alternatives. Up and to the right is better. The red square shows the initial program, and each blue circle shows an alternative.The line shows the best available speed-accuracy tradeoffs.</figcaption></section><section id="initial" class="programs"><h2>Initial Program: <span class="subhead"><data>50.0%</data> accurate, <data>1.0×</data> speedup</span><select><option>Math</option><option>FPCore</option><option>C</option><option>Fortran</option><option>Java</option><option>Python</option><option>Julia</option><option>MATLAB</option><option>Wolfram</option><option>TeX</option></select><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#alternatives" target="_blank">?</a></h2><div><div class="implementation" data-language="Math"><div class="program math">\[\begin{array}{l}
+
+\\
+\begin{array}{l}
+t_0 := \frac{c0 \cdot \left(d \cdot d\right)}{\left(w \cdot h\right) \cdot \left(D \cdot D\right)}\\
+\frac{c0}{2 \cdot w} \cdot \left(t\_0 + \sqrt{t\_0 \cdot t\_0 - M \cdot M}\right)
+\end{array}
+\end{array}
+\]</div></div><div class="implementation" data-language="FPCore"><pre class="program">
+(FPCore (c0 w h D d M)
+ :precision binary64
+ (let* ((t_0 (/ (* c0 (* d d)) (* (* w h) (* D D)))))
+   (* (/ c0 (* 2.0 w)) (+ t_0 (sqrt (- (* t_0 t_0) (* M M)))))))</pre></div><div class="implementation" data-language="C"><pre class="program">
+double code(double c0, double w, double h, double D, double d, double M) {
+	double t_0 = (c0 * (d * d)) / ((w * h) * (D * D));
+	return (c0 / (2.0 * w)) * (t_0 + sqrt(((t_0 * t_0) - (M * M))));
+}
+</pre></div><div class="implementation" data-language="Fortran"><pre class="program">
+real(8) function code(c0, w, h, d, d_1, m)
+use fmin_fmax_functions
+    real(8), intent (in) :: c0
+    real(8), intent (in) :: w
+    real(8), intent (in) :: h
+    real(8), intent (in) :: d
+    real(8), intent (in) :: d_1
+    real(8), intent (in) :: m
+    real(8) :: t_0
+    t_0 = (c0 * (d_1 * d_1)) / ((w * h) * (d * d))
+    code = (c0 / (2.0d0 * w)) * (t_0 + sqrt(((t_0 * t_0) - (m * m))))
+end function
+</pre></div><div class="implementation" data-language="Java"><pre class="program">
+public static double code(double c0, double w, double h, double D, double d, double M) {
+	double t_0 = (c0 * (d * d)) / ((w * h) * (D * D));
+	return (c0 / (2.0 * w)) * (t_0 + Math.sqrt(((t_0 * t_0) - (M * M))));
+}
+</pre></div><div class="implementation" data-language="Python"><pre class="program">
+def code(c0, w, h, D, d, M):
+	t_0 = (c0 * (d * d)) / ((w * h) * (D * D))
+	return (c0 / (2.0 * w)) * (t_0 + math.sqrt(((t_0 * t_0) - (M * M))))
+</pre></div><div class="implementation" data-language="Julia"><pre class="program">
+function code(c0, w, h, D, d, M)
+	t_0 = Float64(Float64(c0 * Float64(d * d)) / Float64(Float64(w * h) * Float64(D * D)))
+	return Float64(Float64(c0 / Float64(2.0 * w)) * Float64(t_0 + sqrt(Float64(Float64(t_0 * t_0) - Float64(M * M)))))
+end
+</pre></div><div class="implementation" data-language="MATLAB"><pre class="program">
+function tmp = code(c0, w, h, D, d, M)
+	t_0 = (c0 * (d * d)) / ((w * h) * (D * D));
+	tmp = (c0 / (2.0 * w)) * (t_0 + sqrt(((t_0 * t_0) - (M * M))));
+end
+</pre></div><div class="implementation" data-language="Wolfram"><pre class="program">
+code[c0_, w_, h_, D_, d_, M_] := Block[{t$95$0 = N[(N[(c0 * N[(d * d), $MachinePrecision]), $MachinePrecision] / N[(N[(w * h), $MachinePrecision] * N[(D * D), $MachinePrecision]), $MachinePrecision]), $MachinePrecision]}, N[(N[(c0 / N[(2.0 * w), $MachinePrecision]), $MachinePrecision] * N[(t$95$0 + N[Sqrt[N[(N[(t$95$0 * t$95$0), $MachinePrecision] - N[(M * M), $MachinePrecision]), $MachinePrecision]], $MachinePrecision]), $MachinePrecision]), $MachinePrecision]]
+</pre></div><div class="implementation" data-language="TeX"><pre class="program">\begin{array}{l}
+
+\\
+\begin{array}{l}
+t_0 := \frac{c0 \cdot \left(d \cdot d\right)}{\left(w \cdot h\right) \cdot \left(D \cdot D\right)}\\
+\frac{c0}{2 \cdot w} \cdot \left(t\_0 + \sqrt{t\_0 \cdot t\_0 - M \cdot M}\right)
+\end{array}
+\end{array}
+</pre></div></div></section><section id="alternative1" class="programs"><h2>Alternative 1: <span class="subhead"><data>50.0%</data> accurate, <data>1.0×</data> speedup</span><select><option>Math</option><option>FPCore</option><option>C</option><option>Fortran</option><option>Java</option><option>Python</option><option>Julia</option><option>MATLAB</option><option>Wolfram</option><option>TeX</option></select><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#alternatives" target="_blank">?</a></h2><div><div class="implementation" data-language="Math"><div class="program math">\[\begin{array}{l}
+
+\\
+\begin{array}{l}
+t_0 := \frac{\left(d \cdot d\right) \cdot c0}{\left(D \cdot D\right) \cdot \left(h \cdot w\right)}\\
+\left(\sqrt{t\_0 \cdot t\_0 - M \cdot M} + t\_0\right) \cdot \frac{c0}{w \cdot 2}
+\end{array}
+\end{array}
+\]</div></div><div class="implementation" data-language="FPCore"><pre class="program">
+(FPCore (c0 w h D d M)
+ :precision binary64
+ (let* ((t_0 (/ (* (* d d) c0) (* (* D D) (* h w)))))
+   (* (+ (sqrt (- (* t_0 t_0) (* M M))) t_0) (/ c0 (* w 2.0)))))</pre></div><div class="implementation" data-language="C"><pre class="program">
+double code(double c0, double w, double h, double D, double d, double M) {
+	double t_0 = ((d * d) * c0) / ((D * D) * (h * w));
+	return (sqrt(((t_0 * t_0) - (M * M))) + t_0) * (c0 / (w * 2.0));
+}
+</pre></div><div class="implementation" data-language="Fortran"><pre class="program">
+real(8) function code(c0, w, h, d, d_1, m)
+use fmin_fmax_functions
+    real(8), intent (in) :: c0
+    real(8), intent (in) :: w
+    real(8), intent (in) :: h
+    real(8), intent (in) :: d
+    real(8), intent (in) :: d_1
+    real(8), intent (in) :: m
+    real(8) :: t_0
+    t_0 = ((d_1 * d_1) * c0) / ((d * d) * (h * w))
+    code = (sqrt(((t_0 * t_0) - (m * m))) + t_0) * (c0 / (w * 2.0d0))
+end function
+</pre></div><div class="implementation" data-language="Java"><pre class="program">
+public static double code(double c0, double w, double h, double D, double d, double M) {
+	double t_0 = ((d * d) * c0) / ((D * D) * (h * w));
+	return (Math.sqrt(((t_0 * t_0) - (M * M))) + t_0) * (c0 / (w * 2.0));
+}
+</pre></div><div class="implementation" data-language="Python"><pre class="program">
+def code(c0, w, h, D, d, M):
+	t_0 = ((d * d) * c0) / ((D * D) * (h * w))
+	return (math.sqrt(((t_0 * t_0) - (M * M))) + t_0) * (c0 / (w * 2.0))
+</pre></div><div class="implementation" data-language="Julia"><pre class="program">
+function code(c0, w, h, D, d, M)
+	t_0 = Float64(Float64(Float64(d * d) * c0) / Float64(Float64(D * D) * Float64(h * w)))
+	return Float64(Float64(sqrt(Float64(Float64(t_0 * t_0) - Float64(M * M))) + t_0) * Float64(c0 / Float64(w * 2.0)))
+end
+</pre></div><div class="implementation" data-language="MATLAB"><pre class="program">
+function tmp = code(c0, w, h, D, d, M)
+	t_0 = ((d * d) * c0) / ((D * D) * (h * w));
+	tmp = (sqrt(((t_0 * t_0) - (M * M))) + t_0) * (c0 / (w * 2.0));
+end
+</pre></div><div class="implementation" data-language="Wolfram"><pre class="program">
+code[c0_, w_, h_, D_, d_, M_] := Block[{t$95$0 = N[(N[(N[(d * d), $MachinePrecision] * c0), $MachinePrecision] / N[(N[(D * D), $MachinePrecision] * N[(h * w), $MachinePrecision]), $MachinePrecision]), $MachinePrecision]}, N[(N[(N[Sqrt[N[(N[(t$95$0 * t$95$0), $MachinePrecision] - N[(M * M), $MachinePrecision]), $MachinePrecision]], $MachinePrecision] + t$95$0), $MachinePrecision] * N[(c0 / N[(w * 2.0), $MachinePrecision]), $MachinePrecision]), $MachinePrecision]]
+</pre></div><div class="implementation" data-language="TeX"><pre class="program">\begin{array}{l}
+
+\\
+\begin{array}{l}
+t_0 := \frac{\left(d \cdot d\right) \cdot c0}{\left(D \cdot D\right) \cdot \left(h \cdot w\right)}\\
+\left(\sqrt{t\_0 \cdot t\_0 - M \cdot M} + t\_0\right) \cdot \frac{c0}{w \cdot 2}
+\end{array}
+\end{array}
+</pre></div></div><details><summary>Derivation</summary><ol class="history"><li><p>Initial program <span class="error" title="50.0% on training set">22.1%</span></p><div class="math">\[\frac{c0}{2 \cdot w} \cdot \left(\frac{c0 \cdot \left(d \cdot d\right)}{\left(w \cdot h\right) \cdot \left(D \cdot D\right)} + \sqrt{\frac{c0 \cdot \left(d \cdot d\right)}{\left(w \cdot h\right) \cdot \left(D \cdot D\right)} \cdot \frac{c0 \cdot \left(d \cdot d\right)}{\left(w \cdot h\right) \cdot \left(D \cdot D\right)} - M \cdot M}\right)
+\]</div></li><li>Add Preprocessing</li><li><p>Final simplification<span class="error" title="50.0% on training set">22.1%</span></p><div class="math">\[\leadsto \left(\sqrt{\frac{\left(d \cdot d\right) \cdot c0}{\left(D \cdot D\right) \cdot \left(h \cdot w\right)} \cdot \frac{\left(d \cdot d\right) \cdot c0}{\left(D \cdot D\right) \cdot \left(h \cdot w\right)} - M \cdot M} + \frac{\left(d \cdot d\right) \cdot c0}{\left(D \cdot D\right) \cdot \left(h \cdot w\right)}\right) \cdot \frac{c0}{w \cdot 2}
+\]</div></li><li>Add Preprocessing</li></ol></details></section><section id="reproduce"><details><summary><h2>Reproduce</h2><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#reproduction" target="_blank">?</a></summary><pre class="shell"><code>herbie shell --seed 1528405439 
+(FPCore (c0 w h D d M)
+  :name "Henrywood and Agarwal, Equation (13)"
+  :precision binary64
+  (* (/ c0 (* 2.0 w)) (+ (/ (* c0 (* d d)) (* (* w h) (* D D))) (sqrt (- (* (/ (* c0 (* d d)) (* (* w h) (* D D))) (/ (* c0 (* d d)) (* (* w h) (* D D)))) (* M M))))))
+</code></pre></details></section></body></html>

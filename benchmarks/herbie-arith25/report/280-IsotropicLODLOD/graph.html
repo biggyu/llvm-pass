@@ -1,0 +1,217 @@
+<!doctype html>
+<html><head><meta charset="utf-8"/><title>Result for Isotropic LOD (LOD)</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" integrity="sha384-9tPv11A+glH/on/wEu99NVwDPwkMQESOocs/ZGXPoIiLE8MU/qkqUcZ3zzL+6DuH" crossorigin="anonymous"/><script src="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.js" integrity="sha384-U8Vrjwb8fuHMt6ewaCy8uqeUXv4oitYACKdB0VziCerzt011iQ/0TqlSlv8MReCm" crossorigin="anonymous"></script><script src="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/contrib/auto-render.min.js" integrity="sha384-aGfk5kvhIq5x1x5YdvCp4upKZYnA8ckafviDpmWEKp4afOZEqOli7gqSnh8I6enH" crossorigin="anonymous"></script><script src="https://unpkg.com/mathjs@4.4.2/dist/math.min.js"></script><script src="https://unpkg.com/d3@6.7.0/dist/d3.min.js"></script><script src="https://unpkg.com/@observablehq/plot@0.4.3/dist/plot.umd.min.js"></script><link rel="stylesheet" type="text/css" href="../report.css"/><script src="../report.js"></script></head><body><header><h1>Isotropic LOD (LOD)</h1><img src="../logo-car.png"/><nav><ul><li><a href="../index.html">Report</a></li><li><a href="timeline.html">Metrics</a></li></ul></nav></header><div id="large"><div>Percentage Accurate: <span class="number" title="Minimum Accuracy: 6.5% → 6.5%">53.2%<span class="unit"> → </span>53.2%</span></div><div>Time: <span class="number">2.7s</span></div><div>Alternatives: <span class="number">1</span></div><div>Speedup: <span class="number" title="Relative speed of fastest alternative that improves accuracy.">1.0×</span></div></div><section><details id="specification" class="programs"><summary><h2>Specification</h2><select><option>Math</option><option>FPCore</option><option>C</option><option>Julia</option><option>MATLAB</option><option>TeX</option></select><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#spec" target="_blank">?</a></summary><div><div id="precondition"><div class="program math">\[\left(\left(\left(\left(\left(\left(\left(\left(1 \leq w \land w \leq 16384\right) \land \left(1 \leq h \land h \leq 16384\right)\right) \land \left(1 \leq d \land d \leq 4096\right)\right) \land \left(10^{-20} \leq \left|dX.u\right| \land \left|dX.u\right| \leq 10^{+20}\right)\right) \land \left(10^{-20} \leq \left|dX.v\right| \land \left|dX.v\right| \leq 10^{+20}\right)\right) \land \left(10^{-20} \leq \left|dX.w\right| \land \left|dX.w\right| \leq 10^{+20}\right)\right) \land \left(10^{-20} \leq \left|dY.u\right| \land \left|dY.u\right| \leq 10^{+20}\right)\right) \land \left(10^{-20} \leq \left|dY.v\right| \land \left|dY.v\right| \leq 10^{+20}\right)\right) \land \left(10^{-20} \leq \left|dY.w\right| \land \left|dY.w\right| \leq 10^{+20}\right)\]</div></div><div class="implementation" data-language="Math"><div class="program math">\[\begin{array}{l}
+
+\\
+\begin{array}{l}
+t_0 := \left\lfloor w\right\rfloor  \cdot dY.u\\
+t_1 := \left\lfloor h\right\rfloor  \cdot dY.v\\
+t_2 := \left\lfloor h\right\rfloor  \cdot dX.v\\
+t_3 := \left\lfloor d\right\rfloor  \cdot dY.w\\
+t_4 := \left\lfloor d\right\rfloor  \cdot dX.w\\
+t_5 := \left\lfloor w\right\rfloor  \cdot dX.u\\
+\log_{2} \left(\sqrt{\mathsf{max}\left(\left(t\_5 \cdot t\_5 + t\_2 \cdot t\_2\right) + t\_4 \cdot t\_4, \left(t\_0 \cdot t\_0 + t\_1 \cdot t\_1\right) + t\_3 \cdot t\_3\right)}\right)
+\end{array}
+\end{array}
+\]</div></div><div class="implementation" data-language="FPCore"><pre class="program">
+(FPCore (w h d dX.u dX.v dX.w dY.u dY.v dY.w)
+ :precision binary32
+ (let* ((t_0 (* (floor w) dY.u))
+        (t_1 (* (floor h) dY.v))
+        (t_2 (* (floor h) dX.v))
+        (t_3 (* (floor d) dY.w))
+        (t_4 (* (floor d) dX.w))
+        (t_5 (* (floor w) dX.u)))
+   (log2
+    (sqrt
+     (fmax
+      (+ (+ (* t_5 t_5) (* t_2 t_2)) (* t_4 t_4))
+      (+ (+ (* t_0 t_0) (* t_1 t_1)) (* t_3 t_3)))))))</pre></div><div class="implementation" data-language="C"><pre class="program">
+float code(float w, float h, float d, float dX_46_u, float dX_46_v, float dX_46_w, float dY_46_u, float dY_46_v, float dY_46_w) {
+	float t_0 = floorf(w) * dY_46_u;
+	float t_1 = floorf(h) * dY_46_v;
+	float t_2 = floorf(h) * dX_46_v;
+	float t_3 = floorf(d) * dY_46_w;
+	float t_4 = floorf(d) * dX_46_w;
+	float t_5 = floorf(w) * dX_46_u;
+	return log2f(sqrtf(fmaxf((((t_5 * t_5) + (t_2 * t_2)) + (t_4 * t_4)), (((t_0 * t_0) + (t_1 * t_1)) + (t_3 * t_3)))));
+}
+</pre></div><div class="implementation" data-language="Julia"><pre class="program">
+function code(w, h, d, dX_46_u, dX_46_v, dX_46_w, dY_46_u, dY_46_v, dY_46_w)
+	t_0 = Float32(floor(w) * dY_46_u)
+	t_1 = Float32(floor(h) * dY_46_v)
+	t_2 = Float32(floor(h) * dX_46_v)
+	t_3 = Float32(floor(d) * dY_46_w)
+	t_4 = Float32(floor(d) * dX_46_w)
+	t_5 = Float32(floor(w) * dX_46_u)
+	return log2(sqrt(fmax(Float32(Float32(Float32(t_5 * t_5) + Float32(t_2 * t_2)) + Float32(t_4 * t_4)), Float32(Float32(Float32(t_0 * t_0) + Float32(t_1 * t_1)) + Float32(t_3 * t_3)))))
+end
+</pre></div><div class="implementation" data-language="MATLAB"><pre class="program">
+function tmp = code(w, h, d, dX_46_u, dX_46_v, dX_46_w, dY_46_u, dY_46_v, dY_46_w)
+	t_0 = floor(w) * dY_46_u;
+	t_1 = floor(h) * dY_46_v;
+	t_2 = floor(h) * dX_46_v;
+	t_3 = floor(d) * dY_46_w;
+	t_4 = floor(d) * dX_46_w;
+	t_5 = floor(w) * dX_46_u;
+	tmp = log2(sqrt(max((((t_5 * t_5) + (t_2 * t_2)) + (t_4 * t_4)), (((t_0 * t_0) + (t_1 * t_1)) + (t_3 * t_3)))));
+end
+</pre></div><div class="implementation" data-language="TeX"><pre class="program">\begin{array}{l}
+
+\\
+\begin{array}{l}
+t_0 := \left\lfloor w\right\rfloor  \cdot dY.u\\
+t_1 := \left\lfloor h\right\rfloor  \cdot dY.v\\
+t_2 := \left\lfloor h\right\rfloor  \cdot dX.v\\
+t_3 := \left\lfloor d\right\rfloor  \cdot dY.w\\
+t_4 := \left\lfloor d\right\rfloor  \cdot dX.w\\
+t_5 := \left\lfloor w\right\rfloor  \cdot dX.u\\
+\log_{2} \left(\sqrt{\mathsf{max}\left(\left(t\_5 \cdot t\_5 + t\_2 \cdot t\_2\right) + t\_4 \cdot t\_4, \left(t\_0 \cdot t\_0 + t\_1 \cdot t\_1\right) + t\_3 \cdot t\_3\right)}\right)
+\end{array}
+\end{array}
+</pre></div></div><p>Sampling outcomes in <kbd>binary32</kbd> precision:</p><div class="bogosity"><div class="bogosity-valid" data-id="bogosity-valid" data-type="valid" data-timespan="3.427171427512489e-7" title="valid (0.0%)"></div><div class="bogosity-unknown" data-id="bogosity-unknown" data-type="unknown" data-timespan="0" title="unknown (0.0%)"></div><div class="bogosity-infinite" data-id="bogosity-infinite" data-type="infinite" data-timespan="0" title="infinite (0.0%)"></div><div class="bogosity-unsamplable" data-id="bogosity-unsamplable" data-type="unsamplable" data-timespan="0" title="unsamplable (0.0%)"></div><div class="bogosity-invalid" data-id="bogosity-invalid" data-type="invalid" data-timespan="0.0" title="invalid (0.0%)"></div><div class="bogosity-precondition" data-id="bogosity-precondition" data-type="precondition" data-timespan="0.9999996572828572" title="precondition (100.0%)"></div></div></details></section><figure id="graphs"><h2>Local Percentage Accuracy vs <span id="variables"></span><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#graph" target="_blank">?</a></h2><svg></svg><div id="functions"></div><figcaption>The average percentage accuracy by input value. Horizontal axis shows value of an input variable; the variable is choosen in the title. Vertical axis is accuracy; higher is better. Red represent the original program, while blue represents Herbie's suggestion. These can be toggled with buttons below the plot. The line is an average while dots represent individual samples.</figcaption></figure><section id="cost-accuracy" class="section" data-benchmark-name="Isotropic LOD (LOD)"><h2>Accuracy vs Speed<a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#cost-accuracy" target="_blank">?</a></h2><div class="figure-row"><svg></svg><div><p>Herbie found 1 alternatives:</p><table><thead><tr><th>Alternative</th><th class="numeric">Accuracy</th><th class="numeric">Speedup</th></tr></thead><tbody></tbody></table></div></div><figcaption>The accuracy (vertical axis) and speed (horizontal axis) of each alternatives. Up and to the right is better. The red square shows the initial program, and each blue circle shows an alternative.The line shows the best available speed-accuracy tradeoffs.</figcaption></section><section id="initial" class="programs"><h2>Initial Program: <span class="subhead"><data>53.2%</data> accurate, <data>1.0×</data> speedup</span><select><option>Math</option><option>FPCore</option><option>C</option><option>Julia</option><option>MATLAB</option><option>TeX</option></select><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#alternatives" target="_blank">?</a></h2><div><div class="implementation" data-language="Math"><div class="program math">\[\begin{array}{l}
+
+\\
+\begin{array}{l}
+t_0 := \left\lfloor w\right\rfloor  \cdot dY.u\\
+t_1 := \left\lfloor h\right\rfloor  \cdot dY.v\\
+t_2 := \left\lfloor h\right\rfloor  \cdot dX.v\\
+t_3 := \left\lfloor d\right\rfloor  \cdot dY.w\\
+t_4 := \left\lfloor d\right\rfloor  \cdot dX.w\\
+t_5 := \left\lfloor w\right\rfloor  \cdot dX.u\\
+\log_{2} \left(\sqrt{\mathsf{max}\left(\left(t\_5 \cdot t\_5 + t\_2 \cdot t\_2\right) + t\_4 \cdot t\_4, \left(t\_0 \cdot t\_0 + t\_1 \cdot t\_1\right) + t\_3 \cdot t\_3\right)}\right)
+\end{array}
+\end{array}
+\]</div></div><div class="implementation" data-language="FPCore"><pre class="program">
+(FPCore (w h d dX.u dX.v dX.w dY.u dY.v dY.w)
+ :precision binary32
+ (let* ((t_0 (* (floor w) dY.u))
+        (t_1 (* (floor h) dY.v))
+        (t_2 (* (floor h) dX.v))
+        (t_3 (* (floor d) dY.w))
+        (t_4 (* (floor d) dX.w))
+        (t_5 (* (floor w) dX.u)))
+   (log2
+    (sqrt
+     (fmax
+      (+ (+ (* t_5 t_5) (* t_2 t_2)) (* t_4 t_4))
+      (+ (+ (* t_0 t_0) (* t_1 t_1)) (* t_3 t_3)))))))</pre></div><div class="implementation" data-language="C"><pre class="program">
+float code(float w, float h, float d, float dX_46_u, float dX_46_v, float dX_46_w, float dY_46_u, float dY_46_v, float dY_46_w) {
+	float t_0 = floorf(w) * dY_46_u;
+	float t_1 = floorf(h) * dY_46_v;
+	float t_2 = floorf(h) * dX_46_v;
+	float t_3 = floorf(d) * dY_46_w;
+	float t_4 = floorf(d) * dX_46_w;
+	float t_5 = floorf(w) * dX_46_u;
+	return log2f(sqrtf(fmaxf((((t_5 * t_5) + (t_2 * t_2)) + (t_4 * t_4)), (((t_0 * t_0) + (t_1 * t_1)) + (t_3 * t_3)))));
+}
+</pre></div><div class="implementation" data-language="Julia"><pre class="program">
+function code(w, h, d, dX_46_u, dX_46_v, dX_46_w, dY_46_u, dY_46_v, dY_46_w)
+	t_0 = Float32(floor(w) * dY_46_u)
+	t_1 = Float32(floor(h) * dY_46_v)
+	t_2 = Float32(floor(h) * dX_46_v)
+	t_3 = Float32(floor(d) * dY_46_w)
+	t_4 = Float32(floor(d) * dX_46_w)
+	t_5 = Float32(floor(w) * dX_46_u)
+	return log2(sqrt(fmax(Float32(Float32(Float32(t_5 * t_5) + Float32(t_2 * t_2)) + Float32(t_4 * t_4)), Float32(Float32(Float32(t_0 * t_0) + Float32(t_1 * t_1)) + Float32(t_3 * t_3)))))
+end
+</pre></div><div class="implementation" data-language="MATLAB"><pre class="program">
+function tmp = code(w, h, d, dX_46_u, dX_46_v, dX_46_w, dY_46_u, dY_46_v, dY_46_w)
+	t_0 = floor(w) * dY_46_u;
+	t_1 = floor(h) * dY_46_v;
+	t_2 = floor(h) * dX_46_v;
+	t_3 = floor(d) * dY_46_w;
+	t_4 = floor(d) * dX_46_w;
+	t_5 = floor(w) * dX_46_u;
+	tmp = log2(sqrt(max((((t_5 * t_5) + (t_2 * t_2)) + (t_4 * t_4)), (((t_0 * t_0) + (t_1 * t_1)) + (t_3 * t_3)))));
+end
+</pre></div><div class="implementation" data-language="TeX"><pre class="program">\begin{array}{l}
+
+\\
+\begin{array}{l}
+t_0 := \left\lfloor w\right\rfloor  \cdot dY.u\\
+t_1 := \left\lfloor h\right\rfloor  \cdot dY.v\\
+t_2 := \left\lfloor h\right\rfloor  \cdot dX.v\\
+t_3 := \left\lfloor d\right\rfloor  \cdot dY.w\\
+t_4 := \left\lfloor d\right\rfloor  \cdot dX.w\\
+t_5 := \left\lfloor w\right\rfloor  \cdot dX.u\\
+\log_{2} \left(\sqrt{\mathsf{max}\left(\left(t\_5 \cdot t\_5 + t\_2 \cdot t\_2\right) + t\_4 \cdot t\_4, \left(t\_0 \cdot t\_0 + t\_1 \cdot t\_1\right) + t\_3 \cdot t\_3\right)}\right)
+\end{array}
+\end{array}
+</pre></div></div></section><section id="alternative1" class="programs"><h2>Alternative 1: <span class="subhead"><data>53.2%</data> accurate, <data>1.0×</data> speedup</span><select><option>Math</option><option>FPCore</option><option>C</option><option>Julia</option><option>MATLAB</option><option>TeX</option></select><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#alternatives" target="_blank">?</a></h2><div><div class="implementation" data-language="Math"><div class="program math">\[\begin{array}{l}
+
+\\
+\begin{array}{l}
+t_0 := dY.v \cdot \left\lfloor h\right\rfloor \\
+t_1 := dX.v \cdot \left\lfloor h\right\rfloor \\
+t_2 := dY.u \cdot \left\lfloor w\right\rfloor \\
+t_3 := dX.u \cdot \left\lfloor w\right\rfloor \\
+t_4 := dX.w \cdot \left\lfloor d\right\rfloor \\
+t_5 := dY.w \cdot \left\lfloor d\right\rfloor \\
+\log_{2} \left(\sqrt{\mathsf{max}\left(t\_4 \cdot t\_4 + \left(t\_1 \cdot t\_1 + t\_3 \cdot t\_3\right), t\_5 \cdot t\_5 + \left(t\_0 \cdot t\_0 + t\_2 \cdot t\_2\right)\right)}\right)
+\end{array}
+\end{array}
+\]</div></div><div class="implementation" data-language="FPCore"><pre class="program">
+(FPCore (w h d dX.u dX.v dX.w dY.u dY.v dY.w)
+ :precision binary32
+ (let* ((t_0 (* dY.v (floor h)))
+        (t_1 (* dX.v (floor h)))
+        (t_2 (* dY.u (floor w)))
+        (t_3 (* dX.u (floor w)))
+        (t_4 (* dX.w (floor d)))
+        (t_5 (* dY.w (floor d))))
+   (log2
+    (sqrt
+     (fmax
+      (+ (* t_4 t_4) (+ (* t_1 t_1) (* t_3 t_3)))
+      (+ (* t_5 t_5) (+ (* t_0 t_0) (* t_2 t_2))))))))</pre></div><div class="implementation" data-language="C"><pre class="program">
+float code(float w, float h, float d, float dX_46_u, float dX_46_v, float dX_46_w, float dY_46_u, float dY_46_v, float dY_46_w) {
+	float t_0 = dY_46_v * floorf(h);
+	float t_1 = dX_46_v * floorf(h);
+	float t_2 = dY_46_u * floorf(w);
+	float t_3 = dX_46_u * floorf(w);
+	float t_4 = dX_46_w * floorf(d);
+	float t_5 = dY_46_w * floorf(d);
+	return log2f(sqrtf(fmaxf(((t_4 * t_4) + ((t_1 * t_1) + (t_3 * t_3))), ((t_5 * t_5) + ((t_0 * t_0) + (t_2 * t_2))))));
+}
+</pre></div><div class="implementation" data-language="Julia"><pre class="program">
+function code(w, h, d, dX_46_u, dX_46_v, dX_46_w, dY_46_u, dY_46_v, dY_46_w)
+	t_0 = Float32(dY_46_v * floor(h))
+	t_1 = Float32(dX_46_v * floor(h))
+	t_2 = Float32(dY_46_u * floor(w))
+	t_3 = Float32(dX_46_u * floor(w))
+	t_4 = Float32(dX_46_w * floor(d))
+	t_5 = Float32(dY_46_w * floor(d))
+	return log2(sqrt(fmax(Float32(Float32(t_4 * t_4) + Float32(Float32(t_1 * t_1) + Float32(t_3 * t_3))), Float32(Float32(t_5 * t_5) + Float32(Float32(t_0 * t_0) + Float32(t_2 * t_2))))))
+end
+</pre></div><div class="implementation" data-language="MATLAB"><pre class="program">
+function tmp = code(w, h, d, dX_46_u, dX_46_v, dX_46_w, dY_46_u, dY_46_v, dY_46_w)
+	t_0 = dY_46_v * floor(h);
+	t_1 = dX_46_v * floor(h);
+	t_2 = dY_46_u * floor(w);
+	t_3 = dX_46_u * floor(w);
+	t_4 = dX_46_w * floor(d);
+	t_5 = dY_46_w * floor(d);
+	tmp = log2(sqrt(max(((t_4 * t_4) + ((t_1 * t_1) + (t_3 * t_3))), ((t_5 * t_5) + ((t_0 * t_0) + (t_2 * t_2))))));
+end
+</pre></div><div class="implementation" data-language="TeX"><pre class="program">\begin{array}{l}
+
+\\
+\begin{array}{l}
+t_0 := dY.v \cdot \left\lfloor h\right\rfloor \\
+t_1 := dX.v \cdot \left\lfloor h\right\rfloor \\
+t_2 := dY.u \cdot \left\lfloor w\right\rfloor \\
+t_3 := dX.u \cdot \left\lfloor w\right\rfloor \\
+t_4 := dX.w \cdot \left\lfloor d\right\rfloor \\
+t_5 := dY.w \cdot \left\lfloor d\right\rfloor \\
+\log_{2} \left(\sqrt{\mathsf{max}\left(t\_4 \cdot t\_4 + \left(t\_1 \cdot t\_1 + t\_3 \cdot t\_3\right), t\_5 \cdot t\_5 + \left(t\_0 \cdot t\_0 + t\_2 \cdot t\_2\right)\right)}\right)
+\end{array}
+\end{array}
+</pre></div></div><details><summary>Derivation</summary><ol class="history"><li><p>Initial program <span class="error" title="53.2% on training set">68.2%</span></p><div class="math">\[\log_{2} \left(\sqrt{\mathsf{max}\left(\left(\left(\left\lfloor w\right\rfloor  \cdot dX.u\right) \cdot \left(\left\lfloor w\right\rfloor  \cdot dX.u\right) + \left(\left\lfloor h\right\rfloor  \cdot dX.v\right) \cdot \left(\left\lfloor h\right\rfloor  \cdot dX.v\right)\right) + \left(\left\lfloor d\right\rfloor  \cdot dX.w\right) \cdot \left(\left\lfloor d\right\rfloor  \cdot dX.w\right), \left(\left(\left\lfloor w\right\rfloor  \cdot dY.u\right) \cdot \left(\left\lfloor w\right\rfloor  \cdot dY.u\right) + \left(\left\lfloor h\right\rfloor  \cdot dY.v\right) \cdot \left(\left\lfloor h\right\rfloor  \cdot dY.v\right)\right) + \left(\left\lfloor d\right\rfloor  \cdot dY.w\right) \cdot \left(\left\lfloor d\right\rfloor  \cdot dY.w\right)\right)}\right)
+\]</div></li><li>Add Preprocessing</li><li><p>Final simplification<span class="error" title="53.2% on training set">68.2%</span></p><div class="math">\[\leadsto \log_{2} \left(\sqrt{\mathsf{max}\left(\left(dX.w \cdot \left\lfloor d\right\rfloor \right) \cdot \left(dX.w \cdot \left\lfloor d\right\rfloor \right) + \left(\left(dX.v \cdot \left\lfloor h\right\rfloor \right) \cdot \left(dX.v \cdot \left\lfloor h\right\rfloor \right) + \left(dX.u \cdot \left\lfloor w\right\rfloor \right) \cdot \left(dX.u \cdot \left\lfloor w\right\rfloor \right)\right), \left(dY.w \cdot \left\lfloor d\right\rfloor \right) \cdot \left(dY.w \cdot \left\lfloor d\right\rfloor \right) + \left(\left(dY.v \cdot \left\lfloor h\right\rfloor \right) \cdot \left(dY.v \cdot \left\lfloor h\right\rfloor \right) + \left(dY.u \cdot \left\lfloor w\right\rfloor \right) \cdot \left(dY.u \cdot \left\lfloor w\right\rfloor \right)\right)\right)}\right)
+\]</div></li><li>Add Preprocessing</li></ol></details></section><section id="reproduce"><details><summary><h2>Reproduce</h2><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#reproduction" target="_blank">?</a></summary><pre class="shell"><code>herbie shell --seed 1528405439 
+(FPCore (w h d dX.u dX.v dX.w dY.u dY.v dY.w)
+  :name "Isotropic LOD (LOD)"
+  :precision binary32
+  :pre (and (and (and (and (and (and (and (and (and (&lt;= 1.0 w) (&lt;= w 16384.0)) (and (&lt;= 1.0 h) (&lt;= h 16384.0))) (and (&lt;= 1.0 d) (&lt;= d 4096.0))) (and (&lt;= 1e-20 (fabs dX.u)) (&lt;= (fabs dX.u) 1e+20))) (and (&lt;= 1e-20 (fabs dX.v)) (&lt;= (fabs dX.v) 1e+20))) (and (&lt;= 1e-20 (fabs dX.w)) (&lt;= (fabs dX.w) 1e+20))) (and (&lt;= 1e-20 (fabs dY.u)) (&lt;= (fabs dY.u) 1e+20))) (and (&lt;= 1e-20 (fabs dY.v)) (&lt;= (fabs dY.v) 1e+20))) (and (&lt;= 1e-20 (fabs dY.w)) (&lt;= (fabs dY.w) 1e+20)))
+  (log2 (sqrt (fmax (+ (+ (* (* (floor w) dX.u) (* (floor w) dX.u)) (* (* (floor h) dX.v) (* (floor h) dX.v))) (* (* (floor d) dX.w) (* (floor d) dX.w))) (+ (+ (* (* (floor w) dY.u) (* (floor w) dY.u)) (* (* (floor h) dY.v) (* (floor h) dY.v))) (* (* (floor d) dY.w) (* (floor d) dY.w)))))))
+</code></pre></details></section></body></html>

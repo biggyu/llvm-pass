@@ -1,0 +1,90 @@
+<!doctype html>
+<html><head><meta charset="utf-8"/><title>Result for UniformSampleCone 2</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" integrity="sha384-9tPv11A+glH/on/wEu99NVwDPwkMQESOocs/ZGXPoIiLE8MU/qkqUcZ3zzL+6DuH" crossorigin="anonymous"/><script src="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.js" integrity="sha384-U8Vrjwb8fuHMt6ewaCy8uqeUXv4oitYACKdB0VziCerzt011iQ/0TqlSlv8MReCm" crossorigin="anonymous"></script><script src="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/contrib/auto-render.min.js" integrity="sha384-aGfk5kvhIq5x1x5YdvCp4upKZYnA8ckafviDpmWEKp4afOZEqOli7gqSnh8I6enH" crossorigin="anonymous"></script><script src="https://unpkg.com/mathjs@4.4.2/dist/math.min.js"></script><script src="https://unpkg.com/d3@6.7.0/dist/d3.min.js"></script><script src="https://unpkg.com/@observablehq/plot@0.4.3/dist/plot.umd.min.js"></script><link rel="stylesheet" type="text/css" href="../report.css"/><script src="../report.js"></script></head><body><header><h1>UniformSampleCone 2</h1><img src="../logo-car.png"/><nav><ul><li><a href="../index.html">Report</a></li><li><a href="timeline.html">Metrics</a></li></ul></nav></header><div id="large"><div>Percentage Accurate: <span class="number" title="Minimum Accuracy: 100.0% → 100.0%">100.0%<span class="unit"> → </span>100.0%</span></div><div>Time: <span class="number">2.2s</span></div><div>Alternatives: <span class="number">1</span></div><div>Speedup: <span class="number" title="Relative speed of fastest alternative that improves accuracy.">1.0×</span></div></div><section><details id="specification" class="programs"><summary><h2>Specification</h2><select><option>Math</option><option>FPCore</option><option>TeX</option></select><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#spec" target="_blank">?</a></summary><div><div id="precondition"><div class="program math">\[\left(\left(\left(\left(\left(-10000 \leq xi \land xi \leq 10000\right) \land \left(-10000 \leq yi \land yi \leq 10000\right)\right) \land \left(-10000 \leq zi \land zi \leq 10000\right)\right) \land \left(2.328306437 \cdot 10^{-10} \leq ux \land ux \leq 1\right)\right) \land \left(2.328306437 \cdot 10^{-10} \leq uy \land uy \leq 1\right)\right) \land \left(0 \leq maxCos \land maxCos \leq 1\right)\]</div></div><div class="implementation" data-language="Math"><div class="program math">\[\begin{array}{l}
+
+\\
+\begin{array}{l}
+t_0 := \left(\left(1 - ux\right) \cdot maxCos\right) \cdot ux\\
+t_1 := \sqrt{1 - t\_0 \cdot t\_0}\\
+t_2 := \left(uy \cdot 2\right) \cdot \mathsf{PI}\left(\right)\\
+\left(\left(\cos t\_2 \cdot t\_1\right) \cdot xi + \left(\sin t\_2 \cdot t\_1\right) \cdot yi\right) + t\_0 \cdot zi
+\end{array}
+\end{array}
+\]</div></div><div class="implementation" data-language="FPCore"><pre class="program">
+(FPCore (xi yi zi ux uy maxCos)
+ :precision binary32
+ (let* ((t_0 (* (* (- 1.0 ux) maxCos) ux))
+        (t_1 (sqrt (- 1.0 (* t_0 t_0))))
+        (t_2 (* (* uy 2.0) (PI))))
+   (+ (+ (* (* (cos t_2) t_1) xi) (* (* (sin t_2) t_1) yi)) (* t_0 zi))))</pre></div><div class="implementation" data-language="TeX"><pre class="program">\begin{array}{l}
+
+\\
+\begin{array}{l}
+t_0 := \left(\left(1 - ux\right) \cdot maxCos\right) \cdot ux\\
+t_1 := \sqrt{1 - t\_0 \cdot t\_0}\\
+t_2 := \left(uy \cdot 2\right) \cdot \mathsf{PI}\left(\right)\\
+\left(\left(\cos t\_2 \cdot t\_1\right) \cdot xi + \left(\sin t\_2 \cdot t\_1\right) \cdot yi\right) + t\_0 \cdot zi
+\end{array}
+\end{array}
+</pre></div></div><p>Sampling outcomes in <kbd>binary32</kbd> precision:</p><div class="bogosity"><div class="bogosity-valid" data-id="bogosity-valid" data-type="valid" data-timespan="0.00015922465790476554" title="valid (0.0%)"></div><div class="bogosity-unknown" data-id="bogosity-unknown" data-type="unknown" data-timespan="0" title="unknown (0.0%)"></div><div class="bogosity-infinite" data-id="bogosity-infinite" data-type="infinite" data-timespan="0" title="infinite (0.0%)"></div><div class="bogosity-unsamplable" data-id="bogosity-unsamplable" data-type="unsamplable" data-timespan="0" title="unsamplable (0.0%)"></div><div class="bogosity-invalid" data-id="bogosity-invalid" data-type="invalid" data-timespan="0.0" title="invalid (0.0%)"></div><div class="bogosity-precondition" data-id="bogosity-precondition" data-type="precondition" data-timespan="0.9998407753420953" title="precondition (100.0%)"></div></div></details></section><figure id="graphs"><h2>Local Percentage Accuracy vs <span id="variables"></span><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#graph" target="_blank">?</a></h2><svg></svg><div id="functions"></div><figcaption>The average percentage accuracy by input value. Horizontal axis shows value of an input variable; the variable is choosen in the title. Vertical axis is accuracy; higher is better. Red represent the original program, while blue represents Herbie's suggestion. These can be toggled with buttons below the plot. The line is an average while dots represent individual samples.</figcaption></figure><section id="cost-accuracy" class="section" data-benchmark-name="UniformSampleCone 2"><h2>Accuracy vs Speed<a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#cost-accuracy" target="_blank">?</a></h2><div class="figure-row"><svg></svg><div><p>Herbie found 1 alternatives:</p><table><thead><tr><th>Alternative</th><th class="numeric">Accuracy</th><th class="numeric">Speedup</th></tr></thead><tbody></tbody></table></div></div><figcaption>The accuracy (vertical axis) and speed (horizontal axis) of each alternatives. Up and to the right is better. The red square shows the initial program, and each blue circle shows an alternative.The line shows the best available speed-accuracy tradeoffs.</figcaption></section><section id="initial" class="programs"><h2>Initial Program: <span class="subhead"><data>100.0%</data> accurate, <data>1.0×</data> speedup</span><select><option>Math</option><option>FPCore</option><option>TeX</option></select><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#alternatives" target="_blank">?</a></h2><div><div class="implementation" data-language="Math"><div class="program math">\[\begin{array}{l}
+
+\\
+\begin{array}{l}
+t_0 := \left(\left(1 - ux\right) \cdot maxCos\right) \cdot ux\\
+t_1 := \sqrt{1 - t\_0 \cdot t\_0}\\
+t_2 := \left(uy \cdot 2\right) \cdot \mathsf{PI}\left(\right)\\
+\left(\left(\cos t\_2 \cdot t\_1\right) \cdot xi + \left(\sin t\_2 \cdot t\_1\right) \cdot yi\right) + t\_0 \cdot zi
+\end{array}
+\end{array}
+\]</div></div><div class="implementation" data-language="FPCore"><pre class="program">
+(FPCore (xi yi zi ux uy maxCos)
+ :precision binary32
+ (let* ((t_0 (* (* (- 1.0 ux) maxCos) ux))
+        (t_1 (sqrt (- 1.0 (* t_0 t_0))))
+        (t_2 (* (* uy 2.0) (PI))))
+   (+ (+ (* (* (cos t_2) t_1) xi) (* (* (sin t_2) t_1) yi)) (* t_0 zi))))</pre></div><div class="implementation" data-language="TeX"><pre class="program">\begin{array}{l}
+
+\\
+\begin{array}{l}
+t_0 := \left(\left(1 - ux\right) \cdot maxCos\right) \cdot ux\\
+t_1 := \sqrt{1 - t\_0 \cdot t\_0}\\
+t_2 := \left(uy \cdot 2\right) \cdot \mathsf{PI}\left(\right)\\
+\left(\left(\cos t\_2 \cdot t\_1\right) \cdot xi + \left(\sin t\_2 \cdot t\_1\right) \cdot yi\right) + t\_0 \cdot zi
+\end{array}
+\end{array}
+</pre></div></div></section><section id="alternative1" class="programs"><h2>Alternative 1: <span class="subhead"><data>100.0%</data> accurate, <data>1.0×</data> speedup</span><select><option>Math</option><option>FPCore</option><option>TeX</option></select><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#alternatives" target="_blank">?</a></h2><div><div class="implementation" data-language="Math"><div class="program math">\[\begin{array}{l}
+
+\\
+\begin{array}{l}
+t_0 := \left(maxCos \cdot \left(1 - ux\right)\right) \cdot ux\\
+t_1 := \sqrt{1 - t\_0 \cdot t\_0}\\
+t_2 := \mathsf{PI}\left(\right) \cdot \left(2 \cdot uy\right)\\
+\left(yi \cdot \left(\sin t\_2 \cdot t\_1\right) + xi \cdot \left(t\_1 \cdot \cos t\_2\right)\right) - \left(\left(\left(ux - 1\right) \cdot maxCos\right) \cdot ux\right) \cdot zi
+\end{array}
+\end{array}
+\]</div></div><div class="implementation" data-language="FPCore"><pre class="program">
+(FPCore (xi yi zi ux uy maxCos)
+ :precision binary32
+ (let* ((t_0 (* (* maxCos (- 1.0 ux)) ux))
+        (t_1 (sqrt (- 1.0 (* t_0 t_0))))
+        (t_2 (* (PI) (* 2.0 uy))))
+   (-
+    (+ (* yi (* (sin t_2) t_1)) (* xi (* t_1 (cos t_2))))
+    (* (* (* (- ux 1.0) maxCos) ux) zi))))</pre></div><div class="implementation" data-language="TeX"><pre class="program">\begin{array}{l}
+
+\\
+\begin{array}{l}
+t_0 := \left(maxCos \cdot \left(1 - ux\right)\right) \cdot ux\\
+t_1 := \sqrt{1 - t\_0 \cdot t\_0}\\
+t_2 := \mathsf{PI}\left(\right) \cdot \left(2 \cdot uy\right)\\
+\left(yi \cdot \left(\sin t\_2 \cdot t\_1\right) + xi \cdot \left(t\_1 \cdot \cos t\_2\right)\right) - \left(\left(\left(ux - 1\right) \cdot maxCos\right) \cdot ux\right) \cdot zi
+\end{array}
+\end{array}
+</pre></div></div><details><summary>Derivation</summary><ol class="history"><li><p>Initial program <span class="error" title="100.0% on training set">99.1%</span></p><div class="math">\[\left(\left(\cos \left(\left(uy \cdot 2\right) \cdot \mathsf{PI}\left(\right)\right) \cdot \sqrt{1 - \left(\left(\left(1 - ux\right) \cdot maxCos\right) \cdot ux\right) \cdot \left(\left(\left(1 - ux\right) \cdot maxCos\right) \cdot ux\right)}\right) \cdot xi + \left(\sin \left(\left(uy \cdot 2\right) \cdot \mathsf{PI}\left(\right)\right) \cdot \sqrt{1 - \left(\left(\left(1 - ux\right) \cdot maxCos\right) \cdot ux\right) \cdot \left(\left(\left(1 - ux\right) \cdot maxCos\right) \cdot ux\right)}\right) \cdot yi\right) + \left(\left(\left(1 - ux\right) \cdot maxCos\right) \cdot ux\right) \cdot zi
+\]</div></li><li>Add Preprocessing</li><li><p>Final simplification<span class="error" title="100.0% on training set">99.1%</span></p><div class="math">\[\leadsto \left(yi \cdot \left(\sin \left(\mathsf{PI}\left(\right) \cdot \left(2 \cdot uy\right)\right) \cdot \sqrt{1 - \left(\left(maxCos \cdot \left(1 - ux\right)\right) \cdot ux\right) \cdot \left(\left(maxCos \cdot \left(1 - ux\right)\right) \cdot ux\right)}\right) + xi \cdot \left(\sqrt{1 - \left(\left(maxCos \cdot \left(1 - ux\right)\right) \cdot ux\right) \cdot \left(\left(maxCos \cdot \left(1 - ux\right)\right) \cdot ux\right)} \cdot \cos \left(\mathsf{PI}\left(\right) \cdot \left(2 \cdot uy\right)\right)\right)\right) - \left(\left(\left(ux - 1\right) \cdot maxCos\right) \cdot ux\right) \cdot zi
+\]</div></li><li>Add Preprocessing</li></ol></details></section><section id="reproduce"><details><summary><h2>Reproduce</h2><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#reproduction" target="_blank">?</a></summary><pre class="shell"><code>herbie shell --seed 1528405439 
+(FPCore (xi yi zi ux uy maxCos)
+  :name "UniformSampleCone 2"
+  :precision binary32
+  :pre (and (and (and (and (and (and (&lt;= -10000.0 xi) (&lt;= xi 10000.0)) (and (&lt;= -10000.0 yi) (&lt;= yi 10000.0))) (and (&lt;= -10000.0 zi) (&lt;= zi 10000.0))) (and (&lt;= 2.328306437e-10 ux) (&lt;= ux 1.0))) (and (&lt;= 2.328306437e-10 uy) (&lt;= uy 1.0))) (and (&lt;= 0.0 maxCos) (&lt;= maxCos 1.0)))
+  (+ (+ (* (* (cos (* (* uy 2.0) (PI))) (sqrt (- 1.0 (* (* (* (- 1.0 ux) maxCos) ux) (* (* (- 1.0 ux) maxCos) ux))))) xi) (* (* (sin (* (* uy 2.0) (PI))) (sqrt (- 1.0 (* (* (* (- 1.0 ux) maxCos) ux) (* (* (- 1.0 ux) maxCos) ux))))) yi)) (* (* (* (- 1.0 ux) maxCos) ux) zi)))
+</code></pre></details></section></body></html>
