@@ -187,3 +187,23 @@ done
 echo
 echo "Processed $count | generated $gen_ok | ran $run_ok | clean $clean | skip $skip | fail $fail"
 echo "Timing -> $TIMING_CSV"
+
+COMPARE_LOG="$PROD_DIR/compare_${MODE}_O${OPT}.log"
+
+echo
+echo "[COMPARE] Saving comparison results to:"
+echo "  $COMPARE_LOG"
+
+(
+    cd ./benchmarks/herbie-arith25 || exit 1
+    python3 comp_herbie.py report produced
+) > "$COMPARE_LOG" 2>&1
+
+rc=$?
+
+if [ "$rc" -ne 0 ]; then
+    echo "[WARN] comparison script failed (rc=$rc)"
+    echo "       log: $COMPARE_LOG"
+else
+    echo "[COMPARE] complete"
+fi
