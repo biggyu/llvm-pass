@@ -7,7 +7,16 @@
 // #include <vector>
 #include <cstring>
 #include <climits>
-#define ERRORTHRESHOLD 50.0
+static double load_error_threshold() {
+    if (const char *s = std::getenv("FPCHECK_BITS")) {
+        char *end = nullptr;
+        double v = std::strtod(s, &end);
+        if (end != s) return v;
+        std::fprintf(stderr, "[fpcheck] ignoring invalid FPCHECK_BITS \"%s\"\n", s);
+    }
+    return 50.0;
+}
+double g_error_threshold = load_error_threshold();
 // #include <algorithm>
 // #include <unordered_map>
 // static uint64_t total_checks_double = 0;
@@ -315,7 +324,7 @@ void check_error(double x, double dx, int site_id, int metric) {
             G.xzero++;
             return;
     }
-    if (ulp >= ERRORTHRESHOLD) {
+    if (ulp >= g_error_threshold) {
         G.above_thres++;
     }
 }
@@ -422,7 +431,7 @@ extern "C" void report_debug_summary() {
     }
     FILE *f = fopen(path, "w");
     if (!f) return;
-    fprintf(f, "Error above bits %d found %llu\n", (int)ERRORTHRESHOLD, (unsigned long long) G.above_thres);
+    fprintf(f, "Error above bits %d found %llu\n", (int)g_error_threshold, (unsigned long long) G.above_thres);
     fprintf(f, "Total NaN found %llu\n", (unsigned long long) G.nan);
     fprintf(f, "Total Inf found %llu\n", (unsigned long long) G.inf);
     fprintf(f, "Total branch flips found %llu\n", (unsigned long long) G.branch_flips);
