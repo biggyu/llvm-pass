@@ -156,48 +156,16 @@ int main(int argc, char** argv)
 	      POLYBENCH_ARRAY(x),
 	      POLYBENCH_ARRAY(y));
 
-  POLYBENCH_2D_ARRAY_DECL(A_org, DATA_TYPE, N, N, n, n);
-  memcpy(POLYBENCH_ARRAY(A_org), POLYBENCH_ARRAY(A), sizeof(DATA_TYPE) * N * N);
-  POLYBENCH_1D_ARRAY_DECL(b_org, DATA_TYPE, N, n);
-  memcpy(POLYBENCH_ARRAY(b_org), POLYBENCH_ARRAY(b), sizeof(DATA_TYPE) * N);
-  POLYBENCH_1D_ARRAY_DECL(x_org, DATA_TYPE, N, n);
-  memcpy(POLYBENCH_ARRAY(x_org), POLYBENCH_ARRAY(x), sizeof(DATA_TYPE) * N);
-  POLYBENCH_1D_ARRAY_DECL(y_org, DATA_TYPE, N, n);
-  memcpy(POLYBENCH_ARRAY(y_org), POLYBENCH_ARRAY(y), sizeof(DATA_TYPE) * N);
-  for (int i = 0; i < 3; i++) {
-    memcpy(POLYBENCH_ARRAY(A), POLYBENCH_ARRAY(A_org), sizeof(DATA_TYPE) * N * N);
-    memcpy(POLYBENCH_ARRAY(b), POLYBENCH_ARRAY(b_org), sizeof(DATA_TYPE) * N);
-    memcpy(POLYBENCH_ARRAY(x), POLYBENCH_ARRAY(x_org), sizeof(DATA_TYPE) * N);
-    memcpy(POLYBENCH_ARRAY(y), POLYBENCH_ARRAY(y_org), sizeof(DATA_TYPE) * N);
-    kernel_ludcmp (n,
-       POLYBENCH_ARRAY(A),
-       POLYBENCH_ARRAY(b),
-       POLYBENCH_ARRAY(x),
-       POLYBENCH_ARRAY(y));
-  }
 
   /* Start timer. */
   polybench_start_instruments;
 
   /* Run kernel. */
-  for (int i = 0; i < PB_REPS; i++) {
-    memcpy(POLYBENCH_ARRAY(A), POLYBENCH_ARRAY(A_org), sizeof(DATA_TYPE) * N * N);
-    memcpy(POLYBENCH_ARRAY(b), POLYBENCH_ARRAY(b_org), sizeof(DATA_TYPE) * N);
-    memcpy(POLYBENCH_ARRAY(x), POLYBENCH_ARRAY(x_org), sizeof(DATA_TYPE) * N);
-    memcpy(POLYBENCH_ARRAY(y), POLYBENCH_ARRAY(y_org), sizeof(DATA_TYPE) * N);
-    kernel_ludcmp (n,
-       POLYBENCH_ARRAY(A),
-       POLYBENCH_ARRAY(b),
-       POLYBENCH_ARRAY(x),
-       POLYBENCH_ARRAY(y));
-  }
-
-  /* Run kernel. */
-  // kernel_ludcmp (n,
-	// 	 POLYBENCH_ARRAY(A),
-	// 	 POLYBENCH_ARRAY(b),
-	// 	 POLYBENCH_ARRAY(x),
-	// 	 POLYBENCH_ARRAY(y));
+  kernel_ludcmp (n,
+		 POLYBENCH_ARRAY(A),
+		 POLYBENCH_ARRAY(b),
+		 POLYBENCH_ARRAY(x),
+		 POLYBENCH_ARRAY(y));
 
   /* Stop and print timer. */
   polybench_stop_instruments;
@@ -212,11 +180,6 @@ int main(int argc, char** argv)
   POLYBENCH_FREE_ARRAY(b);
   POLYBENCH_FREE_ARRAY(x);
   POLYBENCH_FREE_ARRAY(y);
-
-  POLYBENCH_FREE_ARRAY(A_org);
-  POLYBENCH_FREE_ARRAY(b_org);
-  POLYBENCH_FREE_ARRAY(x_org);
-  POLYBENCH_FREE_ARRAY(y_org);
 
   return 0;
 }

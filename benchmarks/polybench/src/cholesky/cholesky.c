@@ -116,22 +116,12 @@ int main(int argc, char** argv)
 
   /* Initialize array(s). */
   init_array (n, POLYBENCH_ARRAY(A));
-  POLYBENCH_2D_ARRAY_DECL(A_org, DATA_TYPE, N, N, n, n);
-  memcpy(POLYBENCH_ARRAY(A_org), POLYBENCH_ARRAY(A), sizeof(DATA_TYPE) * N * N);
-
-  for (int i = 0; i < 3; i++) {
-    memcpy(POLYBENCH_ARRAY(A), POLYBENCH_ARRAY(A_org), sizeof(DATA_TYPE) * N * N);
-    kernel_cholesky (n, POLYBENCH_ARRAY(A));
-  }
 
   /* Start timer. */
   polybench_start_instruments;
 
   /* Run kernel. */
-  for (int i = 0; i < PB_REPS; i++) {
-    memcpy(POLYBENCH_ARRAY(A), POLYBENCH_ARRAY(A_org), sizeof(DATA_TYPE) * N * N);
-    kernel_cholesky (n, POLYBENCH_ARRAY(A));
-  }
+  kernel_cholesky (n, POLYBENCH_ARRAY(A));
 
   /* Stop and print timer. */
   polybench_stop_instruments;
@@ -143,8 +133,6 @@ int main(int argc, char** argv)
 
   /* Be clean. */
   POLYBENCH_FREE_ARRAY(A);
-
-  POLYBENCH_FREE_ARRAY(A_org);
 
   return 0;
 }

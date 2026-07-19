@@ -125,41 +125,14 @@ int main(int argc, char** argv)
 	      POLYBENCH_ARRAY(R),
 	      POLYBENCH_ARRAY(Q));
 
-  POLYBENCH_2D_ARRAY_DECL(A_org, DATA_TYPE, M, N, m, n);
-  POLYBENCH_2D_ARRAY_DECL(R_org, DATA_TYPE, N, N, n, n);
-  POLYBENCH_2D_ARRAY_DECL(Q_org, DATA_TYPE, M, N, m, n);
-  memcpy(POLYBENCH_ARRAY(A_org), POLYBENCH_ARRAY(A), sizeof(DATA_TYPE) * M * N);
-  memcpy(POLYBENCH_ARRAY(R_org), POLYBENCH_ARRAY(R), sizeof(DATA_TYPE) * N * N);
-  memcpy(POLYBENCH_ARRAY(Q_org), POLYBENCH_ARRAY(Q), sizeof(DATA_TYPE) * M * N);
-  for (int i = 0; i < 3; i++) {
-    memcpy(POLYBENCH_ARRAY(A), POLYBENCH_ARRAY(A_org), sizeof(DATA_TYPE) * M * N);
-    memcpy(POLYBENCH_ARRAY(R), POLYBENCH_ARRAY(R_org), sizeof(DATA_TYPE) * N * N);
-    memcpy(POLYBENCH_ARRAY(Q), POLYBENCH_ARRAY(Q_org), sizeof(DATA_TYPE) * M * N);
-    kernel_gramschmidt (m, n,
-            POLYBENCH_ARRAY(A),
-            POLYBENCH_ARRAY(R),
-            POLYBENCH_ARRAY(Q));
-  }
-
   /* Start timer. */
   polybench_start_instruments;
-
-  /* Run kernel. */
-  for (int i = 0; i < PB_REPS; i++) {
-    memcpy(POLYBENCH_ARRAY(A), POLYBENCH_ARRAY(A_org), sizeof(DATA_TYPE) * M * N);
-    memcpy(POLYBENCH_ARRAY(R), POLYBENCH_ARRAY(R_org), sizeof(DATA_TYPE) * N * N);
-    memcpy(POLYBENCH_ARRAY(Q), POLYBENCH_ARRAY(Q_org), sizeof(DATA_TYPE) * M * N);
-    kernel_gramschmidt (m, n,
-            POLYBENCH_ARRAY(A),
-            POLYBENCH_ARRAY(R),
-            POLYBENCH_ARRAY(Q));
-  }
   
   /* Run kernel. */
-  // kernel_gramschmidt (m, n,
-	// 	      POLYBENCH_ARRAY(A),
-	// 	      POLYBENCH_ARRAY(R),
-	// 	      POLYBENCH_ARRAY(Q));
+  kernel_gramschmidt (m, n,
+		      POLYBENCH_ARRAY(A),
+		      POLYBENCH_ARRAY(R),
+		      POLYBENCH_ARRAY(Q));
 
   /* Stop and print timer. */
   polybench_stop_instruments;
@@ -173,10 +146,6 @@ int main(int argc, char** argv)
   POLYBENCH_FREE_ARRAY(A);
   POLYBENCH_FREE_ARRAY(R);
   POLYBENCH_FREE_ARRAY(Q);
-
-  POLYBENCH_FREE_ARRAY(A_org);
-  POLYBENCH_FREE_ARRAY(R_org);
-  POLYBENCH_FREE_ARRAY(Q_org);
 
   return 0;
 }

@@ -102,35 +102,14 @@ int main(int argc, char** argv)
 	      POLYBENCH_ARRAY(A),
 	      POLYBENCH_ARRAY(C4));
 
-  POLYBENCH_3D_ARRAY_DECL(A_org, DATA_TYPE,NR,NQ,NP,nr,nq,np);
-  memcpy(POLYBENCH_ARRAY(A_org), POLYBENCH_ARRAY(A), sizeof(DATA_TYPE) * NR * NQ * NP);
-  POLYBENCH_2D_ARRAY_DECL(C4_org, DATA_TYPE,NP,NP,np,np);
-  memcpy(POLYBENCH_ARRAY(C4_org), POLYBENCH_ARRAY(C4), sizeof(DATA_TYPE) * NP * NP);
-  POLYBENCH_1D_ARRAY_DECL(sum_org,DATA_TYPE,NP,np);
-  memcpy(POLYBENCH_ARRAY(sum_org), POLYBENCH_ARRAY(sum), sizeof(DATA_TYPE) * NP);
-  for (int i = 0; i < 3; i++) {
-    memcpy(POLYBENCH_ARRAY(A), POLYBENCH_ARRAY(A_org), sizeof(DATA_TYPE) * NR * NQ * NP);
-    memcpy(POLYBENCH_ARRAY(C4), POLYBENCH_ARRAY(C4_org), sizeof(DATA_TYPE) * NP * NP);
-    memcpy(POLYBENCH_ARRAY(sum), POLYBENCH_ARRAY(sum_org), sizeof(DATA_TYPE) * NP);
-    kernel_doitgen (nr, nq, np,
-        POLYBENCH_ARRAY(A),
-        POLYBENCH_ARRAY(C4),
-        POLYBENCH_ARRAY(sum));
-  }
-
   /* Start timer. */
   polybench_start_instruments;
 
   /* Run kernel. */
-  for (int i = 0; i < PB_REPS; i++) {
-    memcpy(POLYBENCH_ARRAY(A), POLYBENCH_ARRAY(A_org), sizeof(DATA_TYPE) * NR * NQ * NP);
-    memcpy(POLYBENCH_ARRAY(C4), POLYBENCH_ARRAY(C4_org), sizeof(DATA_TYPE) * NP * NP);
-    memcpy(POLYBENCH_ARRAY(sum), POLYBENCH_ARRAY(sum_org), sizeof(DATA_TYPE) * NP);
-    kernel_doitgen (nr, nq, np,
-        POLYBENCH_ARRAY(A),
-        POLYBENCH_ARRAY(C4),
-        POLYBENCH_ARRAY(sum));
-  }
+  kernel_doitgen (nr, nq, np,
+      POLYBENCH_ARRAY(A),
+      POLYBENCH_ARRAY(C4),
+      POLYBENCH_ARRAY(sum));
 
   /* Stop and print timer. */
   polybench_stop_instruments;
