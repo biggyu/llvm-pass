@@ -152,26 +152,29 @@ benchmarks/herbie-arith25/report/<benchmark>/
 
 ```sh
 # Correctness: run each benchmark using Herbie's worst-case inputs
-sh scripts/herbie.sh <MAX> worst <OPT>
+sh scripts/herbie_single.sh <MAX> worst <OPT>
 
 # Timing: run each benchmark using Herbie's sampled inputs
-sh scripts/herbie.sh <MAX> sample <OPT>
+sh scripts/herbie_single.sh <MAX> sample <OPT>
+
+# Run both sample & worst on O0, O1, and O2
+sh scripts/herbie.sh
 ```
 
 | Argument | Default | Description |
 |---|---:|---|
 | `MAX` | `5` | Maximum number of benchmarks to run. Use `0` to run all benchmarks. |
 | `MODE` | `sample` | Input mode: `worst` or `sample`. |
-| `OPT` | `0` | Compiler optimization level: `0`, `1`, `2`, or `3`. |
+| `OPT` | `0` | Compiler optimization level: `0`, `1`, or `2`. |
 
 Examples:
 
 ```sh
 # Run all benchmarks in correctness mode at O0
-sh scripts/herbie.sh 0 worst 0
+sh scripts/herbie_single.sh 0 worst 0
 
 # Run the first 50 benchmarks in timing mode at O2
-sh scripts/herbie.sh 50 sample 2
+sh scripts/herbie_single.sh 50 sample 2
 ```
 
 ### Herbie Outputs
@@ -181,6 +184,7 @@ Results are written to:
 - `benchmarks/herbie-arith25/src/` — generated C sources
 - `benchmarks/herbie-arith25/expected/<benchmark>/` — reference build artifacts and logs
 - `benchmarks/herbie-arith25/produced/timing_O<OPT>.csv` — timing results for `sample` mode
+- `benchmarks/herbie-arith25/produced/compare_<MODE>_O<OPT>.log` — comparison of herbie vs results
 - `benchmarks/herbie-arith25/produced/<benchmark>/error.log` — pass output for each benchmark
 
 ### Compare Against Herbie
@@ -246,23 +250,26 @@ The script is POSIX-shell compatible and may be executed with `sh`.
 ### Run PolyBench
 
 ```sh
-sh scripts/polybench.sh <DATASET> <OPT> <MAX>
+sh scripts/polybench_single.sh <DATASET> <OPT> <MAX>
+
+# Runs all dataset, opt
+sh scripts/polybench.sh
 ```
 
 | Argument | Default | Description |
 |---|---:|---|
-| `DATASET` | `SMALL` | Dataset size: `MINI`, `SMALL`, `MEDIUM`, `LARGE`, or `EXTRALARGE`. |
-| `OPT` | `0` | Compiler optimization level: `0`, `1`, `2`, or `3`. |
+| `DATASET` | `SMALL` | Dataset size: `MINI`, `SMALL`, `MEDIUM`, or `LARGE`. |
+| `OPT` | `0` | Compiler optimization level: `0`, `1`, or `2`. |
 | `MAX` | `0` | Maximum number of benchmarks to run. Use `0` to run all benchmarks. |
 
 Examples:
 
 ```sh
 # Run all MINI benchmarks at O0
-sh scripts/polybench.sh MINI 0 0
+sh scripts/polybench_single.sh MINI 0 0
 
 # Run the first 10 MEDIUM benchmarks at O2
-sh scripts/polybench.sh MEDIUM 2 10
+sh scripts/polybench_single.sh MEDIUM 2 10
 ```
 
 ### Baseline and Instrumented Repetitions
@@ -272,15 +279,11 @@ The baseline and instrumented binaries use separate repetition counts because th
 The repetition counts may be overridden through environment variables:
 
 ```sh
-PB_BASE_REPS=100000 \
-PB_INST_REPS=200 \
-sh scripts/polybench.sh MINI 0 0
+sh scripts/polybench_single.sh MINI 0 0
 ```
 
 | Variable | Description |
 |---|---|
-| `PB_BASE_REPS` | Number of kernel repetitions in the baseline binary. |
-| `PB_INST_REPS` | Number of kernel repetitions in the instrumented binary. |
 | `FPCHECK_THRESHOLD` | Reporting threshold passed to the runtime. The script default is `1e15`. |
 | `LLVM_CLANG` | Path or command name for `clang`. |
 | `LLVM_CLANGXX` | Path or command name for `clang++`. |
