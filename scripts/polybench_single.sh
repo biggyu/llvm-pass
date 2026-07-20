@@ -66,16 +66,11 @@ BENCH_LIST="$OUT_DIR/.polybench_benchmarks.$$"
 trap 'rm -f "$BENCH_LIST"' EXIT HUP INT TERM
 
 find "$SRC_DIR" -mindepth 1 -maxdepth 1 -type d -print | sort |
-# while IFS= read -r bench_dir; do
-#     name=$(basename "$bench_dir")
-#     bench_c="$bench_dir/$name.c"
-#     [ -f "$bench_c" ] && printf '%s\n' "$bench_c"
-# done > "$BENCH_LIST"
-cat > "$BENCH_LIST" <<'EOF'
-./benchmarks/polybench/src/adi/adi.c
-./benchmarks/polybench/src/heat-3d/heat-3d.c
-./benchmarks/polybench/src/seidel-2d/seidel-2d.c
-EOF
+while IFS= read -r bench_dir; do
+    name=$(basename "$bench_dir")
+    bench_c="$bench_dir/$name.c"
+    [ -f "$bench_c" ] && printf '%s\n' "$bench_c"
+done > "$BENCH_LIST"
 
 bench_count=$(wc -l < "$BENCH_LIST" | awk '{print $1}')
 if [ "$bench_count" -eq 0 ]; then
