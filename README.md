@@ -1,4 +1,4 @@
-# FP Error Analysis with Condition Numbers
+# Efficiently combining error-free transformations and condition numbers for floating-point debugging tools
 
 An LLVM instrumentation pass that combines EFT shadow execution with condition-number analysis to detect numerical errors and classify their mechanism (catastrophic cancellation vs. input sensitivity)
 
