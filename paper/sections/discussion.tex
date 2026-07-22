@@ -1,0 +1,18 @@
+\section{Discussion}
+
+\subsection{Understanding PlolyBench Overhead}
+
+We observed that the \texttt{-O1} configuration occasionally exhibits higher overhead than both \texttt{-O0} and \texttt{-O2}. We hypothesize that the optimization pipeline inhibits later simplifications of the inserted instrumentation while also increasing execution frequency through transformations such as loop restructuring. A detailed investigation of this interaction between LLVM optimization and instrumentation is left as future work.
+
+\subsection{Representable Range Limitations}
+
+Our current implementation detects overflow through the resulting IEEE-754 exceptional values (NaN and $\pm\infty$) rather than through a dedicated overflow oracle. Consequently, once an intermediate value exceeds the representable range, the analysis can determine that overflow occurred but cannot accurately distinguish between different causes of overflow or quantify how far the computation exceeded the representable range.
+
+Similarly, the current implementation does not explicitly analyze gradual underflow or subnormal behavior. Although underflow ultimately manifests through ordinary floating-point semantics, accurately tracking precision loss in the subnormal region would require extending the shadow representation with a dedicated exponent-range model.
+
+\subsection{Sensitivity Beyond the Floating-Point Dynamic Range}
+\label{sec:disc_sensitivity}
+
+Our experiments reveal that condition-number analysis becomes less informative once computations leave the representable floating-point range. Under Herbie's worst-case inputs, 23 benchmarks are classified as sensitivity cases, of which 21 also overflow. This behavior is expected for functions such as $\exp(x)$, whose relative condition number is simply $|x|$. At the extremely large input magnitudes used by Herbie (approximately $10^{18}$--$10^{299}$), the condition number naturally exceeds any practical threshold, while the floating-point computation simultaneously overflows. Consequently, both the condition-number analysis and the overflow detector report the same underlying numerical phenomenon. 
+
+Although the sensitivity classification remains mathematically correct, it provides little additional diagnostic information once overflow has occurred. This observation suggests that analyses based solely on condition numbers become saturated outside the representable dynamic range. A promising direction is the incorporation of a logarithmic oracle, similar to the approach proposed by ExplainiFloat, which explicitly tracks numerical magnitude beyond IEEE-754's exponent range and would allow sensitivity and overflow to be distinguished even after the floating-point representation itself has saturated.

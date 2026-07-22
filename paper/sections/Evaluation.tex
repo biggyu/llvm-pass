@@ -1,0 +1,82 @@
+\section{Evaluation}
+\label{sec:evaluation}
+
+\subsection{Experimental Setup}
+\label{sec:experiment setup}
+We evaluate the proposed LLVM pass using the Herbie-arith25 benchmark suite and the PolyBench benchmark suite. Experiments were performed using LLVM 21, compiled with optimization levels as O0, O1, and O2. Runtime overhead is measured as the ratio between instrumented and uninstrumented executions. 
+
+\subsection{Correctness Evaluation}
+\label{sec:correctness}
+
+\subsubsection{Agreement with Herbie}
+\label{sec:agreement}
+To evaluate the correctness of the proposed runtime analysis, we compare the numerical issue categories reported by our debugger against Herbie’s oracle on the 335 benchmarks. We report agreement at \texttt{-O0} to minimize divergence between the executed operations and the expression Herbie analyzes, not an exact correspondence. Agreement is reported using the binaries compiled with \texttt{-O0} so that the executed floating-point operations closely match the original program analyzed by Herbie. On the 180 benchmarks Herbie reports as clean, EFT-only and EFT + condition number produce comparable false-positive rates(40, 41), so the recall gain from condition number incurs negligible precision cost.
+
+\input{tables/herbie_agreements}
+
+Table~\ref{tab:herbie_agreements} summarizes the agreement results. Our debugger agrees with Herbie on all 335 benchmarks. Among these, 64 benchmarks are classified as cancellation, 16 as sensitivity, 118 as overflow, and 137 as general floating-point errors. These category counts suggests that the integrated analysis correctly identifies numerical issues reported by Herbie. We also evaluated the framework using Herbie's worst case inputs. The resulting classifications are consistent with the input-sampling evaluation, providing additional confidence that the proposed runtime analysis remains reliable across different inputs.
+
+
+\subsection{Complementary Analysis}
+\label{sec:complementary}
+
+\subsubsection{EFT vs. Condition Numbers}
+\label{sec:eftvscond}
+
+To evaluate the benefit of incorporating condition numbers, we compare the classifications produced by EFT alone with those obtained from the combined EFT and condition-number analysis. Table~\ref{tab:eftvseft_cond} summarizes the results over the 335 Herbie benchmarks.
+
+\input{tables/eftvseft_cond}
+
+Overflow is detected equally well by both approaches because it directly produces exceptional floating-point values. In contrast, cancellation and sensitivity cannot be reliably distinguished using EFT residuals alone. Without condition numbers, these benchmarks are instead grouped into a general error category. As a result, EFT alone fails to identify 39 benchmarks that Herbie reports as numerically unstable. By incorporating condition numbers, all 39 previously undetected cases are correctly classified, while the remaining general errors are reduced from 178 to 137 benchmarks. These results demonstrate that EFT and condition numbers provide complementary information. EFT accurately measures accumulated rounding error, whereas condition numbers detect instability that is not reflected by the EFT residual alone.
+
+For example, consider the benchmark \texttt{3fracproblem333}, which computes $1/(x+1)-2/x + 1/(x-1)$. At the driven inputs, the EFT bit metric reports no error at the default 50-bit threshold, yet the condition-number analysis flags catastrophic cancellation, and Herbie's oracle confirms error on 95 sampled inputs out of 256. The near-equal reciprocal terms cancel, deestroying signdificant digits, but the accumulated EFT residual remains below the reporting threshold - so EFT-only tracking passes the benchmark while the condition number correctly identifies the instability.
+
+\subsubsection{Threshold Sweep}
+\label{sec:thresholdsweep}
+
+The previous experiment shows that EFT alone fails to detect 39 benchmarks that are identified when condition numbers are incorporated. One possible explanation is that the EFT threshold is simply too conservative. To investigate this possibility, we perform a threshold sweep on the EFT bit metric.
+
+\input{tables/threshold_sweep}
+
+Table~\ref{tab:theshold_sweep} reports how many of the 39 previously undetected benchmarks are detected as the threshold is progressively lowered. At the default threshold of 50 bits, none of the 39 benchmarks is reported. Lowering the threshold to 20 bits detects only 4 of the 39 benchmarks while producing 54 total reports. Detecting all 39 benchmarks requires reducing the threshold to 10 bits, at which point 329 of the 335 benchmarks are reported. At thresholds of 5 bits and below, every benchmark is flagged.
+
+This experiment suggests that the 39 benchmark cannot be recovered by simply tuning the EFT threshold. Achieving complete coverage requires a threshold that reports nearly every benchmark, substantially reducing the usefulness of the analysis. Instead, condition numbers identify these numerically unstable cases while preserving the selectivity of EFT, demonstrating that the two analyses are complementary rather than interchangeable.
+
+\subsubsection{Disambiguating Sensitivity and Overflow}
+\label{sec:disambiguate}
+Under sampled inputs at \texttt{-O0}, condition-number analysis flags 30 benchmarks as sensitivity. The EFT/overflow track reveals that 14 of these also overflow. Examining the two sets shows they are semantically distinct: the 16 genuine-sensitivity benchmarks are predominantly trigonometric and great-circle/geometric computations (e.g. Sphericallawofcosines, Bearing, Distance-on-great-circle), where input-sensitivity is the expected failure mode; the 14 overlapping benchmarks are dominated by exp-family and exponential-growth operations(e.g. expax, CompoundInterest, ert/erfc-based distributions), where the large-input condition number and overflow are the same underlying phenomenon. Condition-number analysis alone (as in ExplainiFloat~\cite{explainifloat}) reports all 30 as sensitivity and cannot distinguish these classes, since exp's sensitivity condition number $\lvert x \rvert$ and its overflow both trigger at large x. Even though the EFT residual/overflow signal disambiguate them, this was rather an emergent property of running both analyses than an intended design. However the observation indicates that these two signals are co-located and can therefore cross-check each other. Building an automatic reclassification rule on top of this observation is straightforward and is future work.
+
+\subsection{Runtime Overhead}
+\label{sec:runtimeoverhead}
+
+\subsubsection{Herbie Benchmark}
+\label{sec:herbie_overhead}
+Using the 335 benchmarks agreed with Herbie, Table~\ref{tab:herbie_overhead} shows the result of overhead ratio of each \texttt{-O0}, \texttt{-O1}, and \texttt{-O2} using sampled inputs. The results demonstrate that compiler optimization substantially reduces the runtime cost of the instrumentation. At \texttt{-O0}, the median overhead is about 56$\times$, reflecting the cost without optimization. \texttt{-O1} reduces the median overhead to about 10$\times$, while \texttt{-O2} further decreases it to 2.5$\times$, indicating that most instrumentation overhead can be optimized by LLVM.
+
+The reduction is also evident in the geometric mean, which decreases from about 60$\times$ at \texttt{-O0} to 15$\times$ at \texttt{-O1} and 3.5$\times$ at \texttt{-O2}. Since execution-time overhead is multiplicative and contains several outliers, the geometric mean provides a more representative measure of the typical slowdown than the arithmetic mean.
+
+The arithmetic mean remains considerably larger because a small number of benchmarks exhibit extremely high overhead. These outliers dominate the average but represent only a small fraction of the benchmark suite. Consequently, the median and geometric mean better characterize the performance experienced by most programs.
+
+The distribution of overhead also becomes significantly tighter as optimization increases. For \texttt{-O0}, the interquartile range spans approximately 40$\times$ - 83$\times$, indicating uniformly high overhead across the benchmark suite. This narrows roughly to 7$\times$ - 30$\times$ under \texttt{-O1} and to only 2.43$\times$ – 3.35$\times$ under \texttt{-O2}, demonstrating that the majority of the benchmark incur only a small and consistent slowdown after optimization.
+
+\input{tables/herbie_overhead}
+
+\subsubsection{Worst-case Validation}
+\label{worstcase}
+A few benchmarks remain significant outliers. Table~\ref{tab:herbie_worst} shows the three largest overheads observed at each optimizations. Most of these benchmarks have extremely short baseline execution times, only a few tens of nanoseconds per iteration. Consequently, even a modest increase in absolute runtime produces a large overhead ratio. Despite the high relative slowdowns, the instrumented execution times remain below 0.01 ms per iteration, indicating that the high ratios primarily reflect the tiny baseline kernels rather than prohibitively expensive instrumentation.
+
+\input{tables/herbie_worst}
+
+Overall, the Herbie evaluation suggests that the runtime overhead of the proposed floating-point analysis is strongly influenced by compiler optimization. While unoptimized binaries incur substantial slowdown, LLVM optimization effectively simplifies the inserted instrumentation, reducing the typical overhead to approximately 2.5$\times$ at \texttt{-O2} for the majority of benchmarks. The remaining high-overhead cases are concentrated in a small number of extremely lightweight kernels, suggesting that the analysis cost is largely amortized in realistic workloads containing more substantial floating-point computation.
+
+
+\subsubsection{Polybench}
+\label{sec:polybench_overhead}
+
+Table~\ref{tab:polybench_overhead} summarizes the runtime overhead on the PolyBench benchmark suite across four dataset sizes and three compiler optimization levels. Unlike the Herbie benchmarks, PolyBench consists of larger numerical kernels whose execution time is dominated by long-running floating-point computations, providing a complementary evaluation of the instrumentation overhead.
+
+Across all dataset sizes, the proposed instrumentation incurs a consistent slowdown, with median overheads ranging from approximately 39$\times$ to 214$\times$. The \texttt{-O1} configuration generally exhibits the highest overhead, while \texttt{-O2} reduces the slowdown for most datasets by enabling additional compiler optimizations. The remaining overhead reflects the fact that the inserted analysis is executed within the kernels' innermost loops and therefore cannot be eliminated by optimization alone.
+
+Compared with the Herbie benchmarks, the PolyBench suite exhibits substantially larger overheads because its computational kernels execute the inserted instrumentation repeatedly over large iteration spaces. Despite this increase, the overhead remains stable across different dataset sizes, demonstrating that the proposed analysis scales predictably to realistic scientific workloads.
+
+\input{tables/polybench_overhead}

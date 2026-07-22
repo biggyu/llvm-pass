@@ -1,0 +1,311 @@
+<!doctype html>
+<html><head><meta charset="utf-8"/><title>Result for Data.Colour.Matrix:determinant from colour-2.3.3, A</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" integrity="sha384-9tPv11A+glH/on/wEu99NVwDPwkMQESOocs/ZGXPoIiLE8MU/qkqUcZ3zzL+6DuH" crossorigin="anonymous"/><script src="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.js" integrity="sha384-U8Vrjwb8fuHMt6ewaCy8uqeUXv4oitYACKdB0VziCerzt011iQ/0TqlSlv8MReCm" crossorigin="anonymous"></script><script src="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/contrib/auto-render.min.js" integrity="sha384-aGfk5kvhIq5x1x5YdvCp4upKZYnA8ckafviDpmWEKp4afOZEqOli7gqSnh8I6enH" crossorigin="anonymous"></script><script src="https://unpkg.com/mathjs@4.4.2/dist/math.min.js"></script><script src="https://unpkg.com/d3@6.7.0/dist/d3.min.js"></script><script src="https://unpkg.com/@observablehq/plot@0.4.3/dist/plot.umd.min.js"></script><link rel="stylesheet" type="text/css" href="../report.css"/><script src="../report.js"></script></head><body><header><h1>Data.Colour.Matrix:determinant from colour-2.3.3, A</h1><img src="../logo-car.png"/><nav><ul><li><a href="../index.html">Report</a></li><li><a href="timeline.html">Metrics</a></li></ul></nav></header><div id="large"><div>Percentage Accurate: <span class="number" title="Minimum Accuracy: 100.0% → 100.0%">100.0%<span class="unit"> → </span>100.0%</span></div><div>Time: <span class="number">1.8s</span></div><div>Alternatives: <span class="number">1</span></div><div>Speedup: <span class="number" title="Relative speed of fastest alternative that improves accuracy.">1.0×</span></div></div><ul class="warnings"><li><h2>58.8% of points produce a very large (infinite) output. You may want to add a precondition.<a href="https://herbie.uwplse.org/doc/2.2/faq.html#inf-points"> (more)</a></h2></li></ul><section><details id="specification" class="programs"><summary><h2>Specification</h2><select><option>Math</option><option>FPCore</option><option>C</option><option>Fortran</option><option>Java</option><option>Python</option><option>Julia</option><option>MATLAB</option><option>Wolfram</option><option>TeX</option></select><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#spec" target="_blank">?</a></summary><div><div class="implementation" data-language="Math"><div class="program math">\[\begin{array}{l}
+
+\\
+\left(x \cdot \left(y \cdot z - t \cdot a\right) - b \cdot \left(c \cdot z - t \cdot i\right)\right) + j \cdot \left(c \cdot a - y \cdot i\right)
+\end{array}
+\]</div></div><div class="implementation" data-language="FPCore"><pre class="program">
+(FPCore (x y z t a b c i j)
+ :precision binary64
+ (+
+  (- (* x (- (* y z) (* t a))) (* b (- (* c z) (* t i))))
+  (* j (- (* c a) (* y i)))))</pre></div><div class="implementation" data-language="C"><pre class="program">
+double code(double x, double y, double z, double t, double a, double b, double c, double i, double j) {
+	return ((x * ((y * z) - (t * a))) - (b * ((c * z) - (t * i)))) + (j * ((c * a) - (y * i)));
+}
+</pre></div><div class="implementation" data-language="Fortran"><pre class="program">
+real(8) function code(x, y, z, t, a, b, c, i, j)
+use fmin_fmax_functions
+    real(8), intent (in) :: x
+    real(8), intent (in) :: y
+    real(8), intent (in) :: z
+    real(8), intent (in) :: t
+    real(8), intent (in) :: a
+    real(8), intent (in) :: b
+    real(8), intent (in) :: c
+    real(8), intent (in) :: i
+    real(8), intent (in) :: j
+    code = ((x * ((y * z) - (t * a))) - (b * ((c * z) - (t * i)))) + (j * ((c * a) - (y * i)))
+end function
+</pre></div><div class="implementation" data-language="Java"><pre class="program">
+public static double code(double x, double y, double z, double t, double a, double b, double c, double i, double j) {
+	return ((x * ((y * z) - (t * a))) - (b * ((c * z) - (t * i)))) + (j * ((c * a) - (y * i)));
+}
+</pre></div><div class="implementation" data-language="Python"><pre class="program">
+def code(x, y, z, t, a, b, c, i, j):
+	return ((x * ((y * z) - (t * a))) - (b * ((c * z) - (t * i)))) + (j * ((c * a) - (y * i)))
+</pre></div><div class="implementation" data-language="Julia"><pre class="program">
+function code(x, y, z, t, a, b, c, i, j)
+	return Float64(Float64(Float64(x * Float64(Float64(y * z) - Float64(t * a))) - Float64(b * Float64(Float64(c * z) - Float64(t * i)))) + Float64(j * Float64(Float64(c * a) - Float64(y * i))))
+end
+</pre></div><div class="implementation" data-language="MATLAB"><pre class="program">
+function tmp = code(x, y, z, t, a, b, c, i, j)
+	tmp = ((x * ((y * z) - (t * a))) - (b * ((c * z) - (t * i)))) + (j * ((c * a) - (y * i)));
+end
+</pre></div><div class="implementation" data-language="Wolfram"><pre class="program">
+code[x_, y_, z_, t_, a_, b_, c_, i_, j_] := N[(N[(N[(x * N[(N[(y * z), $MachinePrecision] - N[(t * a), $MachinePrecision]), $MachinePrecision]), $MachinePrecision] - N[(b * N[(N[(c * z), $MachinePrecision] - N[(t * i), $MachinePrecision]), $MachinePrecision]), $MachinePrecision]), $MachinePrecision] + N[(j * N[(N[(c * a), $MachinePrecision] - N[(y * i), $MachinePrecision]), $MachinePrecision]), $MachinePrecision]), $MachinePrecision]
+</pre></div><div class="implementation" data-language="TeX"><pre class="program">\begin{array}{l}
+
+\\
+\left(x \cdot \left(y \cdot z - t \cdot a\right) - b \cdot \left(c \cdot z - t \cdot i\right)\right) + j \cdot \left(c \cdot a - y \cdot i\right)
+\end{array}
+</pre></div></div><p>Sampling outcomes in <kbd>binary64</kbd> precision:</p><div class="bogosity"><div class="bogosity-valid" data-id="bogosity-valid" data-type="valid" data-timespan="0.4097334711501607" title="valid (41.0%)"></div><div class="bogosity-unknown" data-id="bogosity-unknown" data-type="unknown" data-timespan="0" title="unknown (0.0%)"></div><div class="bogosity-infinite" data-id="bogosity-infinite" data-type="infinite" data-timespan="0.5858805708969588" title="infinite (58.6%)"></div><div class="bogosity-unsamplable" data-id="bogosity-unsamplable" data-type="unsamplable" data-timespan="0" title="unsamplable (0.0%)"></div><div class="bogosity-invalid" data-id="bogosity-invalid" data-type="invalid" data-timespan="0.0" title="invalid (0.0%)"></div><div class="bogosity-precondition" data-id="bogosity-precondition" data-type="precondition" data-timespan="0.004385957952880548" title="precondition (0.4%)"></div></div></details></section><figure id="graphs"><h2>Local Percentage Accuracy vs <span id="variables"></span><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#graph" target="_blank">?</a></h2><svg></svg><div id="functions"></div><figcaption>The average percentage accuracy by input value. Horizontal axis shows value of an input variable; the variable is choosen in the title. Vertical axis is accuracy; higher is better. Red represent the original program, while blue represents Herbie's suggestion. These can be toggled with buttons below the plot. The line is an average while dots represent individual samples.</figcaption></figure><section id="cost-accuracy" class="section" data-benchmark-name="Data.Colour.Matrix:determinant from colour-2.3.3, A"><h2>Accuracy vs Speed<a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#cost-accuracy" target="_blank">?</a></h2><div class="figure-row"><svg></svg><div><p>Herbie found 1 alternatives:</p><table><thead><tr><th>Alternative</th><th class="numeric">Accuracy</th><th class="numeric">Speedup</th></tr></thead><tbody></tbody></table></div></div><figcaption>The accuracy (vertical axis) and speed (horizontal axis) of each alternatives. Up and to the right is better. The red square shows the initial program, and each blue circle shows an alternative.The line shows the best available speed-accuracy tradeoffs.</figcaption></section><section id="initial" class="programs"><h2>Initial Program: <span class="subhead"><data>100.0%</data> accurate, <data>1.0×</data> speedup</span><select><option>Math</option><option>FPCore</option><option>C</option><option>Fortran</option><option>Java</option><option>Python</option><option>Julia</option><option>MATLAB</option><option>Wolfram</option><option>TeX</option></select><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#alternatives" target="_blank">?</a></h2><div><div class="implementation" data-language="Math"><div class="program math">\[\begin{array}{l}
+
+\\
+\left(x \cdot \left(y \cdot z - t \cdot a\right) - b \cdot \left(c \cdot z - t \cdot i\right)\right) + j \cdot \left(c \cdot a - y \cdot i\right)
+\end{array}
+\]</div></div><div class="implementation" data-language="FPCore"><pre class="program">
+(FPCore (x y z t a b c i j)
+ :precision binary64
+ (+
+  (- (* x (- (* y z) (* t a))) (* b (- (* c z) (* t i))))
+  (* j (- (* c a) (* y i)))))</pre></div><div class="implementation" data-language="C"><pre class="program">
+double code(double x, double y, double z, double t, double a, double b, double c, double i, double j) {
+	return ((x * ((y * z) - (t * a))) - (b * ((c * z) - (t * i)))) + (j * ((c * a) - (y * i)));
+}
+</pre></div><div class="implementation" data-language="Fortran"><pre class="program">
+real(8) function code(x, y, z, t, a, b, c, i, j)
+use fmin_fmax_functions
+    real(8), intent (in) :: x
+    real(8), intent (in) :: y
+    real(8), intent (in) :: z
+    real(8), intent (in) :: t
+    real(8), intent (in) :: a
+    real(8), intent (in) :: b
+    real(8), intent (in) :: c
+    real(8), intent (in) :: i
+    real(8), intent (in) :: j
+    code = ((x * ((y * z) - (t * a))) - (b * ((c * z) - (t * i)))) + (j * ((c * a) - (y * i)))
+end function
+</pre></div><div class="implementation" data-language="Java"><pre class="program">
+public static double code(double x, double y, double z, double t, double a, double b, double c, double i, double j) {
+	return ((x * ((y * z) - (t * a))) - (b * ((c * z) - (t * i)))) + (j * ((c * a) - (y * i)));
+}
+</pre></div><div class="implementation" data-language="Python"><pre class="program">
+def code(x, y, z, t, a, b, c, i, j):
+	return ((x * ((y * z) - (t * a))) - (b * ((c * z) - (t * i)))) + (j * ((c * a) - (y * i)))
+</pre></div><div class="implementation" data-language="Julia"><pre class="program">
+function code(x, y, z, t, a, b, c, i, j)
+	return Float64(Float64(Float64(x * Float64(Float64(y * z) - Float64(t * a))) - Float64(b * Float64(Float64(c * z) - Float64(t * i)))) + Float64(j * Float64(Float64(c * a) - Float64(y * i))))
+end
+</pre></div><div class="implementation" data-language="MATLAB"><pre class="program">
+function tmp = code(x, y, z, t, a, b, c, i, j)
+	tmp = ((x * ((y * z) - (t * a))) - (b * ((c * z) - (t * i)))) + (j * ((c * a) - (y * i)));
+end
+</pre></div><div class="implementation" data-language="Wolfram"><pre class="program">
+code[x_, y_, z_, t_, a_, b_, c_, i_, j_] := N[(N[(N[(x * N[(N[(y * z), $MachinePrecision] - N[(t * a), $MachinePrecision]), $MachinePrecision]), $MachinePrecision] - N[(b * N[(N[(c * z), $MachinePrecision] - N[(t * i), $MachinePrecision]), $MachinePrecision]), $MachinePrecision]), $MachinePrecision] + N[(j * N[(N[(c * a), $MachinePrecision] - N[(y * i), $MachinePrecision]), $MachinePrecision]), $MachinePrecision]), $MachinePrecision]
+</pre></div><div class="implementation" data-language="TeX"><pre class="program">\begin{array}{l}
+
+\\
+\left(x \cdot \left(y \cdot z - t \cdot a\right) - b \cdot \left(c \cdot z - t \cdot i\right)\right) + j \cdot \left(c \cdot a - y \cdot i\right)
+\end{array}
+</pre></div></div></section><section id="alternative1" class="programs"><h2>Alternative 1: <span class="subhead"><data>100.0%</data> accurate, <data>1.0×</data> speedup</span><select><option>Math</option><option>FPCore</option><option>C</option><option>Fortran</option><option>Java</option><option>Python</option><option>Julia</option><option>MATLAB</option><option>Wolfram</option><option>TeX</option></select><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#alternatives" target="_blank">?</a></h2><div><div class="implementation" data-language="Math"><div class="program math">\[\begin{array}{l}
+
+\\
+\left(c \cdot a - i \cdot y\right) \cdot j - \left(\left(a \cdot t - z \cdot y\right) \cdot x - \left(i \cdot t - c \cdot z\right) \cdot b\right)
+\end{array}
+\]</div></div><div class="implementation" data-language="FPCore"><pre class="program">
+(FPCore (x y z t a b c i j)
+ :precision binary64
+ (-
+  (* (- (* c a) (* i y)) j)
+  (- (* (- (* a t) (* z y)) x) (* (- (* i t) (* c z)) b))))</pre></div><div class="implementation" data-language="C"><pre class="program">
+double code(double x, double y, double z, double t, double a, double b, double c, double i, double j) {
+	return (((c * a) - (i * y)) * j) - ((((a * t) - (z * y)) * x) - (((i * t) - (c * z)) * b));
+}
+</pre></div><div class="implementation" data-language="Fortran"><pre class="program">
+real(8) function code(x, y, z, t, a, b, c, i, j)
+use fmin_fmax_functions
+    real(8), intent (in) :: x
+    real(8), intent (in) :: y
+    real(8), intent (in) :: z
+    real(8), intent (in) :: t
+    real(8), intent (in) :: a
+    real(8), intent (in) :: b
+    real(8), intent (in) :: c
+    real(8), intent (in) :: i
+    real(8), intent (in) :: j
+    code = (((c * a) - (i * y)) * j) - ((((a * t) - (z * y)) * x) - (((i * t) - (c * z)) * b))
+end function
+</pre></div><div class="implementation" data-language="Java"><pre class="program">
+public static double code(double x, double y, double z, double t, double a, double b, double c, double i, double j) {
+	return (((c * a) - (i * y)) * j) - ((((a * t) - (z * y)) * x) - (((i * t) - (c * z)) * b));
+}
+</pre></div><div class="implementation" data-language="Python"><pre class="program">
+def code(x, y, z, t, a, b, c, i, j):
+	return (((c * a) - (i * y)) * j) - ((((a * t) - (z * y)) * x) - (((i * t) - (c * z)) * b))
+</pre></div><div class="implementation" data-language="Julia"><pre class="program">
+function code(x, y, z, t, a, b, c, i, j)
+	return Float64(Float64(Float64(Float64(c * a) - Float64(i * y)) * j) - Float64(Float64(Float64(Float64(a * t) - Float64(z * y)) * x) - Float64(Float64(Float64(i * t) - Float64(c * z)) * b)))
+end
+</pre></div><div class="implementation" data-language="MATLAB"><pre class="program">
+function tmp = code(x, y, z, t, a, b, c, i, j)
+	tmp = (((c * a) - (i * y)) * j) - ((((a * t) - (z * y)) * x) - (((i * t) - (c * z)) * b));
+end
+</pre></div><div class="implementation" data-language="Wolfram"><pre class="program">
+code[x_, y_, z_, t_, a_, b_, c_, i_, j_] := N[(N[(N[(N[(c * a), $MachinePrecision] - N[(i * y), $MachinePrecision]), $MachinePrecision] * j), $MachinePrecision] - N[(N[(N[(N[(a * t), $MachinePrecision] - N[(z * y), $MachinePrecision]), $MachinePrecision] * x), $MachinePrecision] - N[(N[(N[(i * t), $MachinePrecision] - N[(c * z), $MachinePrecision]), $MachinePrecision] * b), $MachinePrecision]), $MachinePrecision]), $MachinePrecision]
+</pre></div><div class="implementation" data-language="TeX"><pre class="program">\begin{array}{l}
+
+\\
+\left(c \cdot a - i \cdot y\right) \cdot j - \left(\left(a \cdot t - z \cdot y\right) \cdot x - \left(i \cdot t - c \cdot z\right) \cdot b\right)
+\end{array}
+</pre></div></div><details><summary>Derivation</summary><ol class="history"><li><p>Initial program <span class="error" title="100.0% on training set">72.2%</span></p><div class="math">\[\left(x \cdot \left(y \cdot z - t \cdot a\right) - b \cdot \left(c \cdot z - t \cdot i\right)\right) + j \cdot \left(c \cdot a - y \cdot i\right)
+\]</div></li><li>Add Preprocessing</li><li><p>Final simplification<span class="error" title="100.0% on training set">72.2%</span></p><div class="math">\[\leadsto \left(c \cdot a - i \cdot y\right) \cdot j - \left(\left(a \cdot t - z \cdot y\right) \cdot x - \left(i \cdot t - c \cdot z\right) \cdot b\right)
+\]</div></li><li>Add Preprocessing</li></ol></details></section><section id="target1" class="programs"><h2>Developer Target 1: <span class="subhead"><data>100.0%</data> accurate, <data>0.2×</data> speedup</span><select><option>Math</option><option>FPCore</option><option>C</option><option>Fortran</option><option>Java</option><option>Python</option><option>Julia</option><option>MATLAB</option><option>Wolfram</option><option>TeX</option></select><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#target" target="_blank">?</a></h2><div><div class="implementation" data-language="Math"><div class="program math">\[\begin{array}{l}
+
+\\
+\begin{array}{l}
+t_1 := j \cdot \left(c \cdot a - y \cdot i\right)\\
+t_2 := \left(x \cdot \left(y \cdot z - t \cdot a\right) - \frac{b \cdot \left({\left(c \cdot z\right)}^{2} - {\left(t \cdot i\right)}^{2}\right)}{c \cdot z + t \cdot i}\right) + t\_1\\
+\mathbf{if}\;x &lt; -1.469694296777705 \cdot 10^{-64}:\\
+\;\;\;\;t\_2\\
+
+\mathbf{elif}\;x &lt; 3.2113527362226803 \cdot 10^{-147}:\\
+\;\;\;\;\left(b \cdot i - x \cdot a\right) \cdot t - \left(z \cdot \left(c \cdot b\right) - t\_1\right)\\
+
+\mathbf{else}:\\
+\;\;\;\;t\_2\\
+
+
+\end{array}
+\end{array}
+\]</div></div><div class="implementation" data-language="FPCore"><pre class="program">
+(FPCore (x y z t a b c i j)
+ :precision binary64
+ (let* ((t_1 (* j (- (* c a) (* y i))))
+        (t_2
+         (+
+          (-
+           (* x (- (* y z) (* t a)))
+           (/
+            (* b (- (pow (* c z) 2.0) (pow (* t i) 2.0)))
+            (+ (* c z) (* t i))))
+          t_1)))
+   (if (&lt; x -1.469694296777705e-64)
+     t_2
+     (if (&lt; x 3.2113527362226803e-147)
+       (- (* (- (* b i) (* x a)) t) (- (* z (* c b)) t_1))
+       t_2))))</pre></div><div class="implementation" data-language="C"><pre class="program">
+double code(double x, double y, double z, double t, double a, double b, double c, double i, double j) {
+	double t_1 = j * ((c * a) - (y * i));
+	double t_2 = ((x * ((y * z) - (t * a))) - ((b * (pow((c * z), 2.0) - pow((t * i), 2.0))) / ((c * z) + (t * i)))) + t_1;
+	double tmp;
+	if (x &lt; -1.469694296777705e-64) {
+		tmp = t_2;
+	} else if (x &lt; 3.2113527362226803e-147) {
+		tmp = (((b * i) - (x * a)) * t) - ((z * (c * b)) - t_1);
+	} else {
+		tmp = t_2;
+	}
+	return tmp;
+}
+</pre></div><div class="implementation" data-language="Fortran"><pre class="program">
+real(8) function code(x, y, z, t, a, b, c, i, j)
+use fmin_fmax_functions
+    real(8), intent (in) :: x
+    real(8), intent (in) :: y
+    real(8), intent (in) :: z
+    real(8), intent (in) :: t
+    real(8), intent (in) :: a
+    real(8), intent (in) :: b
+    real(8), intent (in) :: c
+    real(8), intent (in) :: i
+    real(8), intent (in) :: j
+    real(8) :: t_1
+    real(8) :: t_2
+    real(8) :: tmp
+    t_1 = j * ((c * a) - (y * i))
+    t_2 = ((x * ((y * z) - (t * a))) - ((b * (((c * z) ** 2.0d0) - ((t * i) ** 2.0d0))) / ((c * z) + (t * i)))) + t_1
+    if (x &lt; (-1.469694296777705d-64)) then
+        tmp = t_2
+    else if (x &lt; 3.2113527362226803d-147) then
+        tmp = (((b * i) - (x * a)) * t) - ((z * (c * b)) - t_1)
+    else
+        tmp = t_2
+    end if
+    code = tmp
+end function
+</pre></div><div class="implementation" data-language="Java"><pre class="program">
+public static double code(double x, double y, double z, double t, double a, double b, double c, double i, double j) {
+	double t_1 = j * ((c * a) - (y * i));
+	double t_2 = ((x * ((y * z) - (t * a))) - ((b * (Math.pow((c * z), 2.0) - Math.pow((t * i), 2.0))) / ((c * z) + (t * i)))) + t_1;
+	double tmp;
+	if (x &lt; -1.469694296777705e-64) {
+		tmp = t_2;
+	} else if (x &lt; 3.2113527362226803e-147) {
+		tmp = (((b * i) - (x * a)) * t) - ((z * (c * b)) - t_1);
+	} else {
+		tmp = t_2;
+	}
+	return tmp;
+}
+</pre></div><div class="implementation" data-language="Python"><pre class="program">
+def code(x, y, z, t, a, b, c, i, j):
+	t_1 = j * ((c * a) - (y * i))
+	t_2 = ((x * ((y * z) - (t * a))) - ((b * (math.pow((c * z), 2.0) - math.pow((t * i), 2.0))) / ((c * z) + (t * i)))) + t_1
+	tmp = 0
+	if x &lt; -1.469694296777705e-64:
+		tmp = t_2
+	elif x &lt; 3.2113527362226803e-147:
+		tmp = (((b * i) - (x * a)) * t) - ((z * (c * b)) - t_1)
+	else:
+		tmp = t_2
+	return tmp
+</pre></div><div class="implementation" data-language="Julia"><pre class="program">
+function code(x, y, z, t, a, b, c, i, j)
+	t_1 = Float64(j * Float64(Float64(c * a) - Float64(y * i)))
+	t_2 = Float64(Float64(Float64(x * Float64(Float64(y * z) - Float64(t * a))) - Float64(Float64(b * Float64((Float64(c * z) ^ 2.0) - (Float64(t * i) ^ 2.0))) / Float64(Float64(c * z) + Float64(t * i)))) + t_1)
+	tmp = 0.0
+	if (x &lt; -1.469694296777705e-64)
+		tmp = t_2;
+	elseif (x &lt; 3.2113527362226803e-147)
+		tmp = Float64(Float64(Float64(Float64(b * i) - Float64(x * a)) * t) - Float64(Float64(z * Float64(c * b)) - t_1));
+	else
+		tmp = t_2;
+	end
+	return tmp
+end
+</pre></div><div class="implementation" data-language="MATLAB"><pre class="program">
+function tmp_2 = code(x, y, z, t, a, b, c, i, j)
+	t_1 = j * ((c * a) - (y * i));
+	t_2 = ((x * ((y * z) - (t * a))) - ((b * (((c * z) ^ 2.0) - ((t * i) ^ 2.0))) / ((c * z) + (t * i)))) + t_1;
+	tmp = 0.0;
+	if (x &lt; -1.469694296777705e-64)
+		tmp = t_2;
+	elseif (x &lt; 3.2113527362226803e-147)
+		tmp = (((b * i) - (x * a)) * t) - ((z * (c * b)) - t_1);
+	else
+		tmp = t_2;
+	end
+	tmp_2 = tmp;
+end
+</pre></div><div class="implementation" data-language="Wolfram"><pre class="program">
+code[x_, y_, z_, t_, a_, b_, c_, i_, j_] := Block[{t$95$1 = N[(j * N[(N[(c * a), $MachinePrecision] - N[(y * i), $MachinePrecision]), $MachinePrecision]), $MachinePrecision]}, Block[{t$95$2 = N[(N[(N[(x * N[(N[(y * z), $MachinePrecision] - N[(t * a), $MachinePrecision]), $MachinePrecision]), $MachinePrecision] - N[(N[(b * N[(N[Power[N[(c * z), $MachinePrecision], 2.0], $MachinePrecision] - N[Power[N[(t * i), $MachinePrecision], 2.0], $MachinePrecision]), $MachinePrecision]), $MachinePrecision] / N[(N[(c * z), $MachinePrecision] + N[(t * i), $MachinePrecision]), $MachinePrecision]), $MachinePrecision]), $MachinePrecision] + t$95$1), $MachinePrecision]}, If[Less[x, -1.469694296777705e-64], t$95$2, If[Less[x, 3.2113527362226803e-147], N[(N[(N[(N[(b * i), $MachinePrecision] - N[(x * a), $MachinePrecision]), $MachinePrecision] * t), $MachinePrecision] - N[(N[(z * N[(c * b), $MachinePrecision]), $MachinePrecision] - t$95$1), $MachinePrecision]), $MachinePrecision], t$95$2]]]]
+</pre></div><div class="implementation" data-language="TeX"><pre class="program">\begin{array}{l}
+
+\\
+\begin{array}{l}
+t_1 := j \cdot \left(c \cdot a - y \cdot i\right)\\
+t_2 := \left(x \cdot \left(y \cdot z - t \cdot a\right) - \frac{b \cdot \left({\left(c \cdot z\right)}^{2} - {\left(t \cdot i\right)}^{2}\right)}{c \cdot z + t \cdot i}\right) + t\_1\\
+\mathbf{if}\;x &lt; -1.469694296777705 \cdot 10^{-64}:\\
+\;\;\;\;t\_2\\
+
+\mathbf{elif}\;x &lt; 3.2113527362226803 \cdot 10^{-147}:\\
+\;\;\;\;\left(b \cdot i - x \cdot a\right) \cdot t - \left(z \cdot \left(c \cdot b\right) - t\_1\right)\\
+
+\mathbf{else}:\\
+\;\;\;\;t\_2\\
+
+
+\end{array}
+\end{array}
+</pre></div></div></section><section id="reproduce"><details><summary><h2>Reproduce</h2><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#reproduction" target="_blank">?</a></summary><pre class="shell"><code>herbie shell --seed 1528405439 
+(FPCore (x y z t a b c i j)
+  :name "Data.Colour.Matrix:determinant from colour-2.3.3, A"
+  :precision binary64
+
+  :alt
+  (! :herbie-platform default (if (&lt; x -293938859355541/2000000000000000000000000000000000000000000000000000000000000000000000000000000) (+ (- (* x (- (* y z) (* t a))) (/ (* b (- (pow (* c z) 2) (pow (* t i) 2))) (+ (* c z) (* t i)))) (* j (- (* c a) (* y i)))) (if (&lt; x 32113527362226803/10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000) (- (* (- (* b i) (* x a)) t) (- (* z (* c b)) (* j (- (* c a) (* y i))))) (+ (- (* x (- (* y z) (* t a))) (/ (* b (- (pow (* c z) 2) (pow (* t i) 2))) (+ (* c z) (* t i)))) (* j (- (* c a) (* y i)))))))
+
+  (+ (- (* x (- (* y z) (* t a))) (* b (- (* c z) (* t i)))) (* j (- (* c a) (* y i)))))
+</code></pre></details></section></body></html>

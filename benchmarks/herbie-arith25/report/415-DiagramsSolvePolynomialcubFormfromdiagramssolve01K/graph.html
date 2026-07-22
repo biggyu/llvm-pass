@@ -1,0 +1,296 @@
+<!doctype html>
+<html><head><meta charset="utf-8"/><title>Result for Diagrams.Solve.Polynomial:cubForm  from diagrams-solve-0.1, K</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" integrity="sha384-9tPv11A+glH/on/wEu99NVwDPwkMQESOocs/ZGXPoIiLE8MU/qkqUcZ3zzL+6DuH" crossorigin="anonymous"/><script src="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.js" integrity="sha384-U8Vrjwb8fuHMt6ewaCy8uqeUXv4oitYACKdB0VziCerzt011iQ/0TqlSlv8MReCm" crossorigin="anonymous"></script><script src="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/contrib/auto-render.min.js" integrity="sha384-aGfk5kvhIq5x1x5YdvCp4upKZYnA8ckafviDpmWEKp4afOZEqOli7gqSnh8I6enH" crossorigin="anonymous"></script><script src="https://unpkg.com/mathjs@4.4.2/dist/math.min.js"></script><script src="https://unpkg.com/d3@6.7.0/dist/d3.min.js"></script><script src="https://unpkg.com/@observablehq/plot@0.4.3/dist/plot.umd.min.js"></script><link rel="stylesheet" type="text/css" href="../report.css"/><script src="../report.js"></script></head><body><header><h1>Diagrams.Solve.Polynomial:cubForm  from diagrams-solve-0.1, K</h1><img src="../logo-car.png"/><nav><ul><li><a href="../index.html">Report</a></li><li><a href="timeline.html">Metrics</a></li></ul></nav></header><div id="large"><div>Percentage Accurate: <span class="number" title="Minimum Accuracy: 0.0% → 0.0%">75.0%<span class="unit"> → </span>75.0%</span></div><div>Time: <span class="number">1.5s</span></div><div>Alternatives: <span class="number">1</span></div><div>Speedup: <span class="number" title="Relative speed of fastest alternative that improves accuracy.">1.0×</span></div></div><section><details id="specification" class="programs"><summary><h2>Specification</h2><select><option>Math</option><option>FPCore</option><option>C</option><option>Fortran</option><option>Java</option><option>Python</option><option>Julia</option><option>MATLAB</option><option>Wolfram</option><option>TeX</option></select><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#spec" target="_blank">?</a></summary><div><div class="implementation" data-language="Math"><div class="program math">\[\begin{array}{l}
+
+\\
+\left(2 \cdot \sqrt{x}\right) \cdot \cos \left(y - \frac{z \cdot t}{3}\right) - \frac{a}{b \cdot 3}
+\end{array}
+\]</div></div><div class="implementation" data-language="FPCore"><pre class="program">
+(FPCore (x y z t a b)
+ :precision binary64
+ (- (* (* 2.0 (sqrt x)) (cos (- y (/ (* z t) 3.0)))) (/ a (* b 3.0))))</pre></div><div class="implementation" data-language="C"><pre class="program">
+double code(double x, double y, double z, double t, double a, double b) {
+	return ((2.0 * sqrt(x)) * cos((y - ((z * t) / 3.0)))) - (a / (b * 3.0));
+}
+</pre></div><div class="implementation" data-language="Fortran"><pre class="program">
+real(8) function code(x, y, z, t, a, b)
+use fmin_fmax_functions
+    real(8), intent (in) :: x
+    real(8), intent (in) :: y
+    real(8), intent (in) :: z
+    real(8), intent (in) :: t
+    real(8), intent (in) :: a
+    real(8), intent (in) :: b
+    code = ((2.0d0 * sqrt(x)) * cos((y - ((z * t) / 3.0d0)))) - (a / (b * 3.0d0))
+end function
+</pre></div><div class="implementation" data-language="Java"><pre class="program">
+public static double code(double x, double y, double z, double t, double a, double b) {
+	return ((2.0 * Math.sqrt(x)) * Math.cos((y - ((z * t) / 3.0)))) - (a / (b * 3.0));
+}
+</pre></div><div class="implementation" data-language="Python"><pre class="program">
+def code(x, y, z, t, a, b):
+	return ((2.0 * math.sqrt(x)) * math.cos((y - ((z * t) / 3.0)))) - (a / (b * 3.0))
+</pre></div><div class="implementation" data-language="Julia"><pre class="program">
+function code(x, y, z, t, a, b)
+	return Float64(Float64(Float64(2.0 * sqrt(x)) * cos(Float64(y - Float64(Float64(z * t) / 3.0)))) - Float64(a / Float64(b * 3.0)))
+end
+</pre></div><div class="implementation" data-language="MATLAB"><pre class="program">
+function tmp = code(x, y, z, t, a, b)
+	tmp = ((2.0 * sqrt(x)) * cos((y - ((z * t) / 3.0)))) - (a / (b * 3.0));
+end
+</pre></div><div class="implementation" data-language="Wolfram"><pre class="program">
+code[x_, y_, z_, t_, a_, b_] := N[(N[(N[(2.0 * N[Sqrt[x], $MachinePrecision]), $MachinePrecision] * N[Cos[N[(y - N[(N[(z * t), $MachinePrecision] / 3.0), $MachinePrecision]), $MachinePrecision]], $MachinePrecision]), $MachinePrecision] - N[(a / N[(b * 3.0), $MachinePrecision]), $MachinePrecision]), $MachinePrecision]
+</pre></div><div class="implementation" data-language="TeX"><pre class="program">\begin{array}{l}
+
+\\
+\left(2 \cdot \sqrt{x}\right) \cdot \cos \left(y - \frac{z \cdot t}{3}\right) - \frac{a}{b \cdot 3}
+\end{array}
+</pre></div></div><p>Sampling outcomes in <kbd>binary64</kbd> precision:</p><div class="bogosity"><div class="bogosity-valid" data-id="bogosity-valid" data-type="valid" data-timespan="0.41183486614290044" title="valid (41.2%)"></div><div class="bogosity-unknown" data-id="bogosity-unknown" data-type="unknown" data-timespan="0" title="unknown (0.0%)"></div><div class="bogosity-infinite" data-id="bogosity-infinite" data-type="infinite" data-timespan="0.05780138472181058" title="infinite (5.8%)"></div><div class="bogosity-unsamplable" data-id="bogosity-unsamplable" data-type="unsamplable" data-timespan="0" title="unsamplable (0.0%)"></div><div class="bogosity-invalid" data-id="bogosity-invalid" data-type="invalid" data-timespan="0.5274376355865216" title="invalid (52.7%)"></div><div class="bogosity-precondition" data-id="bogosity-precondition" data-type="precondition" data-timespan="0.002926113548767373" title="precondition (0.3%)"></div></div></details></section><figure id="graphs"><h2>Local Percentage Accuracy vs <span id="variables"></span><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#graph" target="_blank">?</a></h2><svg></svg><div id="functions"></div><figcaption>The average percentage accuracy by input value. Horizontal axis shows value of an input variable; the variable is choosen in the title. Vertical axis is accuracy; higher is better. Red represent the original program, while blue represents Herbie's suggestion. These can be toggled with buttons below the plot. The line is an average while dots represent individual samples.</figcaption></figure><section id="cost-accuracy" class="section" data-benchmark-name="Diagrams.Solve.Polynomial:cubForm  from diagrams-solve-0.1, K"><h2>Accuracy vs Speed<a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#cost-accuracy" target="_blank">?</a></h2><div class="figure-row"><svg></svg><div><p>Herbie found 1 alternatives:</p><table><thead><tr><th>Alternative</th><th class="numeric">Accuracy</th><th class="numeric">Speedup</th></tr></thead><tbody></tbody></table></div></div><figcaption>The accuracy (vertical axis) and speed (horizontal axis) of each alternatives. Up and to the right is better. The red square shows the initial program, and each blue circle shows an alternative.The line shows the best available speed-accuracy tradeoffs.</figcaption></section><section id="initial" class="programs"><h2>Initial Program: <span class="subhead"><data>75.0%</data> accurate, <data>1.0×</data> speedup</span><select><option>Math</option><option>FPCore</option><option>C</option><option>Fortran</option><option>Java</option><option>Python</option><option>Julia</option><option>MATLAB</option><option>Wolfram</option><option>TeX</option></select><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#alternatives" target="_blank">?</a></h2><div><div class="implementation" data-language="Math"><div class="program math">\[\begin{array}{l}
+
+\\
+\left(2 \cdot \sqrt{x}\right) \cdot \cos \left(y - \frac{z \cdot t}{3}\right) - \frac{a}{b \cdot 3}
+\end{array}
+\]</div></div><div class="implementation" data-language="FPCore"><pre class="program">
+(FPCore (x y z t a b)
+ :precision binary64
+ (- (* (* 2.0 (sqrt x)) (cos (- y (/ (* z t) 3.0)))) (/ a (* b 3.0))))</pre></div><div class="implementation" data-language="C"><pre class="program">
+double code(double x, double y, double z, double t, double a, double b) {
+	return ((2.0 * sqrt(x)) * cos((y - ((z * t) / 3.0)))) - (a / (b * 3.0));
+}
+</pre></div><div class="implementation" data-language="Fortran"><pre class="program">
+real(8) function code(x, y, z, t, a, b)
+use fmin_fmax_functions
+    real(8), intent (in) :: x
+    real(8), intent (in) :: y
+    real(8), intent (in) :: z
+    real(8), intent (in) :: t
+    real(8), intent (in) :: a
+    real(8), intent (in) :: b
+    code = ((2.0d0 * sqrt(x)) * cos((y - ((z * t) / 3.0d0)))) - (a / (b * 3.0d0))
+end function
+</pre></div><div class="implementation" data-language="Java"><pre class="program">
+public static double code(double x, double y, double z, double t, double a, double b) {
+	return ((2.0 * Math.sqrt(x)) * Math.cos((y - ((z * t) / 3.0)))) - (a / (b * 3.0));
+}
+</pre></div><div class="implementation" data-language="Python"><pre class="program">
+def code(x, y, z, t, a, b):
+	return ((2.0 * math.sqrt(x)) * math.cos((y - ((z * t) / 3.0)))) - (a / (b * 3.0))
+</pre></div><div class="implementation" data-language="Julia"><pre class="program">
+function code(x, y, z, t, a, b)
+	return Float64(Float64(Float64(2.0 * sqrt(x)) * cos(Float64(y - Float64(Float64(z * t) / 3.0)))) - Float64(a / Float64(b * 3.0)))
+end
+</pre></div><div class="implementation" data-language="MATLAB"><pre class="program">
+function tmp = code(x, y, z, t, a, b)
+	tmp = ((2.0 * sqrt(x)) * cos((y - ((z * t) / 3.0)))) - (a / (b * 3.0));
+end
+</pre></div><div class="implementation" data-language="Wolfram"><pre class="program">
+code[x_, y_, z_, t_, a_, b_] := N[(N[(N[(2.0 * N[Sqrt[x], $MachinePrecision]), $MachinePrecision] * N[Cos[N[(y - N[(N[(z * t), $MachinePrecision] / 3.0), $MachinePrecision]), $MachinePrecision]], $MachinePrecision]), $MachinePrecision] - N[(a / N[(b * 3.0), $MachinePrecision]), $MachinePrecision]), $MachinePrecision]
+</pre></div><div class="implementation" data-language="TeX"><pre class="program">\begin{array}{l}
+
+\\
+\left(2 \cdot \sqrt{x}\right) \cdot \cos \left(y - \frac{z \cdot t}{3}\right) - \frac{a}{b \cdot 3}
+\end{array}
+</pre></div></div></section><section id="alternative1" class="programs"><h2>Alternative 1: <span class="subhead"><data>75.0%</data> accurate, <data>1.0×</data> speedup</span><select><option>Math</option><option>FPCore</option><option>C</option><option>Fortran</option><option>Java</option><option>Python</option><option>Julia</option><option>MATLAB</option><option>Wolfram</option><option>TeX</option></select><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#alternatives" target="_blank">?</a></h2><div><div class="implementation" data-language="Math"><div class="program math">\[\begin{array}{l}
+
+\\
+\cos \left(y - \frac{t \cdot z}{3}\right) \cdot \left(\sqrt{x} \cdot 2\right) - \frac{a}{b \cdot 3}
+\end{array}
+\]</div></div><div class="implementation" data-language="FPCore"><pre class="program">
+(FPCore (x y z t a b)
+ :precision binary64
+ (- (* (cos (- y (/ (* t z) 3.0))) (* (sqrt x) 2.0)) (/ a (* b 3.0))))</pre></div><div class="implementation" data-language="C"><pre class="program">
+double code(double x, double y, double z, double t, double a, double b) {
+	return (cos((y - ((t * z) / 3.0))) * (sqrt(x) * 2.0)) - (a / (b * 3.0));
+}
+</pre></div><div class="implementation" data-language="Fortran"><pre class="program">
+real(8) function code(x, y, z, t, a, b)
+use fmin_fmax_functions
+    real(8), intent (in) :: x
+    real(8), intent (in) :: y
+    real(8), intent (in) :: z
+    real(8), intent (in) :: t
+    real(8), intent (in) :: a
+    real(8), intent (in) :: b
+    code = (cos((y - ((t * z) / 3.0d0))) * (sqrt(x) * 2.0d0)) - (a / (b * 3.0d0))
+end function
+</pre></div><div class="implementation" data-language="Java"><pre class="program">
+public static double code(double x, double y, double z, double t, double a, double b) {
+	return (Math.cos((y - ((t * z) / 3.0))) * (Math.sqrt(x) * 2.0)) - (a / (b * 3.0));
+}
+</pre></div><div class="implementation" data-language="Python"><pre class="program">
+def code(x, y, z, t, a, b):
+	return (math.cos((y - ((t * z) / 3.0))) * (math.sqrt(x) * 2.0)) - (a / (b * 3.0))
+</pre></div><div class="implementation" data-language="Julia"><pre class="program">
+function code(x, y, z, t, a, b)
+	return Float64(Float64(cos(Float64(y - Float64(Float64(t * z) / 3.0))) * Float64(sqrt(x) * 2.0)) - Float64(a / Float64(b * 3.0)))
+end
+</pre></div><div class="implementation" data-language="MATLAB"><pre class="program">
+function tmp = code(x, y, z, t, a, b)
+	tmp = (cos((y - ((t * z) / 3.0))) * (sqrt(x) * 2.0)) - (a / (b * 3.0));
+end
+</pre></div><div class="implementation" data-language="Wolfram"><pre class="program">
+code[x_, y_, z_, t_, a_, b_] := N[(N[(N[Cos[N[(y - N[(N[(t * z), $MachinePrecision] / 3.0), $MachinePrecision]), $MachinePrecision]], $MachinePrecision] * N[(N[Sqrt[x], $MachinePrecision] * 2.0), $MachinePrecision]), $MachinePrecision] - N[(a / N[(b * 3.0), $MachinePrecision]), $MachinePrecision]), $MachinePrecision]
+</pre></div><div class="implementation" data-language="TeX"><pre class="program">\begin{array}{l}
+
+\\
+\cos \left(y - \frac{t \cdot z}{3}\right) \cdot \left(\sqrt{x} \cdot 2\right) - \frac{a}{b \cdot 3}
+\end{array}
+</pre></div></div><details><summary>Derivation</summary><ol class="history"><li><p>Initial program <span class="error" title="75.0% on training set">74.2%</span></p><div class="math">\[\left(2 \cdot \sqrt{x}\right) \cdot \cos \left(y - \frac{z \cdot t}{3}\right) - \frac{a}{b \cdot 3}
+\]</div></li><li>Add Preprocessing</li><li><p>Final simplification<span class="error" title="75.0% on training set">74.2%</span></p><div class="math">\[\leadsto \cos \left(y - \frac{t \cdot z}{3}\right) \cdot \left(\sqrt{x} \cdot 2\right) - \frac{a}{b \cdot 3}
+\]</div></li><li>Add Preprocessing</li></ol></details></section><section id="target1" class="programs"><h2>Developer Target 1: <span class="subhead"><data>99.6%</data> accurate, <data>0.8×</data> speedup</span><select><option>Math</option><option>FPCore</option><option>C</option><option>Fortran</option><option>Java</option><option>Python</option><option>Julia</option><option>MATLAB</option><option>Wolfram</option><option>TeX</option></select><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#target" target="_blank">?</a></h2><div><div class="implementation" data-language="Math"><div class="program math">\[\begin{array}{l}
+
+\\
+\begin{array}{l}
+t_1 := \frac{\frac{0.3333333333333333}{z}}{t}\\
+t_2 := \frac{\frac{a}{3}}{b}\\
+t_3 := 2 \cdot \sqrt{x}\\
+\mathbf{if}\;z &lt; -1.3793337487235141 \cdot 10^{+129}:\\
+\;\;\;\;t\_3 \cdot \cos \left(\frac{1}{y} - t\_1\right) - t\_2\\
+
+\mathbf{elif}\;z &lt; 3.516290613555987 \cdot 10^{+106}:\\
+\;\;\;\;\left(\sqrt{x} \cdot 2\right) \cdot \cos \left(y - \frac{t}{3} \cdot z\right) - t\_2\\
+
+\mathbf{else}:\\
+\;\;\;\;\cos \left(y - t\_1\right) \cdot t\_3 - \frac{\frac{a}{b}}{3}\\
+
+
+\end{array}
+\end{array}
+\]</div></div><div class="implementation" data-language="FPCore"><pre class="program">
+(FPCore (x y z t a b)
+ :precision binary64
+ (let* ((t_1 (/ (/ 0.3333333333333333 z) t))
+        (t_2 (/ (/ a 3.0) b))
+        (t_3 (* 2.0 (sqrt x))))
+   (if (&lt; z -1.3793337487235141e+129)
+     (- (* t_3 (cos (- (/ 1.0 y) t_1))) t_2)
+     (if (&lt; z 3.516290613555987e+106)
+       (- (* (* (sqrt x) 2.0) (cos (- y (* (/ t 3.0) z)))) t_2)
+       (- (* (cos (- y t_1)) t_3) (/ (/ a b) 3.0))))))</pre></div><div class="implementation" data-language="C"><pre class="program">
+double code(double x, double y, double z, double t, double a, double b) {
+	double t_1 = (0.3333333333333333 / z) / t;
+	double t_2 = (a / 3.0) / b;
+	double t_3 = 2.0 * sqrt(x);
+	double tmp;
+	if (z &lt; -1.3793337487235141e+129) {
+		tmp = (t_3 * cos(((1.0 / y) - t_1))) - t_2;
+	} else if (z &lt; 3.516290613555987e+106) {
+		tmp = ((sqrt(x) * 2.0) * cos((y - ((t / 3.0) * z)))) - t_2;
+	} else {
+		tmp = (cos((y - t_1)) * t_3) - ((a / b) / 3.0);
+	}
+	return tmp;
+}
+</pre></div><div class="implementation" data-language="Fortran"><pre class="program">
+real(8) function code(x, y, z, t, a, b)
+use fmin_fmax_functions
+    real(8), intent (in) :: x
+    real(8), intent (in) :: y
+    real(8), intent (in) :: z
+    real(8), intent (in) :: t
+    real(8), intent (in) :: a
+    real(8), intent (in) :: b
+    real(8) :: t_1
+    real(8) :: t_2
+    real(8) :: t_3
+    real(8) :: tmp
+    t_1 = (0.3333333333333333d0 / z) / t
+    t_2 = (a / 3.0d0) / b
+    t_3 = 2.0d0 * sqrt(x)
+    if (z &lt; (-1.3793337487235141d+129)) then
+        tmp = (t_3 * cos(((1.0d0 / y) - t_1))) - t_2
+    else if (z &lt; 3.516290613555987d+106) then
+        tmp = ((sqrt(x) * 2.0d0) * cos((y - ((t / 3.0d0) * z)))) - t_2
+    else
+        tmp = (cos((y - t_1)) * t_3) - ((a / b) / 3.0d0)
+    end if
+    code = tmp
+end function
+</pre></div><div class="implementation" data-language="Java"><pre class="program">
+public static double code(double x, double y, double z, double t, double a, double b) {
+	double t_1 = (0.3333333333333333 / z) / t;
+	double t_2 = (a / 3.0) / b;
+	double t_3 = 2.0 * Math.sqrt(x);
+	double tmp;
+	if (z &lt; -1.3793337487235141e+129) {
+		tmp = (t_3 * Math.cos(((1.0 / y) - t_1))) - t_2;
+	} else if (z &lt; 3.516290613555987e+106) {
+		tmp = ((Math.sqrt(x) * 2.0) * Math.cos((y - ((t / 3.0) * z)))) - t_2;
+	} else {
+		tmp = (Math.cos((y - t_1)) * t_3) - ((a / b) / 3.0);
+	}
+	return tmp;
+}
+</pre></div><div class="implementation" data-language="Python"><pre class="program">
+def code(x, y, z, t, a, b):
+	t_1 = (0.3333333333333333 / z) / t
+	t_2 = (a / 3.0) / b
+	t_3 = 2.0 * math.sqrt(x)
+	tmp = 0
+	if z &lt; -1.3793337487235141e+129:
+		tmp = (t_3 * math.cos(((1.0 / y) - t_1))) - t_2
+	elif z &lt; 3.516290613555987e+106:
+		tmp = ((math.sqrt(x) * 2.0) * math.cos((y - ((t / 3.0) * z)))) - t_2
+	else:
+		tmp = (math.cos((y - t_1)) * t_3) - ((a / b) / 3.0)
+	return tmp
+</pre></div><div class="implementation" data-language="Julia"><pre class="program">
+function code(x, y, z, t, a, b)
+	t_1 = Float64(Float64(0.3333333333333333 / z) / t)
+	t_2 = Float64(Float64(a / 3.0) / b)
+	t_3 = Float64(2.0 * sqrt(x))
+	tmp = 0.0
+	if (z &lt; -1.3793337487235141e+129)
+		tmp = Float64(Float64(t_3 * cos(Float64(Float64(1.0 / y) - t_1))) - t_2);
+	elseif (z &lt; 3.516290613555987e+106)
+		tmp = Float64(Float64(Float64(sqrt(x) * 2.0) * cos(Float64(y - Float64(Float64(t / 3.0) * z)))) - t_2);
+	else
+		tmp = Float64(Float64(cos(Float64(y - t_1)) * t_3) - Float64(Float64(a / b) / 3.0));
+	end
+	return tmp
+end
+</pre></div><div class="implementation" data-language="MATLAB"><pre class="program">
+function tmp_2 = code(x, y, z, t, a, b)
+	t_1 = (0.3333333333333333 / z) / t;
+	t_2 = (a / 3.0) / b;
+	t_3 = 2.0 * sqrt(x);
+	tmp = 0.0;
+	if (z &lt; -1.3793337487235141e+129)
+		tmp = (t_3 * cos(((1.0 / y) - t_1))) - t_2;
+	elseif (z &lt; 3.516290613555987e+106)
+		tmp = ((sqrt(x) * 2.0) * cos((y - ((t / 3.0) * z)))) - t_2;
+	else
+		tmp = (cos((y - t_1)) * t_3) - ((a / b) / 3.0);
+	end
+	tmp_2 = tmp;
+end
+</pre></div><div class="implementation" data-language="Wolfram"><pre class="program">
+code[x_, y_, z_, t_, a_, b_] := Block[{t$95$1 = N[(N[(0.3333333333333333 / z), $MachinePrecision] / t), $MachinePrecision]}, Block[{t$95$2 = N[(N[(a / 3.0), $MachinePrecision] / b), $MachinePrecision]}, Block[{t$95$3 = N[(2.0 * N[Sqrt[x], $MachinePrecision]), $MachinePrecision]}, If[Less[z, -1.3793337487235141e+129], N[(N[(t$95$3 * N[Cos[N[(N[(1.0 / y), $MachinePrecision] - t$95$1), $MachinePrecision]], $MachinePrecision]), $MachinePrecision] - t$95$2), $MachinePrecision], If[Less[z, 3.516290613555987e+106], N[(N[(N[(N[Sqrt[x], $MachinePrecision] * 2.0), $MachinePrecision] * N[Cos[N[(y - N[(N[(t / 3.0), $MachinePrecision] * z), $MachinePrecision]), $MachinePrecision]], $MachinePrecision]), $MachinePrecision] - t$95$2), $MachinePrecision], N[(N[(N[Cos[N[(y - t$95$1), $MachinePrecision]], $MachinePrecision] * t$95$3), $MachinePrecision] - N[(N[(a / b), $MachinePrecision] / 3.0), $MachinePrecision]), $MachinePrecision]]]]]]
+</pre></div><div class="implementation" data-language="TeX"><pre class="program">\begin{array}{l}
+
+\\
+\begin{array}{l}
+t_1 := \frac{\frac{0.3333333333333333}{z}}{t}\\
+t_2 := \frac{\frac{a}{3}}{b}\\
+t_3 := 2 \cdot \sqrt{x}\\
+\mathbf{if}\;z &lt; -1.3793337487235141 \cdot 10^{+129}:\\
+\;\;\;\;t\_3 \cdot \cos \left(\frac{1}{y} - t\_1\right) - t\_2\\
+
+\mathbf{elif}\;z &lt; 3.516290613555987 \cdot 10^{+106}:\\
+\;\;\;\;\left(\sqrt{x} \cdot 2\right) \cdot \cos \left(y - \frac{t}{3} \cdot z\right) - t\_2\\
+
+\mathbf{else}:\\
+\;\;\;\;\cos \left(y - t\_1\right) \cdot t\_3 - \frac{\frac{a}{b}}{3}\\
+
+
+\end{array}
+\end{array}
+</pre></div></div></section><section id="reproduce"><details><summary><h2>Reproduce</h2><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#reproduction" target="_blank">?</a></summary><pre class="shell"><code>herbie shell --seed 1528405439 
+(FPCore (x y z t a b)
+  :name "Diagrams.Solve.Polynomial:cubForm  from diagrams-solve-0.1, K"
+  :precision binary64
+
+  :alt
+  (! :herbie-platform default (if (&lt; z -1379333748723514100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000) (- (* (* 2 (sqrt x)) (cos (- (/ 1 y) (/ (/ 3333333333333333/10000000000000000 z) t)))) (/ (/ a 3) b)) (if (&lt; z 35162906135559870000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000) (- (* (* (sqrt x) 2) (cos (- y (* (/ t 3) z)))) (/ (/ a 3) b)) (- (* (cos (- y (/ (/ 3333333333333333/10000000000000000 z) t))) (* 2 (sqrt x))) (/ (/ a b) 3)))))
+
+  (- (* (* 2.0 (sqrt x)) (cos (- y (/ (* z t) 3.0)))) (/ a (* b 3.0))))
+</code></pre></details></section></body></html>

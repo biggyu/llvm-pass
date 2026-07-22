@@ -1,0 +1,262 @@
+<!doctype html>
+<html><head><meta charset="utf-8"/><title>Result for Diagrams.Solve.Polynomial:cubForm  from diagrams-solve-0.1, I</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" integrity="sha384-9tPv11A+glH/on/wEu99NVwDPwkMQESOocs/ZGXPoIiLE8MU/qkqUcZ3zzL+6DuH" crossorigin="anonymous"/><script src="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.js" integrity="sha384-U8Vrjwb8fuHMt6ewaCy8uqeUXv4oitYACKdB0VziCerzt011iQ/0TqlSlv8MReCm" crossorigin="anonymous"></script><script src="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/contrib/auto-render.min.js" integrity="sha384-aGfk5kvhIq5x1x5YdvCp4upKZYnA8ckafviDpmWEKp4afOZEqOli7gqSnh8I6enH" crossorigin="anonymous"></script><script src="https://unpkg.com/mathjs@4.4.2/dist/math.min.js"></script><script src="https://unpkg.com/d3@6.7.0/dist/d3.min.js"></script><script src="https://unpkg.com/@observablehq/plot@0.4.3/dist/plot.umd.min.js"></script><link rel="stylesheet" type="text/css" href="../report.css"/><script src="../report.js"></script></head><body><header><h1>Diagrams.Solve.Polynomial:cubForm  from diagrams-solve-0.1, I</h1><img src="../logo-car.png"/><nav><ul><li><a href="../index.html">Report</a></li><li><a href="timeline.html">Metrics</a></li></ul></nav></header><div id="large"><div>Percentage Accurate: <span class="number" title="Minimum Accuracy: 5.7% → 5.7%">76.4%<span class="unit"> → </span>76.4%</span></div><div>Time: <span class="number">1.0s</span></div><div>Alternatives: <span class="number">1</span></div><div>Speedup: <span class="number" title="Relative speed of fastest alternative that improves accuracy.">1.0×</span></div></div><ul class="warnings"><li><h2>26.2% of points produce a very large (infinite) output. You may want to add a precondition.<a href="https://herbie.uwplse.org/doc/2.2/faq.html#inf-points"> (more)</a></h2></li></ul><section><details id="specification" class="programs"><summary><h2>Specification</h2><select><option>Math</option><option>FPCore</option><option>C</option><option>Fortran</option><option>Java</option><option>Python</option><option>Julia</option><option>MATLAB</option><option>Wolfram</option><option>TeX</option></select><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#spec" target="_blank">?</a></summary><div><div class="implementation" data-language="Math"><div class="program math">\[\begin{array}{l}
+
+\\
+\frac{x \cdot y - \left(z \cdot 9\right) \cdot t}{a \cdot 2}
+\end{array}
+\]</div></div><div class="implementation" data-language="FPCore"><pre class="program">
+(FPCore (x y z t a)
+ :precision binary64
+ (/ (- (* x y) (* (* z 9.0) t)) (* a 2.0)))</pre></div><div class="implementation" data-language="C"><pre class="program">
+double code(double x, double y, double z, double t, double a) {
+	return ((x * y) - ((z * 9.0) * t)) / (a * 2.0);
+}
+</pre></div><div class="implementation" data-language="Fortran"><pre class="program">
+real(8) function code(x, y, z, t, a)
+use fmin_fmax_functions
+    real(8), intent (in) :: x
+    real(8), intent (in) :: y
+    real(8), intent (in) :: z
+    real(8), intent (in) :: t
+    real(8), intent (in) :: a
+    code = ((x * y) - ((z * 9.0d0) * t)) / (a * 2.0d0)
+end function
+</pre></div><div class="implementation" data-language="Java"><pre class="program">
+public static double code(double x, double y, double z, double t, double a) {
+	return ((x * y) - ((z * 9.0) * t)) / (a * 2.0);
+}
+</pre></div><div class="implementation" data-language="Python"><pre class="program">
+def code(x, y, z, t, a):
+	return ((x * y) - ((z * 9.0) * t)) / (a * 2.0)
+</pre></div><div class="implementation" data-language="Julia"><pre class="program">
+function code(x, y, z, t, a)
+	return Float64(Float64(Float64(x * y) - Float64(Float64(z * 9.0) * t)) / Float64(a * 2.0))
+end
+</pre></div><div class="implementation" data-language="MATLAB"><pre class="program">
+function tmp = code(x, y, z, t, a)
+	tmp = ((x * y) - ((z * 9.0) * t)) / (a * 2.0);
+end
+</pre></div><div class="implementation" data-language="Wolfram"><pre class="program">
+code[x_, y_, z_, t_, a_] := N[(N[(N[(x * y), $MachinePrecision] - N[(N[(z * 9.0), $MachinePrecision] * t), $MachinePrecision]), $MachinePrecision] / N[(a * 2.0), $MachinePrecision]), $MachinePrecision]
+</pre></div><div class="implementation" data-language="TeX"><pre class="program">\begin{array}{l}
+
+\\
+\frac{x \cdot y - \left(z \cdot 9\right) \cdot t}{a \cdot 2}
+\end{array}
+</pre></div></div><p>Sampling outcomes in <kbd>binary64</kbd> precision:</p><div class="bogosity"><div class="bogosity-valid" data-id="bogosity-valid" data-type="valid" data-timespan="0.7366604136161886" title="valid (73.7%)"></div><div class="bogosity-unknown" data-id="bogosity-unknown" data-type="unknown" data-timespan="0" title="unknown (0.0%)"></div><div class="bogosity-infinite" data-id="bogosity-infinite" data-type="infinite" data-timespan="0.26090056315573346" title="infinite (26.1%)"></div><div class="bogosity-unsamplable" data-id="bogosity-unsamplable" data-type="unsamplable" data-timespan="0" title="unsamplable (0.0%)"></div><div class="bogosity-invalid" data-id="bogosity-invalid" data-type="invalid" data-timespan="0.0" title="invalid (0.0%)"></div><div class="bogosity-precondition" data-id="bogosity-precondition" data-type="precondition" data-timespan="0.0024390232280779856" title="precondition (0.2%)"></div></div></details></section><figure id="graphs"><h2>Local Percentage Accuracy vs <span id="variables"></span><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#graph" target="_blank">?</a></h2><svg></svg><div id="functions"></div><figcaption>The average percentage accuracy by input value. Horizontal axis shows value of an input variable; the variable is choosen in the title. Vertical axis is accuracy; higher is better. Red represent the original program, while blue represents Herbie's suggestion. These can be toggled with buttons below the plot. The line is an average while dots represent individual samples.</figcaption></figure><section id="cost-accuracy" class="section" data-benchmark-name="Diagrams.Solve.Polynomial:cubForm  from diagrams-solve-0.1, I"><h2>Accuracy vs Speed<a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#cost-accuracy" target="_blank">?</a></h2><div class="figure-row"><svg></svg><div><p>Herbie found 1 alternatives:</p><table><thead><tr><th>Alternative</th><th class="numeric">Accuracy</th><th class="numeric">Speedup</th></tr></thead><tbody></tbody></table></div></div><figcaption>The accuracy (vertical axis) and speed (horizontal axis) of each alternatives. Up and to the right is better. The red square shows the initial program, and each blue circle shows an alternative.The line shows the best available speed-accuracy tradeoffs.</figcaption></section><section id="initial" class="programs"><h2>Initial Program: <span class="subhead"><data>76.4%</data> accurate, <data>1.0×</data> speedup</span><select><option>Math</option><option>FPCore</option><option>C</option><option>Fortran</option><option>Java</option><option>Python</option><option>Julia</option><option>MATLAB</option><option>Wolfram</option><option>TeX</option></select><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#alternatives" target="_blank">?</a></h2><div><div class="implementation" data-language="Math"><div class="program math">\[\begin{array}{l}
+
+\\
+\frac{x \cdot y - \left(z \cdot 9\right) \cdot t}{a \cdot 2}
+\end{array}
+\]</div></div><div class="implementation" data-language="FPCore"><pre class="program">
+(FPCore (x y z t a)
+ :precision binary64
+ (/ (- (* x y) (* (* z 9.0) t)) (* a 2.0)))</pre></div><div class="implementation" data-language="C"><pre class="program">
+double code(double x, double y, double z, double t, double a) {
+	return ((x * y) - ((z * 9.0) * t)) / (a * 2.0);
+}
+</pre></div><div class="implementation" data-language="Fortran"><pre class="program">
+real(8) function code(x, y, z, t, a)
+use fmin_fmax_functions
+    real(8), intent (in) :: x
+    real(8), intent (in) :: y
+    real(8), intent (in) :: z
+    real(8), intent (in) :: t
+    real(8), intent (in) :: a
+    code = ((x * y) - ((z * 9.0d0) * t)) / (a * 2.0d0)
+end function
+</pre></div><div class="implementation" data-language="Java"><pre class="program">
+public static double code(double x, double y, double z, double t, double a) {
+	return ((x * y) - ((z * 9.0) * t)) / (a * 2.0);
+}
+</pre></div><div class="implementation" data-language="Python"><pre class="program">
+def code(x, y, z, t, a):
+	return ((x * y) - ((z * 9.0) * t)) / (a * 2.0)
+</pre></div><div class="implementation" data-language="Julia"><pre class="program">
+function code(x, y, z, t, a)
+	return Float64(Float64(Float64(x * y) - Float64(Float64(z * 9.0) * t)) / Float64(a * 2.0))
+end
+</pre></div><div class="implementation" data-language="MATLAB"><pre class="program">
+function tmp = code(x, y, z, t, a)
+	tmp = ((x * y) - ((z * 9.0) * t)) / (a * 2.0);
+end
+</pre></div><div class="implementation" data-language="Wolfram"><pre class="program">
+code[x_, y_, z_, t_, a_] := N[(N[(N[(x * y), $MachinePrecision] - N[(N[(z * 9.0), $MachinePrecision] * t), $MachinePrecision]), $MachinePrecision] / N[(a * 2.0), $MachinePrecision]), $MachinePrecision]
+</pre></div><div class="implementation" data-language="TeX"><pre class="program">\begin{array}{l}
+
+\\
+\frac{x \cdot y - \left(z \cdot 9\right) \cdot t}{a \cdot 2}
+\end{array}
+</pre></div></div></section><section id="alternative1" class="programs"><h2>Alternative 1: <span class="subhead"><data>76.4%</data> accurate, <data>1.0×</data> speedup</span><select><option>Math</option><option>FPCore</option><option>C</option><option>Fortran</option><option>Java</option><option>Python</option><option>Julia</option><option>MATLAB</option><option>Wolfram</option><option>TeX</option></select><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#alternatives" target="_blank">?</a></h2><div><div class="implementation" data-language="Math"><div class="program math">\[\begin{array}{l}
+[x, y, z, t, a] = \mathsf{sort}([x, y, z, t, a])\\
+\\
+\frac{y \cdot x - t \cdot \left(9 \cdot z\right)}{2 \cdot a}
+\end{array}
+\]</div></div><div class="implementation" data-language="FPCore"><pre class="program">NOTE: x, y, z, t, and a should be sorted in increasing order before calling this function.
+(FPCore (x y z t a)
+ :precision binary64
+ (/ (- (* y x) (* t (* 9.0 z))) (* 2.0 a)))</pre></div><div class="implementation" data-language="C"><pre class="program">assert(x &lt; y &amp;&amp; y &lt; z &amp;&amp; z &lt; t &amp;&amp; t &lt; a);
+double code(double x, double y, double z, double t, double a) {
+	return ((y * x) - (t * (9.0 * z))) / (2.0 * a);
+}
+</pre></div><div class="implementation" data-language="Fortran"><pre class="program">NOTE: x, y, z, t, and a should be sorted in increasing order before calling this function.
+real(8) function code(x, y, z, t, a)
+use fmin_fmax_functions
+    real(8), intent (in) :: x
+    real(8), intent (in) :: y
+    real(8), intent (in) :: z
+    real(8), intent (in) :: t
+    real(8), intent (in) :: a
+    code = ((y * x) - (t * (9.0d0 * z))) / (2.0d0 * a)
+end function
+</pre></div><div class="implementation" data-language="Java"><pre class="program">assert x &lt; y &amp;&amp; y &lt; z &amp;&amp; z &lt; t &amp;&amp; t &lt; a;
+public static double code(double x, double y, double z, double t, double a) {
+	return ((y * x) - (t * (9.0 * z))) / (2.0 * a);
+}
+</pre></div><div class="implementation" data-language="Python"><pre class="program">[x, y, z, t, a] = sort([x, y, z, t, a])
+def code(x, y, z, t, a):
+	return ((y * x) - (t * (9.0 * z))) / (2.0 * a)
+</pre></div><div class="implementation" data-language="Julia"><pre class="program">x, y, z, t, a = sort([x, y, z, t, a])
+function code(x, y, z, t, a)
+	return Float64(Float64(Float64(y * x) - Float64(t * Float64(9.0 * z))) / Float64(2.0 * a))
+end
+</pre></div><div class="implementation" data-language="MATLAB"><pre class="program">x, y, z, t, a = num2cell(sort([x, y, z, t, a])){:}
+function tmp = code(x, y, z, t, a)
+	tmp = ((y * x) - (t * (9.0 * z))) / (2.0 * a);
+end
+</pre></div><div class="implementation" data-language="Wolfram"><pre class="program">NOTE: x, y, z, t, and a should be sorted in increasing order before calling this function.
+code[x_, y_, z_, t_, a_] := N[(N[(N[(y * x), $MachinePrecision] - N[(t * N[(9.0 * z), $MachinePrecision]), $MachinePrecision]), $MachinePrecision] / N[(2.0 * a), $MachinePrecision]), $MachinePrecision]
+</pre></div><div class="implementation" data-language="TeX"><pre class="program">\begin{array}{l}
+[x, y, z, t, a] = \mathsf{sort}([x, y, z, t, a])\\
+\\
+\frac{y \cdot x - t \cdot \left(9 \cdot z\right)}{2 \cdot a}
+\end{array}
+</pre></div></div><details><summary>Derivation</summary><ol class="history"><li><p>Initial program <span class="error" title="76.4% on training set">91.7%</span></p><div class="math">\[\frac{x \cdot y - \left(z \cdot 9\right) \cdot t}{a \cdot 2}
+\]</div></li><li>Add Preprocessing</li><li><p>Final simplification<span class="error" title="76.4% on training set">91.7%</span></p><div class="math">\[\leadsto \frac{y \cdot x - t \cdot \left(9 \cdot z\right)}{2 \cdot a}
+\]</div></li><li>Add Preprocessing</li></ol></details></section><section id="target1" class="programs"><h2>Developer Target 1: <span class="subhead"><data>100.0%</data> accurate, <data>0.6×</data> speedup</span><select><option>Math</option><option>FPCore</option><option>C</option><option>Fortran</option><option>Java</option><option>Python</option><option>Julia</option><option>MATLAB</option><option>Wolfram</option><option>TeX</option></select><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#target" target="_blank">?</a></h2><div><div class="implementation" data-language="Math"><div class="program math">\[\begin{array}{l}
+
+\\
+\begin{array}{l}
+\mathbf{if}\;a &lt; -2.090464557976709 \cdot 10^{+86}:\\
+\;\;\;\;0.5 \cdot \frac{y \cdot x}{a} - 4.5 \cdot \frac{t}{\frac{a}{z}}\\
+
+\mathbf{elif}\;a &lt; 2.144030707833976 \cdot 10^{+99}:\\
+\;\;\;\;\frac{x \cdot y - z \cdot \left(9 \cdot t\right)}{a \cdot 2}\\
+
+\mathbf{else}:\\
+\;\;\;\;\frac{y}{a} \cdot \left(x \cdot 0.5\right) - \frac{t}{a} \cdot \left(z \cdot 4.5\right)\\
+
+
+\end{array}
+\end{array}
+\]</div></div><div class="implementation" data-language="FPCore"><pre class="program">
+(FPCore (x y z t a)
+ :precision binary64
+ (if (&lt; a -2.090464557976709e+86)
+   (- (* 0.5 (/ (* y x) a)) (* 4.5 (/ t (/ a z))))
+   (if (&lt; a 2.144030707833976e+99)
+     (/ (- (* x y) (* z (* 9.0 t))) (* a 2.0))
+     (- (* (/ y a) (* x 0.5)) (* (/ t a) (* z 4.5))))))</pre></div><div class="implementation" data-language="C"><pre class="program">
+double code(double x, double y, double z, double t, double a) {
+	double tmp;
+	if (a &lt; -2.090464557976709e+86) {
+		tmp = (0.5 * ((y * x) / a)) - (4.5 * (t / (a / z)));
+	} else if (a &lt; 2.144030707833976e+99) {
+		tmp = ((x * y) - (z * (9.0 * t))) / (a * 2.0);
+	} else {
+		tmp = ((y / a) * (x * 0.5)) - ((t / a) * (z * 4.5));
+	}
+	return tmp;
+}
+</pre></div><div class="implementation" data-language="Fortran"><pre class="program">
+real(8) function code(x, y, z, t, a)
+use fmin_fmax_functions
+    real(8), intent (in) :: x
+    real(8), intent (in) :: y
+    real(8), intent (in) :: z
+    real(8), intent (in) :: t
+    real(8), intent (in) :: a
+    real(8) :: tmp
+    if (a &lt; (-2.090464557976709d+86)) then
+        tmp = (0.5d0 * ((y * x) / a)) - (4.5d0 * (t / (a / z)))
+    else if (a &lt; 2.144030707833976d+99) then
+        tmp = ((x * y) - (z * (9.0d0 * t))) / (a * 2.0d0)
+    else
+        tmp = ((y / a) * (x * 0.5d0)) - ((t / a) * (z * 4.5d0))
+    end if
+    code = tmp
+end function
+</pre></div><div class="implementation" data-language="Java"><pre class="program">
+public static double code(double x, double y, double z, double t, double a) {
+	double tmp;
+	if (a &lt; -2.090464557976709e+86) {
+		tmp = (0.5 * ((y * x) / a)) - (4.5 * (t / (a / z)));
+	} else if (a &lt; 2.144030707833976e+99) {
+		tmp = ((x * y) - (z * (9.0 * t))) / (a * 2.0);
+	} else {
+		tmp = ((y / a) * (x * 0.5)) - ((t / a) * (z * 4.5));
+	}
+	return tmp;
+}
+</pre></div><div class="implementation" data-language="Python"><pre class="program">
+def code(x, y, z, t, a):
+	tmp = 0
+	if a &lt; -2.090464557976709e+86:
+		tmp = (0.5 * ((y * x) / a)) - (4.5 * (t / (a / z)))
+	elif a &lt; 2.144030707833976e+99:
+		tmp = ((x * y) - (z * (9.0 * t))) / (a * 2.0)
+	else:
+		tmp = ((y / a) * (x * 0.5)) - ((t / a) * (z * 4.5))
+	return tmp
+</pre></div><div class="implementation" data-language="Julia"><pre class="program">
+function code(x, y, z, t, a)
+	tmp = 0.0
+	if (a &lt; -2.090464557976709e+86)
+		tmp = Float64(Float64(0.5 * Float64(Float64(y * x) / a)) - Float64(4.5 * Float64(t / Float64(a / z))));
+	elseif (a &lt; 2.144030707833976e+99)
+		tmp = Float64(Float64(Float64(x * y) - Float64(z * Float64(9.0 * t))) / Float64(a * 2.0));
+	else
+		tmp = Float64(Float64(Float64(y / a) * Float64(x * 0.5)) - Float64(Float64(t / a) * Float64(z * 4.5)));
+	end
+	return tmp
+end
+</pre></div><div class="implementation" data-language="MATLAB"><pre class="program">
+function tmp_2 = code(x, y, z, t, a)
+	tmp = 0.0;
+	if (a &lt; -2.090464557976709e+86)
+		tmp = (0.5 * ((y * x) / a)) - (4.5 * (t / (a / z)));
+	elseif (a &lt; 2.144030707833976e+99)
+		tmp = ((x * y) - (z * (9.0 * t))) / (a * 2.0);
+	else
+		tmp = ((y / a) * (x * 0.5)) - ((t / a) * (z * 4.5));
+	end
+	tmp_2 = tmp;
+end
+</pre></div><div class="implementation" data-language="Wolfram"><pre class="program">
+code[x_, y_, z_, t_, a_] := If[Less[a, -2.090464557976709e+86], N[(N[(0.5 * N[(N[(y * x), $MachinePrecision] / a), $MachinePrecision]), $MachinePrecision] - N[(4.5 * N[(t / N[(a / z), $MachinePrecision]), $MachinePrecision]), $MachinePrecision]), $MachinePrecision], If[Less[a, 2.144030707833976e+99], N[(N[(N[(x * y), $MachinePrecision] - N[(z * N[(9.0 * t), $MachinePrecision]), $MachinePrecision]), $MachinePrecision] / N[(a * 2.0), $MachinePrecision]), $MachinePrecision], N[(N[(N[(y / a), $MachinePrecision] * N[(x * 0.5), $MachinePrecision]), $MachinePrecision] - N[(N[(t / a), $MachinePrecision] * N[(z * 4.5), $MachinePrecision]), $MachinePrecision]), $MachinePrecision]]]
+</pre></div><div class="implementation" data-language="TeX"><pre class="program">\begin{array}{l}
+
+\\
+\begin{array}{l}
+\mathbf{if}\;a &lt; -2.090464557976709 \cdot 10^{+86}:\\
+\;\;\;\;0.5 \cdot \frac{y \cdot x}{a} - 4.5 \cdot \frac{t}{\frac{a}{z}}\\
+
+\mathbf{elif}\;a &lt; 2.144030707833976 \cdot 10^{+99}:\\
+\;\;\;\;\frac{x \cdot y - z \cdot \left(9 \cdot t\right)}{a \cdot 2}\\
+
+\mathbf{else}:\\
+\;\;\;\;\frac{y}{a} \cdot \left(x \cdot 0.5\right) - \frac{t}{a} \cdot \left(z \cdot 4.5\right)\\
+
+
+\end{array}
+\end{array}
+</pre></div></div></section><section id="reproduce"><details><summary><h2>Reproduce</h2><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#reproduction" target="_blank">?</a></summary><pre class="shell"><code>herbie shell --seed 1528405439 
+(FPCore (x y z t a)
+  :name "Diagrams.Solve.Polynomial:cubForm  from diagrams-solve-0.1, I"
+  :precision binary64
+
+  :alt
+  (! :herbie-platform default (if (&lt; a -209046455797670900000000000000000000000000000000000000000000000000000000000000000000000) (- (* 1/2 (/ (* y x) a)) (* 9/2 (/ t (/ a z)))) (if (&lt; a 2144030707833976000000000000000000000000000000000000000000000000000000000000000000000000000000000000) (/ (- (* x y) (* z (* 9 t))) (* a 2)) (- (* (/ y a) (* x 1/2)) (* (/ t a) (* z 9/2))))))
+
+  (/ (- (* x y) (* (* z 9.0) t)) (* a 2.0)))
+</code></pre></details></section></body></html>

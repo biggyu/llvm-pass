@@ -1,0 +1,173 @@
+<!doctype html>
+<html><head><meta charset="utf-8"/><title>Result for b from scale-rotated-ellipse</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" integrity="sha384-9tPv11A+glH/on/wEu99NVwDPwkMQESOocs/ZGXPoIiLE8MU/qkqUcZ3zzL+6DuH" crossorigin="anonymous"/><script src="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.js" integrity="sha384-U8Vrjwb8fuHMt6ewaCy8uqeUXv4oitYACKdB0VziCerzt011iQ/0TqlSlv8MReCm" crossorigin="anonymous"></script><script src="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/contrib/auto-render.min.js" integrity="sha384-aGfk5kvhIq5x1x5YdvCp4upKZYnA8ckafviDpmWEKp4afOZEqOli7gqSnh8I6enH" crossorigin="anonymous"></script><script src="https://unpkg.com/mathjs@4.4.2/dist/math.min.js"></script><script src="https://unpkg.com/d3@6.7.0/dist/d3.min.js"></script><script src="https://unpkg.com/@observablehq/plot@0.4.3/dist/plot.umd.min.js"></script><link rel="stylesheet" type="text/css" href="../report.css"/><script src="../report.js"></script></head><body><header><h1>b from scale-rotated-ellipse</h1><img src="../logo-car.png"/><nav><ul><li><a href="../index.html">Report</a></li><li><a href="timeline.html">Metrics</a></li></ul></nav></header><div id="large"><div>Percentage Accurate: <span class="number" title="Minimum Accuracy: 0.0% → 0.0%">0.0%<span class="unit"> → </span>0.0%</span></div><div>Time: <span class="number">14.1s</span></div><div>Alternatives: <span class="number">1</span></div><div>Speedup: <span class="number" title="Relative speed of fastest alternative that improves accuracy.">1.0×</span></div></div><section><details id="specification" class="programs"><summary><h2>Specification</h2><select><option>Math</option><option>FPCore</option><option>TeX</option></select><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#spec" target="_blank">?</a></summary><div><div class="implementation" data-language="Math"><div class="program math">\[\begin{array}{l}
+
+\\
+\begin{array}{l}
+t_0 := \frac{angle}{180} \cdot \mathsf{PI}\left(\right)\\
+t_1 := \sin t\_0\\
+t_2 := \cos t\_0\\
+t_3 := \frac{\frac{{\left(a \cdot t\_2\right)}^{2} + {\left(b \cdot t\_1\right)}^{2}}{y-scale}}{y-scale}\\
+t_4 := \frac{\frac{{\left(a \cdot t\_1\right)}^{2} + {\left(b \cdot t\_2\right)}^{2}}{x-scale}}{x-scale}\\
+t_5 := \left(b \cdot a\right) \cdot \left(b \cdot \left(-a\right)\right)\\
+t_6 := \frac{4 \cdot t\_5}{{\left(x-scale \cdot y-scale\right)}^{2}}\\
+\frac{-\sqrt{\left(\left(2 \cdot t\_6\right) \cdot t\_5\right) \cdot \left(\left(t\_4 + t\_3\right) - \sqrt{{\left(t\_4 - t\_3\right)}^{2} + {\left(\frac{\frac{\left(\left(2 \cdot \left({b}^{2} - {a}^{2}\right)\right) \cdot t\_1\right) \cdot t\_2}{x-scale}}{y-scale}\right)}^{2}}\right)}}{t\_6}
+\end{array}
+\end{array}
+\]</div></div><div class="implementation" data-language="FPCore"><pre class="program">
+(FPCore (a b angle x-scale y-scale)
+ :precision binary64
+ (let* ((t_0 (* (/ angle 180.0) (PI)))
+        (t_1 (sin t_0))
+        (t_2 (cos t_0))
+        (t_3
+         (/ (/ (+ (pow (* a t_2) 2.0) (pow (* b t_1) 2.0)) y-scale) y-scale))
+        (t_4
+         (/ (/ (+ (pow (* a t_1) 2.0) (pow (* b t_2) 2.0)) x-scale) x-scale))
+        (t_5 (* (* b a) (* b (- a))))
+        (t_6 (/ (* 4.0 t_5) (pow (* x-scale y-scale) 2.0))))
+   (/
+    (-
+     (sqrt
+      (*
+       (* (* 2.0 t_6) t_5)
+       (-
+        (+ t_4 t_3)
+        (sqrt
+         (+
+          (pow (- t_4 t_3) 2.0)
+          (pow
+           (/
+            (/ (* (* (* 2.0 (- (pow b 2.0) (pow a 2.0))) t_1) t_2) x-scale)
+            y-scale)
+           2.0)))))))
+    t_6)))</pre></div><div class="implementation" data-language="TeX"><pre class="program">\begin{array}{l}
+
+\\
+\begin{array}{l}
+t_0 := \frac{angle}{180} \cdot \mathsf{PI}\left(\right)\\
+t_1 := \sin t\_0\\
+t_2 := \cos t\_0\\
+t_3 := \frac{\frac{{\left(a \cdot t\_2\right)}^{2} + {\left(b \cdot t\_1\right)}^{2}}{y-scale}}{y-scale}\\
+t_4 := \frac{\frac{{\left(a \cdot t\_1\right)}^{2} + {\left(b \cdot t\_2\right)}^{2}}{x-scale}}{x-scale}\\
+t_5 := \left(b \cdot a\right) \cdot \left(b \cdot \left(-a\right)\right)\\
+t_6 := \frac{4 \cdot t\_5}{{\left(x-scale \cdot y-scale\right)}^{2}}\\
+\frac{-\sqrt{\left(\left(2 \cdot t\_6\right) \cdot t\_5\right) \cdot \left(\left(t\_4 + t\_3\right) - \sqrt{{\left(t\_4 - t\_3\right)}^{2} + {\left(\frac{\frac{\left(\left(2 \cdot \left({b}^{2} - {a}^{2}\right)\right) \cdot t\_1\right) \cdot t\_2}{x-scale}}{y-scale}\right)}^{2}}\right)}}{t\_6}
+\end{array}
+\end{array}
+</pre></div></div><p>Sampling outcomes in <kbd>binary64</kbd> precision:</p><div class="bogosity"><div class="bogosity-valid" data-id="bogosity-valid" data-type="valid" data-timespan="0.9860506578091691" title="valid (98.6%)"></div><div class="bogosity-unknown" data-id="bogosity-unknown" data-type="unknown" data-timespan="0" title="unknown (0.0%)"></div><div class="bogosity-infinite" data-id="bogosity-infinite" data-type="infinite" data-timespan="0.011510318962752947" title="infinite (1.2%)"></div><div class="bogosity-unsamplable" data-id="bogosity-unsamplable" data-type="unsamplable" data-timespan="0" title="unsamplable (0.0%)"></div><div class="bogosity-invalid" data-id="bogosity-invalid" data-type="invalid" data-timespan="0.0" title="invalid (0.0%)"></div><div class="bogosity-precondition" data-id="bogosity-precondition" data-type="precondition" data-timespan="0.0024390232280779856" title="precondition (0.2%)"></div></div></details></section><figure id="graphs"><h2>Local Percentage Accuracy vs <span id="variables"></span><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#graph" target="_blank">?</a></h2><svg></svg><div id="functions"></div><figcaption>The average percentage accuracy by input value. Horizontal axis shows value of an input variable; the variable is choosen in the title. Vertical axis is accuracy; higher is better. Red represent the original program, while blue represents Herbie's suggestion. These can be toggled with buttons below the plot. The line is an average while dots represent individual samples.</figcaption></figure><section id="cost-accuracy" class="section" data-benchmark-name="b from scale-rotated-ellipse"><h2>Accuracy vs Speed<a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#cost-accuracy" target="_blank">?</a></h2><div class="figure-row"><svg></svg><div><p>Herbie found 1 alternatives:</p><table><thead><tr><th>Alternative</th><th class="numeric">Accuracy</th><th class="numeric">Speedup</th></tr></thead><tbody></tbody></table></div></div><figcaption>The accuracy (vertical axis) and speed (horizontal axis) of each alternatives. Up and to the right is better. The red square shows the initial program, and each blue circle shows an alternative.The line shows the best available speed-accuracy tradeoffs.</figcaption></section><section id="initial" class="programs"><h2>Initial Program: <span class="subhead"><data>0.0%</data> accurate, <data>1.0×</data> speedup</span><select><option>Math</option><option>FPCore</option><option>TeX</option></select><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#alternatives" target="_blank">?</a></h2><div><div class="implementation" data-language="Math"><div class="program math">\[\begin{array}{l}
+
+\\
+\begin{array}{l}
+t_0 := \frac{angle}{180} \cdot \mathsf{PI}\left(\right)\\
+t_1 := \sin t\_0\\
+t_2 := \cos t\_0\\
+t_3 := \frac{\frac{{\left(a \cdot t\_2\right)}^{2} + {\left(b \cdot t\_1\right)}^{2}}{y-scale}}{y-scale}\\
+t_4 := \frac{\frac{{\left(a \cdot t\_1\right)}^{2} + {\left(b \cdot t\_2\right)}^{2}}{x-scale}}{x-scale}\\
+t_5 := \left(b \cdot a\right) \cdot \left(b \cdot \left(-a\right)\right)\\
+t_6 := \frac{4 \cdot t\_5}{{\left(x-scale \cdot y-scale\right)}^{2}}\\
+\frac{-\sqrt{\left(\left(2 \cdot t\_6\right) \cdot t\_5\right) \cdot \left(\left(t\_4 + t\_3\right) - \sqrt{{\left(t\_4 - t\_3\right)}^{2} + {\left(\frac{\frac{\left(\left(2 \cdot \left({b}^{2} - {a}^{2}\right)\right) \cdot t\_1\right) \cdot t\_2}{x-scale}}{y-scale}\right)}^{2}}\right)}}{t\_6}
+\end{array}
+\end{array}
+\]</div></div><div class="implementation" data-language="FPCore"><pre class="program">
+(FPCore (a b angle x-scale y-scale)
+ :precision binary64
+ (let* ((t_0 (* (/ angle 180.0) (PI)))
+        (t_1 (sin t_0))
+        (t_2 (cos t_0))
+        (t_3
+         (/ (/ (+ (pow (* a t_2) 2.0) (pow (* b t_1) 2.0)) y-scale) y-scale))
+        (t_4
+         (/ (/ (+ (pow (* a t_1) 2.0) (pow (* b t_2) 2.0)) x-scale) x-scale))
+        (t_5 (* (* b a) (* b (- a))))
+        (t_6 (/ (* 4.0 t_5) (pow (* x-scale y-scale) 2.0))))
+   (/
+    (-
+     (sqrt
+      (*
+       (* (* 2.0 t_6) t_5)
+       (-
+        (+ t_4 t_3)
+        (sqrt
+         (+
+          (pow (- t_4 t_3) 2.0)
+          (pow
+           (/
+            (/ (* (* (* 2.0 (- (pow b 2.0) (pow a 2.0))) t_1) t_2) x-scale)
+            y-scale)
+           2.0)))))))
+    t_6)))</pre></div><div class="implementation" data-language="TeX"><pre class="program">\begin{array}{l}
+
+\\
+\begin{array}{l}
+t_0 := \frac{angle}{180} \cdot \mathsf{PI}\left(\right)\\
+t_1 := \sin t\_0\\
+t_2 := \cos t\_0\\
+t_3 := \frac{\frac{{\left(a \cdot t\_2\right)}^{2} + {\left(b \cdot t\_1\right)}^{2}}{y-scale}}{y-scale}\\
+t_4 := \frac{\frac{{\left(a \cdot t\_1\right)}^{2} + {\left(b \cdot t\_2\right)}^{2}}{x-scale}}{x-scale}\\
+t_5 := \left(b \cdot a\right) \cdot \left(b \cdot \left(-a\right)\right)\\
+t_6 := \frac{4 \cdot t\_5}{{\left(x-scale \cdot y-scale\right)}^{2}}\\
+\frac{-\sqrt{\left(\left(2 \cdot t\_6\right) \cdot t\_5\right) \cdot \left(\left(t\_4 + t\_3\right) - \sqrt{{\left(t\_4 - t\_3\right)}^{2} + {\left(\frac{\frac{\left(\left(2 \cdot \left({b}^{2} - {a}^{2}\right)\right) \cdot t\_1\right) \cdot t\_2}{x-scale}}{y-scale}\right)}^{2}}\right)}}{t\_6}
+\end{array}
+\end{array}
+</pre></div></div></section><section id="alternative1" class="programs"><h2>Alternative 1: <span class="subhead"><data>0.0%</data> accurate, <data>1.0×</data> speedup</span><select><option>Math</option><option>FPCore</option><option>TeX</option></select><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#alternatives" target="_blank">?</a></h2><div><div class="implementation" data-language="Math"><div class="program math">\[\begin{array}{l}
+
+\\
+\begin{array}{l}
+t_0 := \mathsf{PI}\left(\right) \cdot \frac{angle}{180}\\
+t_1 := \left(a \cdot b\right) \cdot \left(a \cdot b\right)\\
+t_2 := \frac{t\_1 \cdot 4}{{\left(y-scale \cdot x-scale\right)}^{2}}\\
+t_3 := \cos t\_0\\
+t_4 := \sin t\_0\\
+t_5 := \frac{\frac{{\left(t\_4 \cdot b\right)}^{2} + {\left(t\_3 \cdot a\right)}^{2}}{y-scale}}{y-scale}\\
+t_6 := \frac{\frac{{\left(t\_3 \cdot b\right)}^{2} + {\left(t\_4 \cdot a\right)}^{2}}{x-scale}}{x-scale}\\
+\frac{\sqrt{\left(\left(t\_5 + t\_6\right) - \sqrt{{\left(\frac{\frac{\left(\left(\left({b}^{2} - {a}^{2}\right) \cdot 2\right) \cdot t\_4\right) \cdot t\_3}{x-scale}}{y-scale}\right)}^{2} + {\left(t\_6 - t\_5\right)}^{2}}\right) \cdot \left(\left(t\_2 \cdot 2\right) \cdot t\_1\right)}}{t\_2}
+\end{array}
+\end{array}
+\]</div></div><div class="implementation" data-language="FPCore"><pre class="program">
+(FPCore (a b angle x-scale y-scale)
+ :precision binary64
+ (let* ((t_0 (* (PI) (/ angle 180.0)))
+        (t_1 (* (* a b) (* a b)))
+        (t_2 (/ (* t_1 4.0) (pow (* y-scale x-scale) 2.0)))
+        (t_3 (cos t_0))
+        (t_4 (sin t_0))
+        (t_5
+         (/ (/ (+ (pow (* t_4 b) 2.0) (pow (* t_3 a) 2.0)) y-scale) y-scale))
+        (t_6
+         (/ (/ (+ (pow (* t_3 b) 2.0) (pow (* t_4 a) 2.0)) x-scale) x-scale)))
+   (/
+    (sqrt
+     (*
+      (-
+       (+ t_5 t_6)
+       (sqrt
+        (+
+         (pow
+          (/
+           (/ (* (* (* (- (pow b 2.0) (pow a 2.0)) 2.0) t_4) t_3) x-scale)
+           y-scale)
+          2.0)
+         (pow (- t_6 t_5) 2.0))))
+      (* (* t_2 2.0) t_1)))
+    t_2)))</pre></div><div class="implementation" data-language="TeX"><pre class="program">\begin{array}{l}
+
+\\
+\begin{array}{l}
+t_0 := \mathsf{PI}\left(\right) \cdot \frac{angle}{180}\\
+t_1 := \left(a \cdot b\right) \cdot \left(a \cdot b\right)\\
+t_2 := \frac{t\_1 \cdot 4}{{\left(y-scale \cdot x-scale\right)}^{2}}\\
+t_3 := \cos t\_0\\
+t_4 := \sin t\_0\\
+t_5 := \frac{\frac{{\left(t\_4 \cdot b\right)}^{2} + {\left(t\_3 \cdot a\right)}^{2}}{y-scale}}{y-scale}\\
+t_6 := \frac{\frac{{\left(t\_3 \cdot b\right)}^{2} + {\left(t\_4 \cdot a\right)}^{2}}{x-scale}}{x-scale}\\
+\frac{\sqrt{\left(\left(t\_5 + t\_6\right) - \sqrt{{\left(\frac{\frac{\left(\left(\left({b}^{2} - {a}^{2}\right) \cdot 2\right) \cdot t\_4\right) \cdot t\_3}{x-scale}}{y-scale}\right)}^{2} + {\left(t\_6 - t\_5\right)}^{2}}\right) \cdot \left(\left(t\_2 \cdot 2\right) \cdot t\_1\right)}}{t\_2}
+\end{array}
+\end{array}
+</pre></div></div><details><summary>Derivation</summary><ol class="history"><li><p>Initial program <span class="error" title="0.0% on training set">0.1%</span></p><div class="math">\[\frac{-\sqrt{\left(\left(2 \cdot \frac{4 \cdot \left(\left(b \cdot a\right) \cdot \left(b \cdot \left(-a\right)\right)\right)}{{\left(x-scale \cdot y-scale\right)}^{2}}\right) \cdot \left(\left(b \cdot a\right) \cdot \left(b \cdot \left(-a\right)\right)\right)\right) \cdot \left(\left(\frac{\frac{{\left(a \cdot \sin \left(\frac{angle}{180} \cdot \mathsf{PI}\left(\right)\right)\right)}^{2} + {\left(b \cdot \cos \left(\frac{angle}{180} \cdot \mathsf{PI}\left(\right)\right)\right)}^{2}}{x-scale}}{x-scale} + \frac{\frac{{\left(a \cdot \cos \left(\frac{angle}{180} \cdot \mathsf{PI}\left(\right)\right)\right)}^{2} + {\left(b \cdot \sin \left(\frac{angle}{180} \cdot \mathsf{PI}\left(\right)\right)\right)}^{2}}{y-scale}}{y-scale}\right) - \sqrt{{\left(\frac{\frac{{\left(a \cdot \sin \left(\frac{angle}{180} \cdot \mathsf{PI}\left(\right)\right)\right)}^{2} + {\left(b \cdot \cos \left(\frac{angle}{180} \cdot \mathsf{PI}\left(\right)\right)\right)}^{2}}{x-scale}}{x-scale} - \frac{\frac{{\left(a \cdot \cos \left(\frac{angle}{180} \cdot \mathsf{PI}\left(\right)\right)\right)}^{2} + {\left(b \cdot \sin \left(\frac{angle}{180} \cdot \mathsf{PI}\left(\right)\right)\right)}^{2}}{y-scale}}{y-scale}\right)}^{2} + {\left(\frac{\frac{\left(\left(2 \cdot \left({b}^{2} - {a}^{2}\right)\right) \cdot \sin \left(\frac{angle}{180} \cdot \mathsf{PI}\left(\right)\right)\right) \cdot \cos \left(\frac{angle}{180} \cdot \mathsf{PI}\left(\right)\right)}{x-scale}}{y-scale}\right)}^{2}}\right)}}{\frac{4 \cdot \left(\left(b \cdot a\right) \cdot \left(b \cdot \left(-a\right)\right)\right)}{{\left(x-scale \cdot y-scale\right)}^{2}}}
+\]</div></li><li>Add Preprocessing</li><li><p>Final simplification<span class="error" title="0.0% on training set">0.1%</span></p><div class="math">\[\leadsto \frac{\sqrt{\left(\left(\frac{\frac{{\left(\sin \left(\mathsf{PI}\left(\right) \cdot \frac{angle}{180}\right) \cdot b\right)}^{2} + {\left(\cos \left(\mathsf{PI}\left(\right) \cdot \frac{angle}{180}\right) \cdot a\right)}^{2}}{y-scale}}{y-scale} + \frac{\frac{{\left(\cos \left(\mathsf{PI}\left(\right) \cdot \frac{angle}{180}\right) \cdot b\right)}^{2} + {\left(\sin \left(\mathsf{PI}\left(\right) \cdot \frac{angle}{180}\right) \cdot a\right)}^{2}}{x-scale}}{x-scale}\right) - \sqrt{{\left(\frac{\frac{\left(\left(\left({b}^{2} - {a}^{2}\right) \cdot 2\right) \cdot \sin \left(\mathsf{PI}\left(\right) \cdot \frac{angle}{180}\right)\right) \cdot \cos \left(\mathsf{PI}\left(\right) \cdot \frac{angle}{180}\right)}{x-scale}}{y-scale}\right)}^{2} + {\left(\frac{\frac{{\left(\cos \left(\mathsf{PI}\left(\right) \cdot \frac{angle}{180}\right) \cdot b\right)}^{2} + {\left(\sin \left(\mathsf{PI}\left(\right) \cdot \frac{angle}{180}\right) \cdot a\right)}^{2}}{x-scale}}{x-scale} - \frac{\frac{{\left(\sin \left(\mathsf{PI}\left(\right) \cdot \frac{angle}{180}\right) \cdot b\right)}^{2} + {\left(\cos \left(\mathsf{PI}\left(\right) \cdot \frac{angle}{180}\right) \cdot a\right)}^{2}}{y-scale}}{y-scale}\right)}^{2}}\right) \cdot \left(\left(\frac{\left(\left(a \cdot b\right) \cdot \left(a \cdot b\right)\right) \cdot 4}{{\left(y-scale \cdot x-scale\right)}^{2}} \cdot 2\right) \cdot \left(\left(a \cdot b\right) \cdot \left(a \cdot b\right)\right)\right)}}{\frac{\left(\left(a \cdot b\right) \cdot \left(a \cdot b\right)\right) \cdot 4}{{\left(y-scale \cdot x-scale\right)}^{2}}}
+\]</div></li><li>Add Preprocessing</li></ol></details></section><section id="reproduce"><details><summary><h2>Reproduce</h2><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#reproduction" target="_blank">?</a></summary><pre class="shell"><code>herbie shell --seed 1528405439 
+(FPCore (a b angle x-scale y-scale)
+  :name "b from scale-rotated-ellipse"
+  :precision binary64
+  (/ (- (sqrt (* (* (* 2.0 (/ (* 4.0 (* (* b a) (* b (- a)))) (pow (* x-scale y-scale) 2.0))) (* (* b a) (* b (- a)))) (- (+ (/ (/ (+ (pow (* a (sin (* (/ angle 180.0) (PI)))) 2.0) (pow (* b (cos (* (/ angle 180.0) (PI)))) 2.0)) x-scale) x-scale) (/ (/ (+ (pow (* a (cos (* (/ angle 180.0) (PI)))) 2.0) (pow (* b (sin (* (/ angle 180.0) (PI)))) 2.0)) y-scale) y-scale)) (sqrt (+ (pow (- (/ (/ (+ (pow (* a (sin (* (/ angle 180.0) (PI)))) 2.0) (pow (* b (cos (* (/ angle 180.0) (PI)))) 2.0)) x-scale) x-scale) (/ (/ (+ (pow (* a (cos (* (/ angle 180.0) (PI)))) 2.0) (pow (* b (sin (* (/ angle 180.0) (PI)))) 2.0)) y-scale) y-scale)) 2.0) (pow (/ (/ (* (* (* 2.0 (- (pow b 2.0) (pow a 2.0))) (sin (* (/ angle 180.0) (PI)))) (cos (* (/ angle 180.0) (PI)))) x-scale) y-scale) 2.0))))))) (/ (* 4.0 (* (* b a) (* b (- a)))) (pow (* x-scale y-scale) 2.0))))
+</code></pre></details></section></body></html>

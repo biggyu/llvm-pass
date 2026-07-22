@@ -1,0 +1,178 @@
+<!doctype html>
+<html><head><meta charset="utf-8"/><title>Result for Expression, p14</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" integrity="sha384-9tPv11A+glH/on/wEu99NVwDPwkMQESOocs/ZGXPoIiLE8MU/qkqUcZ3zzL+6DuH" crossorigin="anonymous"/><script src="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.js" integrity="sha384-U8Vrjwb8fuHMt6ewaCy8uqeUXv4oitYACKdB0VziCerzt011iQ/0TqlSlv8MReCm" crossorigin="anonymous"></script><script src="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/contrib/auto-render.min.js" integrity="sha384-aGfk5kvhIq5x1x5YdvCp4upKZYnA8ckafviDpmWEKp4afOZEqOli7gqSnh8I6enH" crossorigin="anonymous"></script><script src="https://unpkg.com/mathjs@4.4.2/dist/math.min.js"></script><script src="https://unpkg.com/d3@6.7.0/dist/d3.min.js"></script><script src="https://unpkg.com/@observablehq/plot@0.4.3/dist/plot.umd.min.js"></script><link rel="stylesheet" type="text/css" href="../report.css"/><script src="../report.js"></script></head><body><header><h1>Expression, p14</h1><img src="../logo-car.png"/><nav><ul><li><a href="../index.html">Report</a></li><li><a href="timeline.html">Metrics</a></li></ul></nav></header><div id="large"><div>Percentage Accurate: <span class="number" title="Minimum Accuracy: 100.0% → 100.0%">100.0%<span class="unit"> → </span>100.0%</span></div><div>Time: <span class="number">518.0ms</span></div><div>Alternatives: <span class="number">1</span></div><div>Speedup: <span class="number" title="Relative speed of fastest alternative that improves accuracy.">1.0×</span></div></div><section><details id="specification" class="programs"><summary><h2>Specification</h2><select><option>Math</option><option>FPCore</option><option>C</option><option>Fortran</option><option>Java</option><option>Python</option><option>Julia</option><option>MATLAB</option><option>Wolfram</option><option>TeX</option></select><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#spec" target="_blank">?</a></summary><div><div id="precondition"><div class="program math">\[\left(\left(\left(56789 \leq a \land a \leq 98765\right) \land \left(0 \leq b \land b \leq 1\right)\right) \land \left(0 \leq c \land c \leq 0.0016773\right)\right) \land \left(0 \leq d \land d \leq 0.0016773\right)\]</div></div><div class="implementation" data-language="Math"><div class="program math">\[\begin{array}{l}
+
+\\
+a \cdot \left(\left(b + c\right) + d\right)
+\end{array}
+\]</div></div><div class="implementation" data-language="FPCore"><pre class="program">
+(FPCore (a b c d) :precision binary64 (* a (+ (+ b c) d)))</pre></div><div class="implementation" data-language="C"><pre class="program">
+double code(double a, double b, double c, double d) {
+	return a * ((b + c) + d);
+}
+</pre></div><div class="implementation" data-language="Fortran"><pre class="program">
+real(8) function code(a, b, c, d)
+use fmin_fmax_functions
+    real(8), intent (in) :: a
+    real(8), intent (in) :: b
+    real(8), intent (in) :: c
+    real(8), intent (in) :: d
+    code = a * ((b + c) + d)
+end function
+</pre></div><div class="implementation" data-language="Java"><pre class="program">
+public static double code(double a, double b, double c, double d) {
+	return a * ((b + c) + d);
+}
+</pre></div><div class="implementation" data-language="Python"><pre class="program">
+def code(a, b, c, d):
+	return a * ((b + c) + d)
+</pre></div><div class="implementation" data-language="Julia"><pre class="program">
+function code(a, b, c, d)
+	return Float64(a * Float64(Float64(b + c) + d))
+end
+</pre></div><div class="implementation" data-language="MATLAB"><pre class="program">
+function tmp = code(a, b, c, d)
+	tmp = a * ((b + c) + d);
+end
+</pre></div><div class="implementation" data-language="Wolfram"><pre class="program">
+code[a_, b_, c_, d_] := N[(a * N[(N[(b + c), $MachinePrecision] + d), $MachinePrecision]), $MachinePrecision]
+</pre></div><div class="implementation" data-language="TeX"><pre class="program">\begin{array}{l}
+
+\\
+a \cdot \left(\left(b + c\right) + d\right)
+\end{array}
+</pre></div></div><p>Sampling outcomes in <kbd>binary64</kbd> precision:</p><div class="bogosity"><div class="bogosity-valid" data-id="bogosity-valid" data-type="valid" data-timespan="2.890645125621066e-6" title="valid (0.0%)"></div><div class="bogosity-unknown" data-id="bogosity-unknown" data-type="unknown" data-timespan="0" title="unknown (0.0%)"></div><div class="bogosity-infinite" data-id="bogosity-infinite" data-type="infinite" data-timespan="0" title="infinite (0.0%)"></div><div class="bogosity-unsamplable" data-id="bogosity-unsamplable" data-type="unsamplable" data-timespan="0" title="unsamplable (0.0%)"></div><div class="bogosity-invalid" data-id="bogosity-invalid" data-type="invalid" data-timespan="0.0" title="invalid (0.0%)"></div><div class="bogosity-precondition" data-id="bogosity-precondition" data-type="precondition" data-timespan="0.9999971093548744" title="precondition (100.0%)"></div></div></details></section><figure id="graphs"><h2>Local Percentage Accuracy vs <span id="variables"></span><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#graph" target="_blank">?</a></h2><svg></svg><div id="functions"></div><figcaption>The average percentage accuracy by input value. Horizontal axis shows value of an input variable; the variable is choosen in the title. Vertical axis is accuracy; higher is better. Red represent the original program, while blue represents Herbie's suggestion. These can be toggled with buttons below the plot. The line is an average while dots represent individual samples.</figcaption></figure><section id="cost-accuracy" class="section" data-benchmark-name="Expression, p14"><h2>Accuracy vs Speed<a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#cost-accuracy" target="_blank">?</a></h2><div class="figure-row"><svg></svg><div><p>Herbie found 1 alternatives:</p><table><thead><tr><th>Alternative</th><th class="numeric">Accuracy</th><th class="numeric">Speedup</th></tr></thead><tbody></tbody></table></div></div><figcaption>The accuracy (vertical axis) and speed (horizontal axis) of each alternatives. Up and to the right is better. The red square shows the initial program, and each blue circle shows an alternative.The line shows the best available speed-accuracy tradeoffs.</figcaption></section><section id="initial" class="programs"><h2>Initial Program: <span class="subhead"><data>100.0%</data> accurate, <data>1.0×</data> speedup</span><select><option>Math</option><option>FPCore</option><option>C</option><option>Fortran</option><option>Java</option><option>Python</option><option>Julia</option><option>MATLAB</option><option>Wolfram</option><option>TeX</option></select><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#alternatives" target="_blank">?</a></h2><div><div class="implementation" data-language="Math"><div class="program math">\[\begin{array}{l}
+
+\\
+a \cdot \left(\left(b + c\right) + d\right)
+\end{array}
+\]</div></div><div class="implementation" data-language="FPCore"><pre class="program">
+(FPCore (a b c d) :precision binary64 (* a (+ (+ b c) d)))</pre></div><div class="implementation" data-language="C"><pre class="program">
+double code(double a, double b, double c, double d) {
+	return a * ((b + c) + d);
+}
+</pre></div><div class="implementation" data-language="Fortran"><pre class="program">
+real(8) function code(a, b, c, d)
+use fmin_fmax_functions
+    real(8), intent (in) :: a
+    real(8), intent (in) :: b
+    real(8), intent (in) :: c
+    real(8), intent (in) :: d
+    code = a * ((b + c) + d)
+end function
+</pre></div><div class="implementation" data-language="Java"><pre class="program">
+public static double code(double a, double b, double c, double d) {
+	return a * ((b + c) + d);
+}
+</pre></div><div class="implementation" data-language="Python"><pre class="program">
+def code(a, b, c, d):
+	return a * ((b + c) + d)
+</pre></div><div class="implementation" data-language="Julia"><pre class="program">
+function code(a, b, c, d)
+	return Float64(a * Float64(Float64(b + c) + d))
+end
+</pre></div><div class="implementation" data-language="MATLAB"><pre class="program">
+function tmp = code(a, b, c, d)
+	tmp = a * ((b + c) + d);
+end
+</pre></div><div class="implementation" data-language="Wolfram"><pre class="program">
+code[a_, b_, c_, d_] := N[(a * N[(N[(b + c), $MachinePrecision] + d), $MachinePrecision]), $MachinePrecision]
+</pre></div><div class="implementation" data-language="TeX"><pre class="program">\begin{array}{l}
+
+\\
+a \cdot \left(\left(b + c\right) + d\right)
+\end{array}
+</pre></div></div></section><section id="alternative1" class="programs"><h2>Alternative 1: <span class="subhead"><data>100.0%</data> accurate, <data>1.0×</data> speedup</span><select><option>Math</option><option>FPCore</option><option>C</option><option>Fortran</option><option>Java</option><option>Python</option><option>Julia</option><option>MATLAB</option><option>Wolfram</option><option>TeX</option></select><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#alternatives" target="_blank">?</a></h2><div><div class="implementation" data-language="Math"><div class="program math">\[\begin{array}{l}
+[a, b, c, d] = \mathsf{sort}([a, b, c, d])\\
+\\
+\left(d + \left(c + b\right)\right) \cdot a
+\end{array}
+\]</div></div><div class="implementation" data-language="FPCore"><pre class="program">NOTE: a, b, c, and d should be sorted in increasing order before calling this function.
+(FPCore (a b c d) :precision binary64 (* (+ d (+ c b)) a))</pre></div><div class="implementation" data-language="C"><pre class="program">assert(a &lt; b &amp;&amp; b &lt; c &amp;&amp; c &lt; d);
+double code(double a, double b, double c, double d) {
+	return (d + (c + b)) * a;
+}
+</pre></div><div class="implementation" data-language="Fortran"><pre class="program">NOTE: a, b, c, and d should be sorted in increasing order before calling this function.
+real(8) function code(a, b, c, d)
+use fmin_fmax_functions
+    real(8), intent (in) :: a
+    real(8), intent (in) :: b
+    real(8), intent (in) :: c
+    real(8), intent (in) :: d
+    code = (d + (c + b)) * a
+end function
+</pre></div><div class="implementation" data-language="Java"><pre class="program">assert a &lt; b &amp;&amp; b &lt; c &amp;&amp; c &lt; d;
+public static double code(double a, double b, double c, double d) {
+	return (d + (c + b)) * a;
+}
+</pre></div><div class="implementation" data-language="Python"><pre class="program">[a, b, c, d] = sort([a, b, c, d])
+def code(a, b, c, d):
+	return (d + (c + b)) * a
+</pre></div><div class="implementation" data-language="Julia"><pre class="program">a, b, c, d = sort([a, b, c, d])
+function code(a, b, c, d)
+	return Float64(Float64(d + Float64(c + b)) * a)
+end
+</pre></div><div class="implementation" data-language="MATLAB"><pre class="program">a, b, c, d = num2cell(sort([a, b, c, d])){:}
+function tmp = code(a, b, c, d)
+	tmp = (d + (c + b)) * a;
+end
+</pre></div><div class="implementation" data-language="Wolfram"><pre class="program">NOTE: a, b, c, and d should be sorted in increasing order before calling this function.
+code[a_, b_, c_, d_] := N[(N[(d + N[(c + b), $MachinePrecision]), $MachinePrecision] * a), $MachinePrecision]
+</pre></div><div class="implementation" data-language="TeX"><pre class="program">\begin{array}{l}
+[a, b, c, d] = \mathsf{sort}([a, b, c, d])\\
+\\
+\left(d + \left(c + b\right)\right) \cdot a
+\end{array}
+</pre></div></div><details><summary>Derivation</summary><ol class="history"><li><p>Initial program <span class="error" title="100.0% on training set">100.0%</span></p><div class="math">\[a \cdot \left(\left(b + c\right) + d\right)
+\]</div></li><li>Add Preprocessing</li><li><p>Final simplification<span class="error" title="100.0% on training set">100.0%</span></p><div class="math">\[\leadsto \left(d + \left(c + b\right)\right) \cdot a
+\]</div></li><li>Add Preprocessing</li></ol></details></section><section id="target1" class="programs"><h2>Developer Target 1: <span class="subhead"><data>100.0%</data> accurate, <data>0.7×</data> speedup</span><select><option>Math</option><option>FPCore</option><option>C</option><option>Fortran</option><option>Java</option><option>Python</option><option>Julia</option><option>MATLAB</option><option>Wolfram</option><option>TeX</option></select><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#target" target="_blank">?</a></h2><div><div class="implementation" data-language="Math"><div class="program math">\[\begin{array}{l}
+
+\\
+a \cdot b + a \cdot \left(c + d\right)
+\end{array}
+\]</div></div><div class="implementation" data-language="FPCore"><pre class="program">
+(FPCore (a b c d) :precision binary64 (+ (* a b) (* a (+ c d))))</pre></div><div class="implementation" data-language="C"><pre class="program">
+double code(double a, double b, double c, double d) {
+	return (a * b) + (a * (c + d));
+}
+</pre></div><div class="implementation" data-language="Fortran"><pre class="program">
+real(8) function code(a, b, c, d)
+use fmin_fmax_functions
+    real(8), intent (in) :: a
+    real(8), intent (in) :: b
+    real(8), intent (in) :: c
+    real(8), intent (in) :: d
+    code = (a * b) + (a * (c + d))
+end function
+</pre></div><div class="implementation" data-language="Java"><pre class="program">
+public static double code(double a, double b, double c, double d) {
+	return (a * b) + (a * (c + d));
+}
+</pre></div><div class="implementation" data-language="Python"><pre class="program">
+def code(a, b, c, d):
+	return (a * b) + (a * (c + d))
+</pre></div><div class="implementation" data-language="Julia"><pre class="program">
+function code(a, b, c, d)
+	return Float64(Float64(a * b) + Float64(a * Float64(c + d)))
+end
+</pre></div><div class="implementation" data-language="MATLAB"><pre class="program">
+function tmp = code(a, b, c, d)
+	tmp = (a * b) + (a * (c + d));
+end
+</pre></div><div class="implementation" data-language="Wolfram"><pre class="program">
+code[a_, b_, c_, d_] := N[(N[(a * b), $MachinePrecision] + N[(a * N[(c + d), $MachinePrecision]), $MachinePrecision]), $MachinePrecision]
+</pre></div><div class="implementation" data-language="TeX"><pre class="program">\begin{array}{l}
+
+\\
+a \cdot b + a \cdot \left(c + d\right)
+\end{array}
+</pre></div></div></section><section id="reproduce"><details><summary><h2>Reproduce</h2><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#reproduction" target="_blank">?</a></summary><pre class="shell"><code>herbie shell --seed 1528405439 
+(FPCore (a b c d)
+  :name "Expression, p14"
+  :precision binary64
+  :pre (and (and (and (and (&lt;= 56789.0 a) (&lt;= a 98765.0)) (and (&lt;= 0.0 b) (&lt;= b 1.0))) (and (&lt;= 0.0 c) (&lt;= c 0.0016773))) (and (&lt;= 0.0 d) (&lt;= d 0.0016773)))
+
+  :alt
+  (! :herbie-platform default (+ (* a b) (* a (+ c d))))
+
+  (* a (+ (+ b c) d)))
+</code></pre></details></section></body></html>

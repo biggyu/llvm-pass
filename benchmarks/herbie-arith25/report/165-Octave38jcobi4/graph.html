@@ -1,0 +1,238 @@
+<!doctype html>
+<html><head><meta charset="utf-8"/><title>Result for Octave 3.8, jcobi/4</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" integrity="sha384-9tPv11A+glH/on/wEu99NVwDPwkMQESOocs/ZGXPoIiLE8MU/qkqUcZ3zzL+6DuH" crossorigin="anonymous"/><script src="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.js" integrity="sha384-U8Vrjwb8fuHMt6ewaCy8uqeUXv4oitYACKdB0VziCerzt011iQ/0TqlSlv8MReCm" crossorigin="anonymous"></script><script src="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/contrib/auto-render.min.js" integrity="sha384-aGfk5kvhIq5x1x5YdvCp4upKZYnA8ckafviDpmWEKp4afOZEqOli7gqSnh8I6enH" crossorigin="anonymous"></script><script src="https://unpkg.com/mathjs@4.4.2/dist/math.min.js"></script><script src="https://unpkg.com/d3@6.7.0/dist/d3.min.js"></script><script src="https://unpkg.com/@observablehq/plot@0.4.3/dist/plot.umd.min.js"></script><link rel="stylesheet" type="text/css" href="../report.css"/><script src="../report.js"></script></head><body><header><h1>Octave 3.8, jcobi/4</h1><img src="../logo-car.png"/><nav><ul><li><a href="../index.html">Report</a></li><li><a href="timeline.html">Metrics</a></li></ul></nav></header><div id="large"><div>Percentage Accurate: <span class="number" title="Minimum Accuracy: 0.0% → 0.0%">25.0%<span class="unit"> → </span>25.0%</span></div><div>Time: <span class="number">1.3s</span></div><div>Alternatives: <span class="number">1</span></div><div>Speedup: <span class="number" title="Relative speed of fastest alternative that improves accuracy.">1.0×</span></div></div><section><details id="specification" class="programs"><summary><h2>Specification</h2><select><option>Math</option><option>FPCore</option><option>C</option><option>Fortran</option><option>Java</option><option>Python</option><option>Julia</option><option>MATLAB</option><option>Wolfram</option><option>TeX</option></select><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#spec" target="_blank">?</a></summary><div><div id="precondition"><div class="program math">\[\left(\alpha &gt; -1 \land \beta &gt; -1\right) \land i &gt; 1\]</div></div><div class="implementation" data-language="Math"><div class="program math">\[\begin{array}{l}
+
+\\
+\begin{array}{l}
+t_0 := i \cdot \left(\left(\alpha + \beta\right) + i\right)\\
+t_1 := \left(\alpha + \beta\right) + 2 \cdot i\\
+t_2 := t\_1 \cdot t\_1\\
+\frac{\frac{t\_0 \cdot \left(\beta \cdot \alpha + t\_0\right)}{t\_2}}{t\_2 - 1}
+\end{array}
+\end{array}
+\]</div></div><div class="implementation" data-language="FPCore"><pre class="program">
+(FPCore (alpha beta i)
+ :precision binary64
+ (let* ((t_0 (* i (+ (+ alpha beta) i)))
+        (t_1 (+ (+ alpha beta) (* 2.0 i)))
+        (t_2 (* t_1 t_1)))
+   (/ (/ (* t_0 (+ (* beta alpha) t_0)) t_2) (- t_2 1.0))))</pre></div><div class="implementation" data-language="C"><pre class="program">
+double code(double alpha, double beta, double i) {
+	double t_0 = i * ((alpha + beta) + i);
+	double t_1 = (alpha + beta) + (2.0 * i);
+	double t_2 = t_1 * t_1;
+	return ((t_0 * ((beta * alpha) + t_0)) / t_2) / (t_2 - 1.0);
+}
+</pre></div><div class="implementation" data-language="Fortran"><pre class="program">
+real(8) function code(alpha, beta, i)
+use fmin_fmax_functions
+    real(8), intent (in) :: alpha
+    real(8), intent (in) :: beta
+    real(8), intent (in) :: i
+    real(8) :: t_0
+    real(8) :: t_1
+    real(8) :: t_2
+    t_0 = i * ((alpha + beta) + i)
+    t_1 = (alpha + beta) + (2.0d0 * i)
+    t_2 = t_1 * t_1
+    code = ((t_0 * ((beta * alpha) + t_0)) / t_2) / (t_2 - 1.0d0)
+end function
+</pre></div><div class="implementation" data-language="Java"><pre class="program">
+public static double code(double alpha, double beta, double i) {
+	double t_0 = i * ((alpha + beta) + i);
+	double t_1 = (alpha + beta) + (2.0 * i);
+	double t_2 = t_1 * t_1;
+	return ((t_0 * ((beta * alpha) + t_0)) / t_2) / (t_2 - 1.0);
+}
+</pre></div><div class="implementation" data-language="Python"><pre class="program">
+def code(alpha, beta, i):
+	t_0 = i * ((alpha + beta) + i)
+	t_1 = (alpha + beta) + (2.0 * i)
+	t_2 = t_1 * t_1
+	return ((t_0 * ((beta * alpha) + t_0)) / t_2) / (t_2 - 1.0)
+</pre></div><div class="implementation" data-language="Julia"><pre class="program">
+function code(alpha, beta, i)
+	t_0 = Float64(i * Float64(Float64(alpha + beta) + i))
+	t_1 = Float64(Float64(alpha + beta) + Float64(2.0 * i))
+	t_2 = Float64(t_1 * t_1)
+	return Float64(Float64(Float64(t_0 * Float64(Float64(beta * alpha) + t_0)) / t_2) / Float64(t_2 - 1.0))
+end
+</pre></div><div class="implementation" data-language="MATLAB"><pre class="program">
+function tmp = code(alpha, beta, i)
+	t_0 = i * ((alpha + beta) + i);
+	t_1 = (alpha + beta) + (2.0 * i);
+	t_2 = t_1 * t_1;
+	tmp = ((t_0 * ((beta * alpha) + t_0)) / t_2) / (t_2 - 1.0);
+end
+</pre></div><div class="implementation" data-language="Wolfram"><pre class="program">
+code[alpha_, beta_, i_] := Block[{t$95$0 = N[(i * N[(N[(alpha + beta), $MachinePrecision] + i), $MachinePrecision]), $MachinePrecision]}, Block[{t$95$1 = N[(N[(alpha + beta), $MachinePrecision] + N[(2.0 * i), $MachinePrecision]), $MachinePrecision]}, Block[{t$95$2 = N[(t$95$1 * t$95$1), $MachinePrecision]}, N[(N[(N[(t$95$0 * N[(N[(beta * alpha), $MachinePrecision] + t$95$0), $MachinePrecision]), $MachinePrecision] / t$95$2), $MachinePrecision] / N[(t$95$2 - 1.0), $MachinePrecision]), $MachinePrecision]]]]
+</pre></div><div class="implementation" data-language="TeX"><pre class="program">\begin{array}{l}
+
+\\
+\begin{array}{l}
+t_0 := i \cdot \left(\left(\alpha + \beta\right) + i\right)\\
+t_1 := \left(\alpha + \beta\right) + 2 \cdot i\\
+t_2 := t\_1 \cdot t\_1\\
+\frac{\frac{t\_0 \cdot \left(\beta \cdot \alpha + t\_0\right)}{t\_2}}{t\_2 - 1}
+\end{array}
+\end{array}
+</pre></div></div><p>Sampling outcomes in <kbd>binary64</kbd> precision:</p><div class="bogosity"><div class="bogosity-valid" data-id="bogosity-valid" data-type="valid" data-timespan="0.14044195413589478" title="valid (14.0%)"></div><div class="bogosity-unknown" data-id="bogosity-unknown" data-type="unknown" data-timespan="0" title="unknown (0.0%)"></div><div class="bogosity-infinite" data-id="bogosity-infinite" data-type="infinite" data-timespan="0" title="infinite (0.0%)"></div><div class="bogosity-unsamplable" data-id="bogosity-unsamplable" data-type="unsamplable" data-timespan="0" title="unsamplable (0.0%)"></div><div class="bogosity-invalid" data-id="bogosity-invalid" data-type="invalid" data-timespan="0.0" title="invalid (0.0%)"></div><div class="bogosity-precondition" data-id="bogosity-precondition" data-type="precondition" data-timespan="0.8595580458641052" title="precondition (86.0%)"></div></div></details></section><figure id="graphs"><h2>Local Percentage Accuracy vs <span id="variables"></span><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#graph" target="_blank">?</a></h2><svg></svg><div id="functions"></div><figcaption>The average percentage accuracy by input value. Horizontal axis shows value of an input variable; the variable is choosen in the title. Vertical axis is accuracy; higher is better. Red represent the original program, while blue represents Herbie's suggestion. These can be toggled with buttons below the plot. The line is an average while dots represent individual samples.</figcaption></figure><section id="cost-accuracy" class="section" data-benchmark-name="Octave 3.8, jcobi/4"><h2>Accuracy vs Speed<a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#cost-accuracy" target="_blank">?</a></h2><div class="figure-row"><svg></svg><div><p>Herbie found 1 alternatives:</p><table><thead><tr><th>Alternative</th><th class="numeric">Accuracy</th><th class="numeric">Speedup</th></tr></thead><tbody></tbody></table></div></div><figcaption>The accuracy (vertical axis) and speed (horizontal axis) of each alternatives. Up and to the right is better. The red square shows the initial program, and each blue circle shows an alternative.The line shows the best available speed-accuracy tradeoffs.</figcaption></section><section id="initial" class="programs"><h2>Initial Program: <span class="subhead"><data>25.0%</data> accurate, <data>1.0×</data> speedup</span><select><option>Math</option><option>FPCore</option><option>C</option><option>Fortran</option><option>Java</option><option>Python</option><option>Julia</option><option>MATLAB</option><option>Wolfram</option><option>TeX</option></select><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#alternatives" target="_blank">?</a></h2><div><div class="implementation" data-language="Math"><div class="program math">\[\begin{array}{l}
+
+\\
+\begin{array}{l}
+t_0 := i \cdot \left(\left(\alpha + \beta\right) + i\right)\\
+t_1 := \left(\alpha + \beta\right) + 2 \cdot i\\
+t_2 := t\_1 \cdot t\_1\\
+\frac{\frac{t\_0 \cdot \left(\beta \cdot \alpha + t\_0\right)}{t\_2}}{t\_2 - 1}
+\end{array}
+\end{array}
+\]</div></div><div class="implementation" data-language="FPCore"><pre class="program">
+(FPCore (alpha beta i)
+ :precision binary64
+ (let* ((t_0 (* i (+ (+ alpha beta) i)))
+        (t_1 (+ (+ alpha beta) (* 2.0 i)))
+        (t_2 (* t_1 t_1)))
+   (/ (/ (* t_0 (+ (* beta alpha) t_0)) t_2) (- t_2 1.0))))</pre></div><div class="implementation" data-language="C"><pre class="program">
+double code(double alpha, double beta, double i) {
+	double t_0 = i * ((alpha + beta) + i);
+	double t_1 = (alpha + beta) + (2.0 * i);
+	double t_2 = t_1 * t_1;
+	return ((t_0 * ((beta * alpha) + t_0)) / t_2) / (t_2 - 1.0);
+}
+</pre></div><div class="implementation" data-language="Fortran"><pre class="program">
+real(8) function code(alpha, beta, i)
+use fmin_fmax_functions
+    real(8), intent (in) :: alpha
+    real(8), intent (in) :: beta
+    real(8), intent (in) :: i
+    real(8) :: t_0
+    real(8) :: t_1
+    real(8) :: t_2
+    t_0 = i * ((alpha + beta) + i)
+    t_1 = (alpha + beta) + (2.0d0 * i)
+    t_2 = t_1 * t_1
+    code = ((t_0 * ((beta * alpha) + t_0)) / t_2) / (t_2 - 1.0d0)
+end function
+</pre></div><div class="implementation" data-language="Java"><pre class="program">
+public static double code(double alpha, double beta, double i) {
+	double t_0 = i * ((alpha + beta) + i);
+	double t_1 = (alpha + beta) + (2.0 * i);
+	double t_2 = t_1 * t_1;
+	return ((t_0 * ((beta * alpha) + t_0)) / t_2) / (t_2 - 1.0);
+}
+</pre></div><div class="implementation" data-language="Python"><pre class="program">
+def code(alpha, beta, i):
+	t_0 = i * ((alpha + beta) + i)
+	t_1 = (alpha + beta) + (2.0 * i)
+	t_2 = t_1 * t_1
+	return ((t_0 * ((beta * alpha) + t_0)) / t_2) / (t_2 - 1.0)
+</pre></div><div class="implementation" data-language="Julia"><pre class="program">
+function code(alpha, beta, i)
+	t_0 = Float64(i * Float64(Float64(alpha + beta) + i))
+	t_1 = Float64(Float64(alpha + beta) + Float64(2.0 * i))
+	t_2 = Float64(t_1 * t_1)
+	return Float64(Float64(Float64(t_0 * Float64(Float64(beta * alpha) + t_0)) / t_2) / Float64(t_2 - 1.0))
+end
+</pre></div><div class="implementation" data-language="MATLAB"><pre class="program">
+function tmp = code(alpha, beta, i)
+	t_0 = i * ((alpha + beta) + i);
+	t_1 = (alpha + beta) + (2.0 * i);
+	t_2 = t_1 * t_1;
+	tmp = ((t_0 * ((beta * alpha) + t_0)) / t_2) / (t_2 - 1.0);
+end
+</pre></div><div class="implementation" data-language="Wolfram"><pre class="program">
+code[alpha_, beta_, i_] := Block[{t$95$0 = N[(i * N[(N[(alpha + beta), $MachinePrecision] + i), $MachinePrecision]), $MachinePrecision]}, Block[{t$95$1 = N[(N[(alpha + beta), $MachinePrecision] + N[(2.0 * i), $MachinePrecision]), $MachinePrecision]}, Block[{t$95$2 = N[(t$95$1 * t$95$1), $MachinePrecision]}, N[(N[(N[(t$95$0 * N[(N[(beta * alpha), $MachinePrecision] + t$95$0), $MachinePrecision]), $MachinePrecision] / t$95$2), $MachinePrecision] / N[(t$95$2 - 1.0), $MachinePrecision]), $MachinePrecision]]]]
+</pre></div><div class="implementation" data-language="TeX"><pre class="program">\begin{array}{l}
+
+\\
+\begin{array}{l}
+t_0 := i \cdot \left(\left(\alpha + \beta\right) + i\right)\\
+t_1 := \left(\alpha + \beta\right) + 2 \cdot i\\
+t_2 := t\_1 \cdot t\_1\\
+\frac{\frac{t\_0 \cdot \left(\beta \cdot \alpha + t\_0\right)}{t\_2}}{t\_2 - 1}
+\end{array}
+\end{array}
+</pre></div></div></section><section id="alternative1" class="programs"><h2>Alternative 1: <span class="subhead"><data>25.0%</data> accurate, <data>1.0×</data> speedup</span><select><option>Math</option><option>FPCore</option><option>C</option><option>Fortran</option><option>Java</option><option>Python</option><option>Julia</option><option>MATLAB</option><option>Wolfram</option><option>TeX</option></select><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#alternatives" target="_blank">?</a></h2><div><div class="implementation" data-language="Math"><div class="program math">\[\begin{array}{l}
+
+\\
+\begin{array}{l}
+t_0 := \left(\left(\beta + \alpha\right) + i\right) \cdot i\\
+t_1 := 2 \cdot i + \left(\beta + \alpha\right)\\
+t_2 := t\_1 \cdot t\_1\\
+\frac{\frac{\left(\beta \cdot \alpha + t\_0\right) \cdot t\_0}{t\_2}}{t\_2 - 1}
+\end{array}
+\end{array}
+\]</div></div><div class="implementation" data-language="FPCore"><pre class="program">
+(FPCore (alpha beta i)
+ :precision binary64
+ (let* ((t_0 (* (+ (+ beta alpha) i) i))
+        (t_1 (+ (* 2.0 i) (+ beta alpha)))
+        (t_2 (* t_1 t_1)))
+   (/ (/ (* (+ (* beta alpha) t_0) t_0) t_2) (- t_2 1.0))))</pre></div><div class="implementation" data-language="C"><pre class="program">
+double code(double alpha, double beta, double i) {
+	double t_0 = ((beta + alpha) + i) * i;
+	double t_1 = (2.0 * i) + (beta + alpha);
+	double t_2 = t_1 * t_1;
+	return ((((beta * alpha) + t_0) * t_0) / t_2) / (t_2 - 1.0);
+}
+</pre></div><div class="implementation" data-language="Fortran"><pre class="program">
+real(8) function code(alpha, beta, i)
+use fmin_fmax_functions
+    real(8), intent (in) :: alpha
+    real(8), intent (in) :: beta
+    real(8), intent (in) :: i
+    real(8) :: t_0
+    real(8) :: t_1
+    real(8) :: t_2
+    t_0 = ((beta + alpha) + i) * i
+    t_1 = (2.0d0 * i) + (beta + alpha)
+    t_2 = t_1 * t_1
+    code = ((((beta * alpha) + t_0) * t_0) / t_2) / (t_2 - 1.0d0)
+end function
+</pre></div><div class="implementation" data-language="Java"><pre class="program">
+public static double code(double alpha, double beta, double i) {
+	double t_0 = ((beta + alpha) + i) * i;
+	double t_1 = (2.0 * i) + (beta + alpha);
+	double t_2 = t_1 * t_1;
+	return ((((beta * alpha) + t_0) * t_0) / t_2) / (t_2 - 1.0);
+}
+</pre></div><div class="implementation" data-language="Python"><pre class="program">
+def code(alpha, beta, i):
+	t_0 = ((beta + alpha) + i) * i
+	t_1 = (2.0 * i) + (beta + alpha)
+	t_2 = t_1 * t_1
+	return ((((beta * alpha) + t_0) * t_0) / t_2) / (t_2 - 1.0)
+</pre></div><div class="implementation" data-language="Julia"><pre class="program">
+function code(alpha, beta, i)
+	t_0 = Float64(Float64(Float64(beta + alpha) + i) * i)
+	t_1 = Float64(Float64(2.0 * i) + Float64(beta + alpha))
+	t_2 = Float64(t_1 * t_1)
+	return Float64(Float64(Float64(Float64(Float64(beta * alpha) + t_0) * t_0) / t_2) / Float64(t_2 - 1.0))
+end
+</pre></div><div class="implementation" data-language="MATLAB"><pre class="program">
+function tmp = code(alpha, beta, i)
+	t_0 = ((beta + alpha) + i) * i;
+	t_1 = (2.0 * i) + (beta + alpha);
+	t_2 = t_1 * t_1;
+	tmp = ((((beta * alpha) + t_0) * t_0) / t_2) / (t_2 - 1.0);
+end
+</pre></div><div class="implementation" data-language="Wolfram"><pre class="program">
+code[alpha_, beta_, i_] := Block[{t$95$0 = N[(N[(N[(beta + alpha), $MachinePrecision] + i), $MachinePrecision] * i), $MachinePrecision]}, Block[{t$95$1 = N[(N[(2.0 * i), $MachinePrecision] + N[(beta + alpha), $MachinePrecision]), $MachinePrecision]}, Block[{t$95$2 = N[(t$95$1 * t$95$1), $MachinePrecision]}, N[(N[(N[(N[(N[(beta * alpha), $MachinePrecision] + t$95$0), $MachinePrecision] * t$95$0), $MachinePrecision] / t$95$2), $MachinePrecision] / N[(t$95$2 - 1.0), $MachinePrecision]), $MachinePrecision]]]]
+</pre></div><div class="implementation" data-language="TeX"><pre class="program">\begin{array}{l}
+
+\\
+\begin{array}{l}
+t_0 := \left(\left(\beta + \alpha\right) + i\right) \cdot i\\
+t_1 := 2 \cdot i + \left(\beta + \alpha\right)\\
+t_2 := t\_1 \cdot t\_1\\
+\frac{\frac{\left(\beta \cdot \alpha + t\_0\right) \cdot t\_0}{t\_2}}{t\_2 - 1}
+\end{array}
+\end{array}
+</pre></div></div><details><summary>Derivation</summary><ol class="history"><li><p>Initial program <span class="error" title="25.0% on training set">17.4%</span></p><div class="math">\[\frac{\frac{\left(i \cdot \left(\left(\alpha + \beta\right) + i\right)\right) \cdot \left(\beta \cdot \alpha + i \cdot \left(\left(\alpha + \beta\right) + i\right)\right)}{\left(\left(\alpha + \beta\right) + 2 \cdot i\right) \cdot \left(\left(\alpha + \beta\right) + 2 \cdot i\right)}}{\left(\left(\alpha + \beta\right) + 2 \cdot i\right) \cdot \left(\left(\alpha + \beta\right) + 2 \cdot i\right) - 1}
+\]</div></li><li>Add Preprocessing</li><li><p>Final simplification<span class="error" title="25.0% on training set">17.4%</span></p><div class="math">\[\leadsto \frac{\frac{\left(\beta \cdot \alpha + \left(\left(\beta + \alpha\right) + i\right) \cdot i\right) \cdot \left(\left(\left(\beta + \alpha\right) + i\right) \cdot i\right)}{\left(2 \cdot i + \left(\beta + \alpha\right)\right) \cdot \left(2 \cdot i + \left(\beta + \alpha\right)\right)}}{\left(2 \cdot i + \left(\beta + \alpha\right)\right) \cdot \left(2 \cdot i + \left(\beta + \alpha\right)\right) - 1}
+\]</div></li><li>Add Preprocessing</li></ol></details></section><section id="reproduce"><details><summary><h2>Reproduce</h2><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#reproduction" target="_blank">?</a></summary><pre class="shell"><code>herbie shell --seed 1528405439 
+(FPCore (alpha beta i)
+  :name "Octave 3.8, jcobi/4"
+  :precision binary64
+  :pre (and (and (&gt; alpha -1.0) (&gt; beta -1.0)) (&gt; i 1.0))
+  (/ (/ (* (* i (+ (+ alpha beta) i)) (+ (* beta alpha) (* i (+ (+ alpha beta) i)))) (* (+ (+ alpha beta) (* 2.0 i)) (+ (+ alpha beta) (* 2.0 i)))) (- (* (+ (+ alpha beta) (* 2.0 i)) (+ (+ alpha beta) (* 2.0 i))) 1.0)))
+</code></pre></details></section></body></html>

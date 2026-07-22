@@ -6,6 +6,25 @@ build/
 # Prerequisites
 *.d
 
+# External / large benchmark suites
+benchmarks/correctness_test/*
+benchmarks/fpbench/*
+benchmarks/herbie-arith25/expected
+benchmarks/herbie-arith25/produced
+benchmarks/herbie-arith25/src
+benchmarks/polybench/produced
+benchmarks/polybench/out
+*.log
+
+# Test Code
+tests/controlled/**/produced/
+tests/controlled/**/*.log
+
+# Editor / system files
+.DS_Store
+.vscode/
+.idea/
+
 # Compiled Object files
 *.slo
 *.lo

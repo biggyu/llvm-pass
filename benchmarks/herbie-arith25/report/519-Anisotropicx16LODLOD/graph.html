@@ -1,0 +1,350 @@
+<!doctype html>
+<html><head><meta charset="utf-8"/><title>Result for Anisotropic x16 LOD (LOD)</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" integrity="sha384-9tPv11A+glH/on/wEu99NVwDPwkMQESOocs/ZGXPoIiLE8MU/qkqUcZ3zzL+6DuH" crossorigin="anonymous"/><script src="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.js" integrity="sha384-U8Vrjwb8fuHMt6ewaCy8uqeUXv4oitYACKdB0VziCerzt011iQ/0TqlSlv8MReCm" crossorigin="anonymous"></script><script src="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/contrib/auto-render.min.js" integrity="sha384-aGfk5kvhIq5x1x5YdvCp4upKZYnA8ckafviDpmWEKp4afOZEqOli7gqSnh8I6enH" crossorigin="anonymous"></script><script src="https://unpkg.com/mathjs@4.4.2/dist/math.min.js"></script><script src="https://unpkg.com/d3@6.7.0/dist/d3.min.js"></script><script src="https://unpkg.com/@observablehq/plot@0.4.3/dist/plot.umd.min.js"></script><link rel="stylesheet" type="text/css" href="../report.css"/><script src="../report.js"></script></head><body><header><h1>Anisotropic x16 LOD (LOD)</h1><img src="../logo-car.png"/><nav><ul><li><a href="../index.html">Report</a></li><li><a href="timeline.html">Metrics</a></li></ul></nav></header><div id="large"><div>Percentage Accurate: <span class="number" title="Minimum Accuracy: -0.0% → -0.0%">51.6%<span class="unit"> → </span>51.6%</span></div><div>Time: <span class="number">4.1s</span></div><div>Alternatives: <span class="number">1</span></div><div>Speedup: <span class="number" title="Relative speed of fastest alternative that improves accuracy.">1.0×</span></div></div><section><details id="specification" class="programs"><summary><h2>Specification</h2><select><option>Math</option><option>FPCore</option><option>C</option><option>Julia</option><option>MATLAB</option><option>TeX</option></select><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#spec" target="_blank">?</a></summary><div><div id="precondition"><div class="program math">\[\left(\left(\left(\left(\left(\left(1 \leq w \land w \leq 16384\right) \land \left(1 \leq h \land h \leq 16384\right)\right) \land \left(10^{-20} \leq \left|dX.u\right| \land \left|dX.u\right| \leq 10^{+20}\right)\right) \land \left(10^{-20} \leq \left|dX.v\right| \land \left|dX.v\right| \leq 10^{+20}\right)\right) \land \left(10^{-20} \leq \left|dY.u\right| \land \left|dY.u\right| \leq 10^{+20}\right)\right) \land \left(10^{-20} \leq \left|dY.v\right| \land \left|dY.v\right| \leq 10^{+20}\right)\right) \land maxAniso = 16\]</div></div><div class="implementation" data-language="Math"><div class="program math">\[\begin{array}{l}
+
+\\
+\begin{array}{l}
+t_0 := \left\lfloor h\right\rfloor  \cdot dX.v\\
+t_1 := \left\lfloor w\right\rfloor  \cdot dY.u\\
+t_2 := \left\lfloor h\right\rfloor  \cdot dY.v\\
+t_3 := \left\lfloor w\right\rfloor  \cdot dX.u\\
+t_4 := \mathsf{max}\left(t\_3 \cdot t\_3 + t\_0 \cdot t\_0, t\_1 \cdot t\_1 + t\_2 \cdot t\_2\right)\\
+t_5 := \sqrt{t\_4}\\
+t_6 := \left|t\_3 \cdot t\_2 - t\_0 \cdot t\_1\right|\\
+\log_{2} \begin{array}{l}
+\mathbf{if}\;\frac{t\_4}{t\_6} &gt; \left\lfloor maxAniso\right\rfloor :\\
+\;\;\;\;\frac{t\_5}{\left\lfloor maxAniso\right\rfloor }\\
+
+\mathbf{else}:\\
+\;\;\;\;\frac{t\_6}{t\_5}\\
+
+
+\end{array}
+\end{array}
+\end{array}
+\]</div></div><div class="implementation" data-language="FPCore"><pre class="program">
+(FPCore (w h dX.u dX.v dY.u dY.v maxAniso)
+ :precision binary32
+ (let* ((t_0 (* (floor h) dX.v))
+        (t_1 (* (floor w) dY.u))
+        (t_2 (* (floor h) dY.v))
+        (t_3 (* (floor w) dX.u))
+        (t_4 (fmax (+ (* t_3 t_3) (* t_0 t_0)) (+ (* t_1 t_1) (* t_2 t_2))))
+        (t_5 (sqrt t_4))
+        (t_6 (fabs (- (* t_3 t_2) (* t_0 t_1)))))
+   (log2
+    (if (&gt; (/ t_4 t_6) (floor maxAniso))
+      (/ t_5 (floor maxAniso))
+      (/ t_6 t_5)))))</pre></div><div class="implementation" data-language="C"><pre class="program">
+float code(float w, float h, float dX_46_u, float dX_46_v, float dY_46_u, float dY_46_v, float maxAniso) {
+	float t_0 = floorf(h) * dX_46_v;
+	float t_1 = floorf(w) * dY_46_u;
+	float t_2 = floorf(h) * dY_46_v;
+	float t_3 = floorf(w) * dX_46_u;
+	float t_4 = fmaxf(((t_3 * t_3) + (t_0 * t_0)), ((t_1 * t_1) + (t_2 * t_2)));
+	float t_5 = sqrtf(t_4);
+	float t_6 = fabsf(((t_3 * t_2) - (t_0 * t_1)));
+	float tmp;
+	if ((t_4 / t_6) &gt; floorf(maxAniso)) {
+		tmp = t_5 / floorf(maxAniso);
+	} else {
+		tmp = t_6 / t_5;
+	}
+	return log2f(tmp);
+}
+</pre></div><div class="implementation" data-language="Julia"><pre class="program">
+function code(w, h, dX_46_u, dX_46_v, dY_46_u, dY_46_v, maxAniso)
+	t_0 = Float32(floor(h) * dX_46_v)
+	t_1 = Float32(floor(w) * dY_46_u)
+	t_2 = Float32(floor(h) * dY_46_v)
+	t_3 = Float32(floor(w) * dX_46_u)
+	t_4 = fmax(Float32(Float32(t_3 * t_3) + Float32(t_0 * t_0)), Float32(Float32(t_1 * t_1) + Float32(t_2 * t_2)))
+	t_5 = sqrt(t_4)
+	t_6 = abs(Float32(Float32(t_3 * t_2) - Float32(t_0 * t_1)))
+	tmp = Float32(0.0)
+	if (Float32(t_4 / t_6) &gt; floor(maxAniso))
+		tmp = Float32(t_5 / floor(maxAniso));
+	else
+		tmp = Float32(t_6 / t_5);
+	end
+	return log2(tmp)
+end
+</pre></div><div class="implementation" data-language="MATLAB"><pre class="program">
+function tmp_2 = code(w, h, dX_46_u, dX_46_v, dY_46_u, dY_46_v, maxAniso)
+	t_0 = floor(h) * dX_46_v;
+	t_1 = floor(w) * dY_46_u;
+	t_2 = floor(h) * dY_46_v;
+	t_3 = floor(w) * dX_46_u;
+	t_4 = max(((t_3 * t_3) + (t_0 * t_0)), ((t_1 * t_1) + (t_2 * t_2)));
+	t_5 = sqrt(t_4);
+	t_6 = abs(((t_3 * t_2) - (t_0 * t_1)));
+	tmp = single(0.0);
+	if ((t_4 / t_6) &gt; floor(maxAniso))
+		tmp = t_5 / floor(maxAniso);
+	else
+		tmp = t_6 / t_5;
+	end
+	tmp_2 = log2(tmp);
+end
+</pre></div><div class="implementation" data-language="TeX"><pre class="program">\begin{array}{l}
+
+\\
+\begin{array}{l}
+t_0 := \left\lfloor h\right\rfloor  \cdot dX.v\\
+t_1 := \left\lfloor w\right\rfloor  \cdot dY.u\\
+t_2 := \left\lfloor h\right\rfloor  \cdot dY.v\\
+t_3 := \left\lfloor w\right\rfloor  \cdot dX.u\\
+t_4 := \mathsf{max}\left(t\_3 \cdot t\_3 + t\_0 \cdot t\_0, t\_1 \cdot t\_1 + t\_2 \cdot t\_2\right)\\
+t_5 := \sqrt{t\_4}\\
+t_6 := \left|t\_3 \cdot t\_2 - t\_0 \cdot t\_1\right|\\
+\log_{2} \begin{array}{l}
+\mathbf{if}\;\frac{t\_4}{t\_6} &gt; \left\lfloor maxAniso\right\rfloor :\\
+\;\;\;\;\frac{t\_5}{\left\lfloor maxAniso\right\rfloor }\\
+
+\mathbf{else}:\\
+\;\;\;\;\frac{t\_6}{t\_5}\\
+
+
+\end{array}
+\end{array}
+\end{array}
+</pre></div></div><p>Sampling outcomes in <kbd>binary32</kbd> precision:</p><div class="bogosity"><div class="bogosity-valid" data-id="bogosity-valid" data-type="valid" data-timespan="1.2636550880855871e-14" title="valid (0.0%)"></div><div class="bogosity-unknown" data-id="bogosity-unknown" data-type="unknown" data-timespan="0" title="unknown (0.0%)"></div><div class="bogosity-infinite" data-id="bogosity-infinite" data-type="infinite" data-timespan="0" title="infinite (0.0%)"></div><div class="bogosity-unsamplable" data-id="bogosity-unsamplable" data-type="unsamplable" data-timespan="0" title="unsamplable (0.0%)"></div><div class="bogosity-invalid" data-id="bogosity-invalid" data-type="invalid" data-timespan="0.0" title="invalid (0.0%)"></div><div class="bogosity-precondition" data-id="bogosity-precondition" data-type="precondition" data-timespan="0.9999999999999873" title="precondition (100.0%)"></div></div></details></section><figure id="graphs"><h2>Local Percentage Accuracy vs <span id="variables"></span><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#graph" target="_blank">?</a></h2><svg></svg><div id="functions"></div><figcaption>The average percentage accuracy by input value. Horizontal axis shows value of an input variable; the variable is choosen in the title. Vertical axis is accuracy; higher is better. Red represent the original program, while blue represents Herbie's suggestion. These can be toggled with buttons below the plot. The line is an average while dots represent individual samples.</figcaption></figure><section id="cost-accuracy" class="section" data-benchmark-name="Anisotropic x16 LOD (LOD)"><h2>Accuracy vs Speed<a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#cost-accuracy" target="_blank">?</a></h2><div class="figure-row"><svg></svg><div><p>Herbie found 1 alternatives:</p><table><thead><tr><th>Alternative</th><th class="numeric">Accuracy</th><th class="numeric">Speedup</th></tr></thead><tbody></tbody></table></div></div><figcaption>The accuracy (vertical axis) and speed (horizontal axis) of each alternatives. Up and to the right is better. The red square shows the initial program, and each blue circle shows an alternative.The line shows the best available speed-accuracy tradeoffs.</figcaption></section><section id="initial" class="programs"><h2>Initial Program: <span class="subhead"><data>51.6%</data> accurate, <data>1.0×</data> speedup</span><select><option>Math</option><option>FPCore</option><option>C</option><option>Julia</option><option>MATLAB</option><option>TeX</option></select><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#alternatives" target="_blank">?</a></h2><div><div class="implementation" data-language="Math"><div class="program math">\[\begin{array}{l}
+
+\\
+\begin{array}{l}
+t_0 := \left\lfloor h\right\rfloor  \cdot dX.v\\
+t_1 := \left\lfloor w\right\rfloor  \cdot dY.u\\
+t_2 := \left\lfloor h\right\rfloor  \cdot dY.v\\
+t_3 := \left\lfloor w\right\rfloor  \cdot dX.u\\
+t_4 := \mathsf{max}\left(t\_3 \cdot t\_3 + t\_0 \cdot t\_0, t\_1 \cdot t\_1 + t\_2 \cdot t\_2\right)\\
+t_5 := \sqrt{t\_4}\\
+t_6 := \left|t\_3 \cdot t\_2 - t\_0 \cdot t\_1\right|\\
+\log_{2} \begin{array}{l}
+\mathbf{if}\;\frac{t\_4}{t\_6} &gt; \left\lfloor maxAniso\right\rfloor :\\
+\;\;\;\;\frac{t\_5}{\left\lfloor maxAniso\right\rfloor }\\
+
+\mathbf{else}:\\
+\;\;\;\;\frac{t\_6}{t\_5}\\
+
+
+\end{array}
+\end{array}
+\end{array}
+\]</div></div><div class="implementation" data-language="FPCore"><pre class="program">
+(FPCore (w h dX.u dX.v dY.u dY.v maxAniso)
+ :precision binary32
+ (let* ((t_0 (* (floor h) dX.v))
+        (t_1 (* (floor w) dY.u))
+        (t_2 (* (floor h) dY.v))
+        (t_3 (* (floor w) dX.u))
+        (t_4 (fmax (+ (* t_3 t_3) (* t_0 t_0)) (+ (* t_1 t_1) (* t_2 t_2))))
+        (t_5 (sqrt t_4))
+        (t_6 (fabs (- (* t_3 t_2) (* t_0 t_1)))))
+   (log2
+    (if (&gt; (/ t_4 t_6) (floor maxAniso))
+      (/ t_5 (floor maxAniso))
+      (/ t_6 t_5)))))</pre></div><div class="implementation" data-language="C"><pre class="program">
+float code(float w, float h, float dX_46_u, float dX_46_v, float dY_46_u, float dY_46_v, float maxAniso) {
+	float t_0 = floorf(h) * dX_46_v;
+	float t_1 = floorf(w) * dY_46_u;
+	float t_2 = floorf(h) * dY_46_v;
+	float t_3 = floorf(w) * dX_46_u;
+	float t_4 = fmaxf(((t_3 * t_3) + (t_0 * t_0)), ((t_1 * t_1) + (t_2 * t_2)));
+	float t_5 = sqrtf(t_4);
+	float t_6 = fabsf(((t_3 * t_2) - (t_0 * t_1)));
+	float tmp;
+	if ((t_4 / t_6) &gt; floorf(maxAniso)) {
+		tmp = t_5 / floorf(maxAniso);
+	} else {
+		tmp = t_6 / t_5;
+	}
+	return log2f(tmp);
+}
+</pre></div><div class="implementation" data-language="Julia"><pre class="program">
+function code(w, h, dX_46_u, dX_46_v, dY_46_u, dY_46_v, maxAniso)
+	t_0 = Float32(floor(h) * dX_46_v)
+	t_1 = Float32(floor(w) * dY_46_u)
+	t_2 = Float32(floor(h) * dY_46_v)
+	t_3 = Float32(floor(w) * dX_46_u)
+	t_4 = fmax(Float32(Float32(t_3 * t_3) + Float32(t_0 * t_0)), Float32(Float32(t_1 * t_1) + Float32(t_2 * t_2)))
+	t_5 = sqrt(t_4)
+	t_6 = abs(Float32(Float32(t_3 * t_2) - Float32(t_0 * t_1)))
+	tmp = Float32(0.0)
+	if (Float32(t_4 / t_6) &gt; floor(maxAniso))
+		tmp = Float32(t_5 / floor(maxAniso));
+	else
+		tmp = Float32(t_6 / t_5);
+	end
+	return log2(tmp)
+end
+</pre></div><div class="implementation" data-language="MATLAB"><pre class="program">
+function tmp_2 = code(w, h, dX_46_u, dX_46_v, dY_46_u, dY_46_v, maxAniso)
+	t_0 = floor(h) * dX_46_v;
+	t_1 = floor(w) * dY_46_u;
+	t_2 = floor(h) * dY_46_v;
+	t_3 = floor(w) * dX_46_u;
+	t_4 = max(((t_3 * t_3) + (t_0 * t_0)), ((t_1 * t_1) + (t_2 * t_2)));
+	t_5 = sqrt(t_4);
+	t_6 = abs(((t_3 * t_2) - (t_0 * t_1)));
+	tmp = single(0.0);
+	if ((t_4 / t_6) &gt; floor(maxAniso))
+		tmp = t_5 / floor(maxAniso);
+	else
+		tmp = t_6 / t_5;
+	end
+	tmp_2 = log2(tmp);
+end
+</pre></div><div class="implementation" data-language="TeX"><pre class="program">\begin{array}{l}
+
+\\
+\begin{array}{l}
+t_0 := \left\lfloor h\right\rfloor  \cdot dX.v\\
+t_1 := \left\lfloor w\right\rfloor  \cdot dY.u\\
+t_2 := \left\lfloor h\right\rfloor  \cdot dY.v\\
+t_3 := \left\lfloor w\right\rfloor  \cdot dX.u\\
+t_4 := \mathsf{max}\left(t\_3 \cdot t\_3 + t\_0 \cdot t\_0, t\_1 \cdot t\_1 + t\_2 \cdot t\_2\right)\\
+t_5 := \sqrt{t\_4}\\
+t_6 := \left|t\_3 \cdot t\_2 - t\_0 \cdot t\_1\right|\\
+\log_{2} \begin{array}{l}
+\mathbf{if}\;\frac{t\_4}{t\_6} &gt; \left\lfloor maxAniso\right\rfloor :\\
+\;\;\;\;\frac{t\_5}{\left\lfloor maxAniso\right\rfloor }\\
+
+\mathbf{else}:\\
+\;\;\;\;\frac{t\_6}{t\_5}\\
+
+
+\end{array}
+\end{array}
+\end{array}
+</pre></div></div></section><section id="alternative1" class="programs"><h2>Alternative 1: <span class="subhead"><data>51.6%</data> accurate, <data>1.0×</data> speedup</span><select><option>Math</option><option>FPCore</option><option>C</option><option>Julia</option><option>MATLAB</option><option>TeX</option></select><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#alternatives" target="_blank">?</a></h2><div><div class="implementation" data-language="Math"><div class="program math">\[\begin{array}{l}
+
+\\
+\begin{array}{l}
+t_0 := dX.u \cdot \left\lfloor w\right\rfloor \\
+t_1 := dY.v \cdot \left\lfloor h\right\rfloor \\
+t_2 := dY.u \cdot \left\lfloor w\right\rfloor \\
+t_3 := dX.v \cdot \left\lfloor h\right\rfloor \\
+t_4 := \mathsf{max}\left(t\_3 \cdot t\_3 + t\_0 \cdot t\_0, t\_1 \cdot t\_1 + t\_2 \cdot t\_2\right)\\
+t_5 := \sqrt{t\_4}\\
+t_6 := \left|t\_2 \cdot t\_3 - t\_1 \cdot t\_0\right|\\
+\log_{2} \begin{array}{l}
+\mathbf{if}\;\frac{t\_4}{t\_6} &gt; \left\lfloor maxAniso\right\rfloor :\\
+\;\;\;\;\frac{t\_5}{\left\lfloor maxAniso\right\rfloor }\\
+
+\mathbf{else}:\\
+\;\;\;\;\frac{t\_6}{t\_5}\\
+
+
+\end{array}
+\end{array}
+\end{array}
+\]</div></div><div class="implementation" data-language="FPCore"><pre class="program">
+(FPCore (w h dX.u dX.v dY.u dY.v maxAniso)
+ :precision binary32
+ (let* ((t_0 (* dX.u (floor w)))
+        (t_1 (* dY.v (floor h)))
+        (t_2 (* dY.u (floor w)))
+        (t_3 (* dX.v (floor h)))
+        (t_4 (fmax (+ (* t_3 t_3) (* t_0 t_0)) (+ (* t_1 t_1) (* t_2 t_2))))
+        (t_5 (sqrt t_4))
+        (t_6 (fabs (- (* t_2 t_3) (* t_1 t_0)))))
+   (log2
+    (if (&gt; (/ t_4 t_6) (floor maxAniso))
+      (/ t_5 (floor maxAniso))
+      (/ t_6 t_5)))))</pre></div><div class="implementation" data-language="C"><pre class="program">
+float code(float w, float h, float dX_46_u, float dX_46_v, float dY_46_u, float dY_46_v, float maxAniso) {
+	float t_0 = dX_46_u * floorf(w);
+	float t_1 = dY_46_v * floorf(h);
+	float t_2 = dY_46_u * floorf(w);
+	float t_3 = dX_46_v * floorf(h);
+	float t_4 = fmaxf(((t_3 * t_3) + (t_0 * t_0)), ((t_1 * t_1) + (t_2 * t_2)));
+	float t_5 = sqrtf(t_4);
+	float t_6 = fabsf(((t_2 * t_3) - (t_1 * t_0)));
+	float tmp;
+	if ((t_4 / t_6) &gt; floorf(maxAniso)) {
+		tmp = t_5 / floorf(maxAniso);
+	} else {
+		tmp = t_6 / t_5;
+	}
+	return log2f(tmp);
+}
+</pre></div><div class="implementation" data-language="Julia"><pre class="program">
+function code(w, h, dX_46_u, dX_46_v, dY_46_u, dY_46_v, maxAniso)
+	t_0 = Float32(dX_46_u * floor(w))
+	t_1 = Float32(dY_46_v * floor(h))
+	t_2 = Float32(dY_46_u * floor(w))
+	t_3 = Float32(dX_46_v * floor(h))
+	t_4 = fmax(Float32(Float32(t_3 * t_3) + Float32(t_0 * t_0)), Float32(Float32(t_1 * t_1) + Float32(t_2 * t_2)))
+	t_5 = sqrt(t_4)
+	t_6 = abs(Float32(Float32(t_2 * t_3) - Float32(t_1 * t_0)))
+	tmp = Float32(0.0)
+	if (Float32(t_4 / t_6) &gt; floor(maxAniso))
+		tmp = Float32(t_5 / floor(maxAniso));
+	else
+		tmp = Float32(t_6 / t_5);
+	end
+	return log2(tmp)
+end
+</pre></div><div class="implementation" data-language="MATLAB"><pre class="program">
+function tmp_2 = code(w, h, dX_46_u, dX_46_v, dY_46_u, dY_46_v, maxAniso)
+	t_0 = dX_46_u * floor(w);
+	t_1 = dY_46_v * floor(h);
+	t_2 = dY_46_u * floor(w);
+	t_3 = dX_46_v * floor(h);
+	t_4 = max(((t_3 * t_3) + (t_0 * t_0)), ((t_1 * t_1) + (t_2 * t_2)));
+	t_5 = sqrt(t_4);
+	t_6 = abs(((t_2 * t_3) - (t_1 * t_0)));
+	tmp = single(0.0);
+	if ((t_4 / t_6) &gt; floor(maxAniso))
+		tmp = t_5 / floor(maxAniso);
+	else
+		tmp = t_6 / t_5;
+	end
+	tmp_2 = log2(tmp);
+end
+</pre></div><div class="implementation" data-language="TeX"><pre class="program">\begin{array}{l}
+
+\\
+\begin{array}{l}
+t_0 := dX.u \cdot \left\lfloor w\right\rfloor \\
+t_1 := dY.v \cdot \left\lfloor h\right\rfloor \\
+t_2 := dY.u \cdot \left\lfloor w\right\rfloor \\
+t_3 := dX.v \cdot \left\lfloor h\right\rfloor \\
+t_4 := \mathsf{max}\left(t\_3 \cdot t\_3 + t\_0 \cdot t\_0, t\_1 \cdot t\_1 + t\_2 \cdot t\_2\right)\\
+t_5 := \sqrt{t\_4}\\
+t_6 := \left|t\_2 \cdot t\_3 - t\_1 \cdot t\_0\right|\\
+\log_{2} \begin{array}{l}
+\mathbf{if}\;\frac{t\_4}{t\_6} &gt; \left\lfloor maxAniso\right\rfloor :\\
+\;\;\;\;\frac{t\_5}{\left\lfloor maxAniso\right\rfloor }\\
+
+\mathbf{else}:\\
+\;\;\;\;\frac{t\_6}{t\_5}\\
+
+
+\end{array}
+\end{array}
+\end{array}
+</pre></div></div><details><summary>Derivation</summary><ol class="history"><li><p>Initial program <span class="error" title="51.6% on training set">72.4%</span></p><div class="math">\[\log_{2} \begin{array}{l}
+\mathbf{if}\;\frac{\mathsf{max}\left(\left(\left\lfloor w\right\rfloor  \cdot dX.u\right) \cdot \left(\left\lfloor w\right\rfloor  \cdot dX.u\right) + \left(\left\lfloor h\right\rfloor  \cdot dX.v\right) \cdot \left(\left\lfloor h\right\rfloor  \cdot dX.v\right), \left(\left\lfloor w\right\rfloor  \cdot dY.u\right) \cdot \left(\left\lfloor w\right\rfloor  \cdot dY.u\right) + \left(\left\lfloor h\right\rfloor  \cdot dY.v\right) \cdot \left(\left\lfloor h\right\rfloor  \cdot dY.v\right)\right)}{\left|\left(\left\lfloor w\right\rfloor  \cdot dX.u\right) \cdot \left(\left\lfloor h\right\rfloor  \cdot dY.v\right) - \left(\left\lfloor h\right\rfloor  \cdot dX.v\right) \cdot \left(\left\lfloor w\right\rfloor  \cdot dY.u\right)\right|} &gt; \left\lfloor maxAniso\right\rfloor :\\
+\;\;\;\;\frac{\sqrt{\mathsf{max}\left(\left(\left\lfloor w\right\rfloor  \cdot dX.u\right) \cdot \left(\left\lfloor w\right\rfloor  \cdot dX.u\right) + \left(\left\lfloor h\right\rfloor  \cdot dX.v\right) \cdot \left(\left\lfloor h\right\rfloor  \cdot dX.v\right), \left(\left\lfloor w\right\rfloor  \cdot dY.u\right) \cdot \left(\left\lfloor w\right\rfloor  \cdot dY.u\right) + \left(\left\lfloor h\right\rfloor  \cdot dY.v\right) \cdot \left(\left\lfloor h\right\rfloor  \cdot dY.v\right)\right)}}{\left\lfloor maxAniso\right\rfloor }\\
+
+\mathbf{else}:\\
+\;\;\;\;\frac{\left|\left(\left\lfloor w\right\rfloor  \cdot dX.u\right) \cdot \left(\left\lfloor h\right\rfloor  \cdot dY.v\right) - \left(\left\lfloor h\right\rfloor  \cdot dX.v\right) \cdot \left(\left\lfloor w\right\rfloor  \cdot dY.u\right)\right|}{\sqrt{\mathsf{max}\left(\left(\left\lfloor w\right\rfloor  \cdot dX.u\right) \cdot \left(\left\lfloor w\right\rfloor  \cdot dX.u\right) + \left(\left\lfloor h\right\rfloor  \cdot dX.v\right) \cdot \left(\left\lfloor h\right\rfloor  \cdot dX.v\right), \left(\left\lfloor w\right\rfloor  \cdot dY.u\right) \cdot \left(\left\lfloor w\right\rfloor  \cdot dY.u\right) + \left(\left\lfloor h\right\rfloor  \cdot dY.v\right) \cdot \left(\left\lfloor h\right\rfloor  \cdot dY.v\right)\right)}}\\
+
+
+\end{array}
+\]</div></li><li>Add Preprocessing</li><li><p>Final simplification<span class="error" title="51.6% on training set">72.4%</span></p><div class="math">\[\leadsto \log_{2} \begin{array}{l}
+\mathbf{if}\;\frac{\mathsf{max}\left(\left(dX.v \cdot \left\lfloor h\right\rfloor \right) \cdot \left(dX.v \cdot \left\lfloor h\right\rfloor \right) + \left(dX.u \cdot \left\lfloor w\right\rfloor \right) \cdot \left(dX.u \cdot \left\lfloor w\right\rfloor \right), \left(dY.v \cdot \left\lfloor h\right\rfloor \right) \cdot \left(dY.v \cdot \left\lfloor h\right\rfloor \right) + \left(dY.u \cdot \left\lfloor w\right\rfloor \right) \cdot \left(dY.u \cdot \left\lfloor w\right\rfloor \right)\right)}{\left|\left(dY.u \cdot \left\lfloor w\right\rfloor \right) \cdot \left(dX.v \cdot \left\lfloor h\right\rfloor \right) - \left(dY.v \cdot \left\lfloor h\right\rfloor \right) \cdot \left(dX.u \cdot \left\lfloor w\right\rfloor \right)\right|} &gt; \left\lfloor maxAniso\right\rfloor :\\
+\;\;\;\;\frac{\sqrt{\mathsf{max}\left(\left(dX.v \cdot \left\lfloor h\right\rfloor \right) \cdot \left(dX.v \cdot \left\lfloor h\right\rfloor \right) + \left(dX.u \cdot \left\lfloor w\right\rfloor \right) \cdot \left(dX.u \cdot \left\lfloor w\right\rfloor \right), \left(dY.v \cdot \left\lfloor h\right\rfloor \right) \cdot \left(dY.v \cdot \left\lfloor h\right\rfloor \right) + \left(dY.u \cdot \left\lfloor w\right\rfloor \right) \cdot \left(dY.u \cdot \left\lfloor w\right\rfloor \right)\right)}}{\left\lfloor maxAniso\right\rfloor }\\
+
+\mathbf{else}:\\
+\;\;\;\;\frac{\left|\left(dY.u \cdot \left\lfloor w\right\rfloor \right) \cdot \left(dX.v \cdot \left\lfloor h\right\rfloor \right) - \left(dY.v \cdot \left\lfloor h\right\rfloor \right) \cdot \left(dX.u \cdot \left\lfloor w\right\rfloor \right)\right|}{\sqrt{\mathsf{max}\left(\left(dX.v \cdot \left\lfloor h\right\rfloor \right) \cdot \left(dX.v \cdot \left\lfloor h\right\rfloor \right) + \left(dX.u \cdot \left\lfloor w\right\rfloor \right) \cdot \left(dX.u \cdot \left\lfloor w\right\rfloor \right), \left(dY.v \cdot \left\lfloor h\right\rfloor \right) \cdot \left(dY.v \cdot \left\lfloor h\right\rfloor \right) + \left(dY.u \cdot \left\lfloor w\right\rfloor \right) \cdot \left(dY.u \cdot \left\lfloor w\right\rfloor \right)\right)}}\\
+
+
+\end{array}
+\]</div></li><li>Add Preprocessing</li></ol></details></section><section id="reproduce"><details><summary><h2>Reproduce</h2><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#reproduction" target="_blank">?</a></summary><pre class="shell"><code>herbie shell --seed 1528405439 
+(FPCore (w h dX.u dX.v dY.u dY.v maxAniso)
+  :name "Anisotropic x16 LOD (LOD)"
+  :precision binary32
+  :pre (and (and (and (and (and (and (and (&lt;= 1.0 w) (&lt;= w 16384.0)) (and (&lt;= 1.0 h) (&lt;= h 16384.0))) (and (&lt;= 1e-20 (fabs dX.u)) (&lt;= (fabs dX.u) 1e+20))) (and (&lt;= 1e-20 (fabs dX.v)) (&lt;= (fabs dX.v) 1e+20))) (and (&lt;= 1e-20 (fabs dY.u)) (&lt;= (fabs dY.u) 1e+20))) (and (&lt;= 1e-20 (fabs dY.v)) (&lt;= (fabs dY.v) 1e+20))) (== maxAniso 16.0))
+  (log2 (if (&gt; (/ (fmax (+ (* (* (floor w) dX.u) (* (floor w) dX.u)) (* (* (floor h) dX.v) (* (floor h) dX.v))) (+ (* (* (floor w) dY.u) (* (floor w) dY.u)) (* (* (floor h) dY.v) (* (floor h) dY.v)))) (fabs (- (* (* (floor w) dX.u) (* (floor h) dY.v)) (* (* (floor h) dX.v) (* (floor w) dY.u))))) (floor maxAniso)) (/ (sqrt (fmax (+ (* (* (floor w) dX.u) (* (floor w) dX.u)) (* (* (floor h) dX.v) (* (floor h) dX.v))) (+ (* (* (floor w) dY.u) (* (floor w) dY.u)) (* (* (floor h) dY.v) (* (floor h) dY.v))))) (floor maxAniso)) (/ (fabs (- (* (* (floor w) dX.u) (* (floor h) dY.v)) (* (* (floor h) dX.v) (* (floor w) dY.u)))) (sqrt (fmax (+ (* (* (floor w) dX.u) (* (floor w) dX.u)) (* (* (floor h) dX.v) (* (floor h) dX.v))) (+ (* (* (floor w) dY.u) (* (floor w) dY.u)) (* (* (floor h) dY.v) (* (floor h) dY.v)))))))))
+</code></pre></details></section></body></html>

@@ -1,0 +1,150 @@
+<!doctype html>
+<html><head><meta charset="utf-8"/><title>Result for Numeric.SpecFunctions:logBeta from math-functions-0.1.5.2, B</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" integrity="sha384-9tPv11A+glH/on/wEu99NVwDPwkMQESOocs/ZGXPoIiLE8MU/qkqUcZ3zzL+6DuH" crossorigin="anonymous"/><script src="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.js" integrity="sha384-U8Vrjwb8fuHMt6ewaCy8uqeUXv4oitYACKdB0VziCerzt011iQ/0TqlSlv8MReCm" crossorigin="anonymous"></script><script src="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/contrib/auto-render.min.js" integrity="sha384-aGfk5kvhIq5x1x5YdvCp4upKZYnA8ckafviDpmWEKp4afOZEqOli7gqSnh8I6enH" crossorigin="anonymous"></script><script src="https://unpkg.com/mathjs@4.4.2/dist/math.min.js"></script><script src="https://unpkg.com/d3@6.7.0/dist/d3.min.js"></script><script src="https://unpkg.com/@observablehq/plot@0.4.3/dist/plot.umd.min.js"></script><link rel="stylesheet" type="text/css" href="../report.css"/><script src="../report.js"></script></head><body><header><h1>Numeric.SpecFunctions:logBeta from math-functions-0.1.5.2, B</h1><img src="../logo-car.png"/><nav><ul><li><a href="../index.html">Report</a></li><li><a href="timeline.html">Metrics</a></li></ul></nav></header><div id="large"><div>Percentage Accurate: <span class="number" title="Minimum Accuracy: 98.4% → 98.4%">99.6%<span class="unit"> → </span>99.6%</span></div><div>Time: <span class="number">1.2s</span></div><div>Alternatives: <span class="number">1</span></div><div>Speedup: <span class="number" title="Relative speed of fastest alternative that improves accuracy.">1.0×</span></div></div><section><details id="specification" class="programs"><summary><h2>Specification</h2><select><option>Math</option><option>FPCore</option><option>C</option><option>Fortran</option><option>Java</option><option>Python</option><option>Julia</option><option>MATLAB</option><option>Wolfram</option><option>TeX</option></select><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#spec" target="_blank">?</a></summary><div><div class="implementation" data-language="Math"><div class="program math">\[\begin{array}{l}
+
+\\
+\left(\left(\left(\left(x \cdot \log y + z\right) + t\right) + a\right) + \left(b - 0.5\right) \cdot \log c\right) + y \cdot i
+\end{array}
+\]</div></div><div class="implementation" data-language="FPCore"><pre class="program">
+(FPCore (x y z t a b c i)
+ :precision binary64
+ (+ (+ (+ (+ (+ (* x (log y)) z) t) a) (* (- b 0.5) (log c))) (* y i)))</pre></div><div class="implementation" data-language="C"><pre class="program">
+double code(double x, double y, double z, double t, double a, double b, double c, double i) {
+	return (((((x * log(y)) + z) + t) + a) + ((b - 0.5) * log(c))) + (y * i);
+}
+</pre></div><div class="implementation" data-language="Fortran"><pre class="program">
+real(8) function code(x, y, z, t, a, b, c, i)
+use fmin_fmax_functions
+    real(8), intent (in) :: x
+    real(8), intent (in) :: y
+    real(8), intent (in) :: z
+    real(8), intent (in) :: t
+    real(8), intent (in) :: a
+    real(8), intent (in) :: b
+    real(8), intent (in) :: c
+    real(8), intent (in) :: i
+    code = (((((x * log(y)) + z) + t) + a) + ((b - 0.5d0) * log(c))) + (y * i)
+end function
+</pre></div><div class="implementation" data-language="Java"><pre class="program">
+public static double code(double x, double y, double z, double t, double a, double b, double c, double i) {
+	return (((((x * Math.log(y)) + z) + t) + a) + ((b - 0.5) * Math.log(c))) + (y * i);
+}
+</pre></div><div class="implementation" data-language="Python"><pre class="program">
+def code(x, y, z, t, a, b, c, i):
+	return (((((x * math.log(y)) + z) + t) + a) + ((b - 0.5) * math.log(c))) + (y * i)
+</pre></div><div class="implementation" data-language="Julia"><pre class="program">
+function code(x, y, z, t, a, b, c, i)
+	return Float64(Float64(Float64(Float64(Float64(Float64(x * log(y)) + z) + t) + a) + Float64(Float64(b - 0.5) * log(c))) + Float64(y * i))
+end
+</pre></div><div class="implementation" data-language="MATLAB"><pre class="program">
+function tmp = code(x, y, z, t, a, b, c, i)
+	tmp = (((((x * log(y)) + z) + t) + a) + ((b - 0.5) * log(c))) + (y * i);
+end
+</pre></div><div class="implementation" data-language="Wolfram"><pre class="program">
+code[x_, y_, z_, t_, a_, b_, c_, i_] := N[(N[(N[(N[(N[(N[(x * N[Log[y], $MachinePrecision]), $MachinePrecision] + z), $MachinePrecision] + t), $MachinePrecision] + a), $MachinePrecision] + N[(N[(b - 0.5), $MachinePrecision] * N[Log[c], $MachinePrecision]), $MachinePrecision]), $MachinePrecision] + N[(y * i), $MachinePrecision]), $MachinePrecision]
+</pre></div><div class="implementation" data-language="TeX"><pre class="program">\begin{array}{l}
+
+\\
+\left(\left(\left(\left(x \cdot \log y + z\right) + t\right) + a\right) + \left(b - 0.5\right) \cdot \log c\right) + y \cdot i
+\end{array}
+</pre></div></div><p>Sampling outcomes in <kbd>binary64</kbd> precision:</p><div class="bogosity"><div class="bogosity-valid" data-id="bogosity-valid" data-type="valid" data-timespan="0.21454470567490894" title="valid (21.5%)"></div><div class="bogosity-unknown" data-id="bogosity-unknown" data-type="unknown" data-timespan="0" title="unknown (0.0%)"></div><div class="bogosity-infinite" data-id="bogosity-infinite" data-type="infinite" data-timespan="0.034480399126324654" title="infinite (3.4%)"></div><div class="bogosity-unsamplable" data-id="bogosity-unsamplable" data-type="unsamplable" data-timespan="0" title="unsamplable (0.0%)"></div><div class="bogosity-invalid" data-id="bogosity-invalid" data-type="invalid" data-timespan="0.7470753144037008" title="invalid (74.7%)"></div><div class="bogosity-precondition" data-id="bogosity-precondition" data-type="precondition" data-timespan="0.0038995807950656936" title="precondition (0.4%)"></div></div></details></section><figure id="graphs"><h2>Local Percentage Accuracy vs <span id="variables"></span><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#graph" target="_blank">?</a></h2><svg></svg><div id="functions"></div><figcaption>The average percentage accuracy by input value. Horizontal axis shows value of an input variable; the variable is choosen in the title. Vertical axis is accuracy; higher is better. Red represent the original program, while blue represents Herbie's suggestion. These can be toggled with buttons below the plot. The line is an average while dots represent individual samples.</figcaption></figure><section id="cost-accuracy" class="section" data-benchmark-name="Numeric.SpecFunctions:logBeta from math-functions-0.1.5.2, B"><h2>Accuracy vs Speed<a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#cost-accuracy" target="_blank">?</a></h2><div class="figure-row"><svg></svg><div><p>Herbie found 1 alternatives:</p><table><thead><tr><th>Alternative</th><th class="numeric">Accuracy</th><th class="numeric">Speedup</th></tr></thead><tbody></tbody></table></div></div><figcaption>The accuracy (vertical axis) and speed (horizontal axis) of each alternatives. Up and to the right is better. The red square shows the initial program, and each blue circle shows an alternative.The line shows the best available speed-accuracy tradeoffs.</figcaption></section><section id="initial" class="programs"><h2>Initial Program: <span class="subhead"><data>99.6%</data> accurate, <data>1.0×</data> speedup</span><select><option>Math</option><option>FPCore</option><option>C</option><option>Fortran</option><option>Java</option><option>Python</option><option>Julia</option><option>MATLAB</option><option>Wolfram</option><option>TeX</option></select><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#alternatives" target="_blank">?</a></h2><div><div class="implementation" data-language="Math"><div class="program math">\[\begin{array}{l}
+
+\\
+\left(\left(\left(\left(x \cdot \log y + z\right) + t\right) + a\right) + \left(b - 0.5\right) \cdot \log c\right) + y \cdot i
+\end{array}
+\]</div></div><div class="implementation" data-language="FPCore"><pre class="program">
+(FPCore (x y z t a b c i)
+ :precision binary64
+ (+ (+ (+ (+ (+ (* x (log y)) z) t) a) (* (- b 0.5) (log c))) (* y i)))</pre></div><div class="implementation" data-language="C"><pre class="program">
+double code(double x, double y, double z, double t, double a, double b, double c, double i) {
+	return (((((x * log(y)) + z) + t) + a) + ((b - 0.5) * log(c))) + (y * i);
+}
+</pre></div><div class="implementation" data-language="Fortran"><pre class="program">
+real(8) function code(x, y, z, t, a, b, c, i)
+use fmin_fmax_functions
+    real(8), intent (in) :: x
+    real(8), intent (in) :: y
+    real(8), intent (in) :: z
+    real(8), intent (in) :: t
+    real(8), intent (in) :: a
+    real(8), intent (in) :: b
+    real(8), intent (in) :: c
+    real(8), intent (in) :: i
+    code = (((((x * log(y)) + z) + t) + a) + ((b - 0.5d0) * log(c))) + (y * i)
+end function
+</pre></div><div class="implementation" data-language="Java"><pre class="program">
+public static double code(double x, double y, double z, double t, double a, double b, double c, double i) {
+	return (((((x * Math.log(y)) + z) + t) + a) + ((b - 0.5) * Math.log(c))) + (y * i);
+}
+</pre></div><div class="implementation" data-language="Python"><pre class="program">
+def code(x, y, z, t, a, b, c, i):
+	return (((((x * math.log(y)) + z) + t) + a) + ((b - 0.5) * math.log(c))) + (y * i)
+</pre></div><div class="implementation" data-language="Julia"><pre class="program">
+function code(x, y, z, t, a, b, c, i)
+	return Float64(Float64(Float64(Float64(Float64(Float64(x * log(y)) + z) + t) + a) + Float64(Float64(b - 0.5) * log(c))) + Float64(y * i))
+end
+</pre></div><div class="implementation" data-language="MATLAB"><pre class="program">
+function tmp = code(x, y, z, t, a, b, c, i)
+	tmp = (((((x * log(y)) + z) + t) + a) + ((b - 0.5) * log(c))) + (y * i);
+end
+</pre></div><div class="implementation" data-language="Wolfram"><pre class="program">
+code[x_, y_, z_, t_, a_, b_, c_, i_] := N[(N[(N[(N[(N[(N[(x * N[Log[y], $MachinePrecision]), $MachinePrecision] + z), $MachinePrecision] + t), $MachinePrecision] + a), $MachinePrecision] + N[(N[(b - 0.5), $MachinePrecision] * N[Log[c], $MachinePrecision]), $MachinePrecision]), $MachinePrecision] + N[(y * i), $MachinePrecision]), $MachinePrecision]
+</pre></div><div class="implementation" data-language="TeX"><pre class="program">\begin{array}{l}
+
+\\
+\left(\left(\left(\left(x \cdot \log y + z\right) + t\right) + a\right) + \left(b - 0.5\right) \cdot \log c\right) + y \cdot i
+\end{array}
+</pre></div></div></section><section id="alternative1" class="programs"><h2>Alternative 1: <span class="subhead"><data>99.6%</data> accurate, <data>1.0×</data> speedup</span><select><option>Math</option><option>FPCore</option><option>C</option><option>Fortran</option><option>Java</option><option>Python</option><option>Julia</option><option>MATLAB</option><option>Wolfram</option><option>TeX</option></select><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#alternatives" target="_blank">?</a></h2><div><div class="implementation" data-language="Math"><div class="program math">\[\begin{array}{l}
+
+\\
+i \cdot y + \left(\log c \cdot \left(b - 0.5\right) + \left(a + \left(t + \left(z + \log y \cdot x\right)\right)\right)\right)
+\end{array}
+\]</div></div><div class="implementation" data-language="FPCore"><pre class="program">
+(FPCore (x y z t a b c i)
+ :precision binary64
+ (+ (* i y) (+ (* (log c) (- b 0.5)) (+ a (+ t (+ z (* (log y) x)))))))</pre></div><div class="implementation" data-language="C"><pre class="program">
+double code(double x, double y, double z, double t, double a, double b, double c, double i) {
+	return (i * y) + ((log(c) * (b - 0.5)) + (a + (t + (z + (log(y) * x)))));
+}
+</pre></div><div class="implementation" data-language="Fortran"><pre class="program">
+real(8) function code(x, y, z, t, a, b, c, i)
+use fmin_fmax_functions
+    real(8), intent (in) :: x
+    real(8), intent (in) :: y
+    real(8), intent (in) :: z
+    real(8), intent (in) :: t
+    real(8), intent (in) :: a
+    real(8), intent (in) :: b
+    real(8), intent (in) :: c
+    real(8), intent (in) :: i
+    code = (i * y) + ((log(c) * (b - 0.5d0)) + (a + (t + (z + (log(y) * x)))))
+end function
+</pre></div><div class="implementation" data-language="Java"><pre class="program">
+public static double code(double x, double y, double z, double t, double a, double b, double c, double i) {
+	return (i * y) + ((Math.log(c) * (b - 0.5)) + (a + (t + (z + (Math.log(y) * x)))));
+}
+</pre></div><div class="implementation" data-language="Python"><pre class="program">
+def code(x, y, z, t, a, b, c, i):
+	return (i * y) + ((math.log(c) * (b - 0.5)) + (a + (t + (z + (math.log(y) * x)))))
+</pre></div><div class="implementation" data-language="Julia"><pre class="program">
+function code(x, y, z, t, a, b, c, i)
+	return Float64(Float64(i * y) + Float64(Float64(log(c) * Float64(b - 0.5)) + Float64(a + Float64(t + Float64(z + Float64(log(y) * x))))))
+end
+</pre></div><div class="implementation" data-language="MATLAB"><pre class="program">
+function tmp = code(x, y, z, t, a, b, c, i)
+	tmp = (i * y) + ((log(c) * (b - 0.5)) + (a + (t + (z + (log(y) * x)))));
+end
+</pre></div><div class="implementation" data-language="Wolfram"><pre class="program">
+code[x_, y_, z_, t_, a_, b_, c_, i_] := N[(N[(i * y), $MachinePrecision] + N[(N[(N[Log[c], $MachinePrecision] * N[(b - 0.5), $MachinePrecision]), $MachinePrecision] + N[(a + N[(t + N[(z + N[(N[Log[y], $MachinePrecision] * x), $MachinePrecision]), $MachinePrecision]), $MachinePrecision]), $MachinePrecision]), $MachinePrecision]), $MachinePrecision]
+</pre></div><div class="implementation" data-language="TeX"><pre class="program">\begin{array}{l}
+
+\\
+i \cdot y + \left(\log c \cdot \left(b - 0.5\right) + \left(a + \left(t + \left(z + \log y \cdot x\right)\right)\right)\right)
+\end{array}
+</pre></div></div><details><summary>Derivation</summary><ol class="history"><li><p>Initial program <span class="error" title="99.6% on training set">98.7%</span></p><div class="math">\[\left(\left(\left(\left(x \cdot \log y + z\right) + t\right) + a\right) + \left(b - 0.5\right) \cdot \log c\right) + y \cdot i
+\]</div></li><li>Add Preprocessing</li><li><p>Final simplification<span class="error" title="99.6% on training set">98.7%</span></p><div class="math">\[\leadsto i \cdot y + \left(\log c \cdot \left(b - 0.5\right) + \left(a + \left(t + \left(z + \log y \cdot x\right)\right)\right)\right)
+\]</div></li><li>Add Preprocessing</li></ol></details></section><section id="reproduce"><details><summary><h2>Reproduce</h2><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#reproduction" target="_blank">?</a></summary><pre class="shell"><code>herbie shell --seed 1528405439 
+(FPCore (x y z t a b c i)
+  :name "Numeric.SpecFunctions:logBeta from math-functions-0.1.5.2, B"
+  :precision binary64
+  (+ (+ (+ (+ (+ (* x (log y)) z) t) a) (* (- b 0.5) (log c))) (* y i)))
+</code></pre></details></section></body></html>

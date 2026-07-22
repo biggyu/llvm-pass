@@ -1,0 +1,177 @@
+<!doctype html>
+<html><head><meta charset="utf-8"/><title>Result for Example 2 from Robby</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" integrity="sha384-9tPv11A+glH/on/wEu99NVwDPwkMQESOocs/ZGXPoIiLE8MU/qkqUcZ3zzL+6DuH" crossorigin="anonymous"/><script src="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.js" integrity="sha384-U8Vrjwb8fuHMt6ewaCy8uqeUXv4oitYACKdB0VziCerzt011iQ/0TqlSlv8MReCm" crossorigin="anonymous"></script><script src="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/contrib/auto-render.min.js" integrity="sha384-aGfk5kvhIq5x1x5YdvCp4upKZYnA8ckafviDpmWEKp4afOZEqOli7gqSnh8I6enH" crossorigin="anonymous"></script><script src="https://unpkg.com/mathjs@4.4.2/dist/math.min.js"></script><script src="https://unpkg.com/d3@6.7.0/dist/d3.min.js"></script><script src="https://unpkg.com/@observablehq/plot@0.4.3/dist/plot.umd.min.js"></script><link rel="stylesheet" type="text/css" href="../report.css"/><script src="../report.js"></script></head><body><header><h1>Example 2 from Robby</h1><img src="../logo-car.png"/><nav><ul><li><a href="../index.html">Report</a></li><li><a href="timeline.html">Metrics</a></li></ul></nav></header><div id="large"><div>Percentage Accurate: <span class="number" title="Minimum Accuracy: 98.4% → 98.4%">99.2%<span class="unit"> → </span>99.2%</span></div><div>Time: <span class="number">3.0s</span></div><div>Alternatives: <span class="number">1</span></div><div>Speedup: <span class="number" title="Relative speed of fastest alternative that improves accuracy.">1.0×</span></div></div><section><details id="specification" class="programs"><summary><h2>Specification</h2><select><option>Math</option><option>FPCore</option><option>C</option><option>Fortran</option><option>Java</option><option>Python</option><option>Julia</option><option>MATLAB</option><option>Wolfram</option><option>TeX</option></select><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#spec" target="_blank">?</a></summary><div><div class="implementation" data-language="Math"><div class="program math">\[\begin{array}{l}
+
+\\
+\begin{array}{l}
+t_1 := \tan^{-1} \left(\frac{\left(-eh\right) \cdot \tan t}{ew}\right)\\
+\left|\left(ew \cdot \cos t\right) \cdot \cos t\_1 - \left(eh \cdot \sin t\right) \cdot \sin t\_1\right|
+\end{array}
+\end{array}
+\]</div></div><div class="implementation" data-language="FPCore"><pre class="program">
+(FPCore (eh ew t)
+ :precision binary64
+ (let* ((t_1 (atan (/ (* (- eh) (tan t)) ew))))
+   (fabs (- (* (* ew (cos t)) (cos t_1)) (* (* eh (sin t)) (sin t_1))))))</pre></div><div class="implementation" data-language="C"><pre class="program">
+double code(double eh, double ew, double t) {
+	double t_1 = atan(((-eh * tan(t)) / ew));
+	return fabs((((ew * cos(t)) * cos(t_1)) - ((eh * sin(t)) * sin(t_1))));
+}
+</pre></div><div class="implementation" data-language="Fortran"><pre class="program">
+real(8) function code(eh, ew, t)
+use fmin_fmax_functions
+    real(8), intent (in) :: eh
+    real(8), intent (in) :: ew
+    real(8), intent (in) :: t
+    real(8) :: t_1
+    t_1 = atan(((-eh * tan(t)) / ew))
+    code = abs((((ew * cos(t)) * cos(t_1)) - ((eh * sin(t)) * sin(t_1))))
+end function
+</pre></div><div class="implementation" data-language="Java"><pre class="program">
+public static double code(double eh, double ew, double t) {
+	double t_1 = Math.atan(((-eh * Math.tan(t)) / ew));
+	return Math.abs((((ew * Math.cos(t)) * Math.cos(t_1)) - ((eh * Math.sin(t)) * Math.sin(t_1))));
+}
+</pre></div><div class="implementation" data-language="Python"><pre class="program">
+def code(eh, ew, t):
+	t_1 = math.atan(((-eh * math.tan(t)) / ew))
+	return math.fabs((((ew * math.cos(t)) * math.cos(t_1)) - ((eh * math.sin(t)) * math.sin(t_1))))
+</pre></div><div class="implementation" data-language="Julia"><pre class="program">
+function code(eh, ew, t)
+	t_1 = atan(Float64(Float64(Float64(-eh) * tan(t)) / ew))
+	return abs(Float64(Float64(Float64(ew * cos(t)) * cos(t_1)) - Float64(Float64(eh * sin(t)) * sin(t_1))))
+end
+</pre></div><div class="implementation" data-language="MATLAB"><pre class="program">
+function tmp = code(eh, ew, t)
+	t_1 = atan(((-eh * tan(t)) / ew));
+	tmp = abs((((ew * cos(t)) * cos(t_1)) - ((eh * sin(t)) * sin(t_1))));
+end
+</pre></div><div class="implementation" data-language="Wolfram"><pre class="program">
+code[eh_, ew_, t_] := Block[{t$95$1 = N[ArcTan[N[(N[((-eh) * N[Tan[t], $MachinePrecision]), $MachinePrecision] / ew), $MachinePrecision]], $MachinePrecision]}, N[Abs[N[(N[(N[(ew * N[Cos[t], $MachinePrecision]), $MachinePrecision] * N[Cos[t$95$1], $MachinePrecision]), $MachinePrecision] - N[(N[(eh * N[Sin[t], $MachinePrecision]), $MachinePrecision] * N[Sin[t$95$1], $MachinePrecision]), $MachinePrecision]), $MachinePrecision]], $MachinePrecision]]
+</pre></div><div class="implementation" data-language="TeX"><pre class="program">\begin{array}{l}
+
+\\
+\begin{array}{l}
+t_1 := \tan^{-1} \left(\frac{\left(-eh\right) \cdot \tan t}{ew}\right)\\
+\left|\left(ew \cdot \cos t\right) \cdot \cos t\_1 - \left(eh \cdot \sin t\right) \cdot \sin t\_1\right|
+\end{array}
+\end{array}
+</pre></div></div><p>Sampling outcomes in <kbd>binary64</kbd> precision:</p><div class="bogosity"><div class="bogosity-valid" data-id="bogosity-valid" data-type="valid" data-timespan="0.998535871389322" title="valid (99.9%)"></div><div class="bogosity-unknown" data-id="bogosity-unknown" data-type="unknown" data-timespan="0" title="unknown (0.0%)"></div><div class="bogosity-infinite" data-id="bogosity-infinite" data-type="infinite" data-timespan="0" title="infinite (0.0%)"></div><div class="bogosity-unsamplable" data-id="bogosity-unsamplable" data-type="unsamplable" data-timespan="0" title="unsamplable (0.0%)"></div><div class="bogosity-invalid" data-id="bogosity-invalid" data-type="invalid" data-timespan="0.0" title="invalid (0.0%)"></div><div class="bogosity-precondition" data-id="bogosity-precondition" data-type="precondition" data-timespan="0.0014641286106780171" title="precondition (0.1%)"></div></div></details></section><figure id="graphs"><h2>Local Percentage Accuracy vs <span id="variables"></span><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#graph" target="_blank">?</a></h2><svg></svg><div id="functions"></div><figcaption>The average percentage accuracy by input value. Horizontal axis shows value of an input variable; the variable is choosen in the title. Vertical axis is accuracy; higher is better. Red represent the original program, while blue represents Herbie's suggestion. These can be toggled with buttons below the plot. The line is an average while dots represent individual samples.</figcaption></figure><section id="cost-accuracy" class="section" data-benchmark-name="Example 2 from Robby"><h2>Accuracy vs Speed<a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#cost-accuracy" target="_blank">?</a></h2><div class="figure-row"><svg></svg><div><p>Herbie found 1 alternatives:</p><table><thead><tr><th>Alternative</th><th class="numeric">Accuracy</th><th class="numeric">Speedup</th></tr></thead><tbody></tbody></table></div></div><figcaption>The accuracy (vertical axis) and speed (horizontal axis) of each alternatives. Up and to the right is better. The red square shows the initial program, and each blue circle shows an alternative.The line shows the best available speed-accuracy tradeoffs.</figcaption></section><section id="initial" class="programs"><h2>Initial Program: <span class="subhead"><data>99.2%</data> accurate, <data>1.0×</data> speedup</span><select><option>Math</option><option>FPCore</option><option>C</option><option>Fortran</option><option>Java</option><option>Python</option><option>Julia</option><option>MATLAB</option><option>Wolfram</option><option>TeX</option></select><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#alternatives" target="_blank">?</a></h2><div><div class="implementation" data-language="Math"><div class="program math">\[\begin{array}{l}
+
+\\
+\begin{array}{l}
+t_1 := \tan^{-1} \left(\frac{\left(-eh\right) \cdot \tan t}{ew}\right)\\
+\left|\left(ew \cdot \cos t\right) \cdot \cos t\_1 - \left(eh \cdot \sin t\right) \cdot \sin t\_1\right|
+\end{array}
+\end{array}
+\]</div></div><div class="implementation" data-language="FPCore"><pre class="program">
+(FPCore (eh ew t)
+ :precision binary64
+ (let* ((t_1 (atan (/ (* (- eh) (tan t)) ew))))
+   (fabs (- (* (* ew (cos t)) (cos t_1)) (* (* eh (sin t)) (sin t_1))))))</pre></div><div class="implementation" data-language="C"><pre class="program">
+double code(double eh, double ew, double t) {
+	double t_1 = atan(((-eh * tan(t)) / ew));
+	return fabs((((ew * cos(t)) * cos(t_1)) - ((eh * sin(t)) * sin(t_1))));
+}
+</pre></div><div class="implementation" data-language="Fortran"><pre class="program">
+real(8) function code(eh, ew, t)
+use fmin_fmax_functions
+    real(8), intent (in) :: eh
+    real(8), intent (in) :: ew
+    real(8), intent (in) :: t
+    real(8) :: t_1
+    t_1 = atan(((-eh * tan(t)) / ew))
+    code = abs((((ew * cos(t)) * cos(t_1)) - ((eh * sin(t)) * sin(t_1))))
+end function
+</pre></div><div class="implementation" data-language="Java"><pre class="program">
+public static double code(double eh, double ew, double t) {
+	double t_1 = Math.atan(((-eh * Math.tan(t)) / ew));
+	return Math.abs((((ew * Math.cos(t)) * Math.cos(t_1)) - ((eh * Math.sin(t)) * Math.sin(t_1))));
+}
+</pre></div><div class="implementation" data-language="Python"><pre class="program">
+def code(eh, ew, t):
+	t_1 = math.atan(((-eh * math.tan(t)) / ew))
+	return math.fabs((((ew * math.cos(t)) * math.cos(t_1)) - ((eh * math.sin(t)) * math.sin(t_1))))
+</pre></div><div class="implementation" data-language="Julia"><pre class="program">
+function code(eh, ew, t)
+	t_1 = atan(Float64(Float64(Float64(-eh) * tan(t)) / ew))
+	return abs(Float64(Float64(Float64(ew * cos(t)) * cos(t_1)) - Float64(Float64(eh * sin(t)) * sin(t_1))))
+end
+</pre></div><div class="implementation" data-language="MATLAB"><pre class="program">
+function tmp = code(eh, ew, t)
+	t_1 = atan(((-eh * tan(t)) / ew));
+	tmp = abs((((ew * cos(t)) * cos(t_1)) - ((eh * sin(t)) * sin(t_1))));
+end
+</pre></div><div class="implementation" data-language="Wolfram"><pre class="program">
+code[eh_, ew_, t_] := Block[{t$95$1 = N[ArcTan[N[(N[((-eh) * N[Tan[t], $MachinePrecision]), $MachinePrecision] / ew), $MachinePrecision]], $MachinePrecision]}, N[Abs[N[(N[(N[(ew * N[Cos[t], $MachinePrecision]), $MachinePrecision] * N[Cos[t$95$1], $MachinePrecision]), $MachinePrecision] - N[(N[(eh * N[Sin[t], $MachinePrecision]), $MachinePrecision] * N[Sin[t$95$1], $MachinePrecision]), $MachinePrecision]), $MachinePrecision]], $MachinePrecision]]
+</pre></div><div class="implementation" data-language="TeX"><pre class="program">\begin{array}{l}
+
+\\
+\begin{array}{l}
+t_1 := \tan^{-1} \left(\frac{\left(-eh\right) \cdot \tan t}{ew}\right)\\
+\left|\left(ew \cdot \cos t\right) \cdot \cos t\_1 - \left(eh \cdot \sin t\right) \cdot \sin t\_1\right|
+\end{array}
+\end{array}
+</pre></div></div></section><section id="alternative1" class="programs"><h2>Alternative 1: <span class="subhead"><data>99.2%</data> accurate, <data>1.0×</data> speedup</span><select><option>Math</option><option>FPCore</option><option>C</option><option>Fortran</option><option>Java</option><option>Python</option><option>Julia</option><option>MATLAB</option><option>Wolfram</option><option>TeX</option></select><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#alternatives" target="_blank">?</a></h2><div><div class="implementation" data-language="Math"><div class="program math">\[\begin{array}{l}
+
+\\
+\begin{array}{l}
+t_1 := \tan^{-1} \left(\frac{\tan t \cdot eh}{-ew}\right)\\
+\left|\sin t\_1 \cdot \left(\sin t \cdot eh\right) - \cos t\_1 \cdot \left(\cos t \cdot ew\right)\right|
+\end{array}
+\end{array}
+\]</div></div><div class="implementation" data-language="FPCore"><pre class="program">
+(FPCore (eh ew t)
+ :precision binary64
+ (let* ((t_1 (atan (/ (* (tan t) eh) (- ew)))))
+   (fabs (- (* (sin t_1) (* (sin t) eh)) (* (cos t_1) (* (cos t) ew))))))</pre></div><div class="implementation" data-language="C"><pre class="program">
+double code(double eh, double ew, double t) {
+	double t_1 = atan(((tan(t) * eh) / -ew));
+	return fabs(((sin(t_1) * (sin(t) * eh)) - (cos(t_1) * (cos(t) * ew))));
+}
+</pre></div><div class="implementation" data-language="Fortran"><pre class="program">
+real(8) function code(eh, ew, t)
+use fmin_fmax_functions
+    real(8), intent (in) :: eh
+    real(8), intent (in) :: ew
+    real(8), intent (in) :: t
+    real(8) :: t_1
+    t_1 = atan(((tan(t) * eh) / -ew))
+    code = abs(((sin(t_1) * (sin(t) * eh)) - (cos(t_1) * (cos(t) * ew))))
+end function
+</pre></div><div class="implementation" data-language="Java"><pre class="program">
+public static double code(double eh, double ew, double t) {
+	double t_1 = Math.atan(((Math.tan(t) * eh) / -ew));
+	return Math.abs(((Math.sin(t_1) * (Math.sin(t) * eh)) - (Math.cos(t_1) * (Math.cos(t) * ew))));
+}
+</pre></div><div class="implementation" data-language="Python"><pre class="program">
+def code(eh, ew, t):
+	t_1 = math.atan(((math.tan(t) * eh) / -ew))
+	return math.fabs(((math.sin(t_1) * (math.sin(t) * eh)) - (math.cos(t_1) * (math.cos(t) * ew))))
+</pre></div><div class="implementation" data-language="Julia"><pre class="program">
+function code(eh, ew, t)
+	t_1 = atan(Float64(Float64(tan(t) * eh) / Float64(-ew)))
+	return abs(Float64(Float64(sin(t_1) * Float64(sin(t) * eh)) - Float64(cos(t_1) * Float64(cos(t) * ew))))
+end
+</pre></div><div class="implementation" data-language="MATLAB"><pre class="program">
+function tmp = code(eh, ew, t)
+	t_1 = atan(((tan(t) * eh) / -ew));
+	tmp = abs(((sin(t_1) * (sin(t) * eh)) - (cos(t_1) * (cos(t) * ew))));
+end
+</pre></div><div class="implementation" data-language="Wolfram"><pre class="program">
+code[eh_, ew_, t_] := Block[{t$95$1 = N[ArcTan[N[(N[(N[Tan[t], $MachinePrecision] * eh), $MachinePrecision] / (-ew)), $MachinePrecision]], $MachinePrecision]}, N[Abs[N[(N[(N[Sin[t$95$1], $MachinePrecision] * N[(N[Sin[t], $MachinePrecision] * eh), $MachinePrecision]), $MachinePrecision] - N[(N[Cos[t$95$1], $MachinePrecision] * N[(N[Cos[t], $MachinePrecision] * ew), $MachinePrecision]), $MachinePrecision]), $MachinePrecision]], $MachinePrecision]]
+</pre></div><div class="implementation" data-language="TeX"><pre class="program">\begin{array}{l}
+
+\\
+\begin{array}{l}
+t_1 := \tan^{-1} \left(\frac{\tan t \cdot eh}{-ew}\right)\\
+\left|\sin t\_1 \cdot \left(\sin t \cdot eh\right) - \cos t\_1 \cdot \left(\cos t \cdot ew\right)\right|
+\end{array}
+\end{array}
+</pre></div></div><details><summary>Derivation</summary><ol class="history"><li><p>Initial program <span class="error" title="99.2% on training set">99.8%</span></p><div class="math">\[\left|\left(ew \cdot \cos t\right) \cdot \cos \tan^{-1} \left(\frac{\left(-eh\right) \cdot \tan t}{ew}\right) - \left(eh \cdot \sin t\right) \cdot \sin \tan^{-1} \left(\frac{\left(-eh\right) \cdot \tan t}{ew}\right)\right|
+\]</div></li><li>Add Preprocessing</li><li><p>Final simplification<span class="error" title="99.2% on training set">99.8%</span></p><div class="math">\[\leadsto \left|\sin \tan^{-1} \left(\frac{\tan t \cdot eh}{-ew}\right) \cdot \left(\sin t \cdot eh\right) - \cos \tan^{-1} \left(\frac{\tan t \cdot eh}{-ew}\right) \cdot \left(\cos t \cdot ew\right)\right|
+\]</div></li><li>Add Preprocessing</li></ol></details></section><section id="reproduce"><details><summary><h2>Reproduce</h2><a class="help-button float" href="https://herbie.uwplse.org/doc/2.2/report.html#reproduction" target="_blank">?</a></summary><pre class="shell"><code>herbie shell --seed 1528405439 
+(FPCore (eh ew t)
+  :name "Example 2 from Robby"
+  :precision binary64
+  (fabs (- (* (* ew (cos t)) (cos (atan (/ (* (- eh) (tan t)) ew)))) (* (* eh (sin t)) (sin (atan (/ (* (- eh) (tan t)) ew)))))))
+</code></pre></details></section></body></html>

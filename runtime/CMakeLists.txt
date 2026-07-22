@@ -1,7 +1,9 @@
 add_library(pass_runtime STATIC 
+    fp_condition.cpp
     fp_debug.cpp
-    smem_runtime.cpp
+    fp_runtime_state.cpp
     mpfr_runtime.cpp
+    smem_runtime.cpp
 )
 
 if (ENABLE_PROFILE)
