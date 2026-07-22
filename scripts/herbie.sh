@@ -24,13 +24,6 @@ for opt in $OPTS; do
     echo "Building once for O$opt"
     echo "################################################################"
 
-    rm -rf ./build
-    if ! bash ./scripts/build.sh 0 1 "$opt"; then
-        echo "[ERROR] Build failed for O$opt"
-        failed=$((failed + 2))
-        continue
-    fi
-
     for mode in $MODES; do
         total=$((total + 1))
         echo

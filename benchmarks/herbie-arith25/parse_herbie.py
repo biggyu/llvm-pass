@@ -382,21 +382,41 @@ def main():
     # usage:
     #   parse_herbie.py <timeline.json> <out.c>
     #   parse_herbie.py <timeline.json> <out.c> --sample <points.json>
+    #   parse_herbie.py <timeline.json> <out.c> --include-clean
+    #   parse_herbie.py <timeline.json> <out.c> \
+    #       --sample <points.json> --include-clean
     tl_path, out_c = sys.argv[1], sys.argv[2]
+
     sample_mode = "--sample" in sys.argv
-    points_path = sys.argv[sys.argv.index("--sample") + 1] if sample_mode else None
+    include_clean = "--include-clean" in sys.argv
+
+    points_path = (
+        sys.argv[sys.argv.index("--sample") + 1]
+        if sample_mode
+        else None
+    )
 
     timeline = json.load(open(tl_path))
     fperrors = None
+
     for phase in timeline:
         if isinstance(phase, dict) and "fperrors" in phase:
-            fperrors = phase["fperrors"]; break
+            fperrors = phase["fperrors"]
+            break
+
     if not fperrors:
-        print(f"{tl_path}: NO_FPERRORS"); sys.exit(2)
+        print(f"{tl_path}: NO_FPERRORS")
+        sys.exit(2)
 
     errs = error_entries(fperrors)
+
     if not errs:
-        print(f"{tl_path}: CLEAN (no error)"); sys.exit(10)
+        if not include_clean:
+            print(f"{tl_path}: CLEAN (no error)")
+            sys.exit(10)
+
+        # Continue into normal C generation.
+        print(f"{tl_path}: CLEAN (no error); generating C")
 
     top_expr = fperrors[0][0]
 
@@ -433,6 +453,6 @@ def main():
         f.write(code)
     print(f"wrote {out_c} [{prec}] {mode}")
     print(f"  vars={vars_}")
-
+    
 if __name__ == "__main__":
     main()

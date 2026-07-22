@@ -11,8 +11,8 @@ OPT=${3:-0}
 
 REPORT_DIR="./benchmarks/herbie-arith25/report"
 SRC_DIR="./benchmarks/herbie-arith25/src"
-OUT_DIR="./benchmarks/herbie-arith25/expected"
-PROD_DIR="./benchmarks/herbie-arith25/produced"
+OUT_DIR="./benchmarks/herbie-arith25/expected/$MODE"
+PROD_DIR="./benchmarks/herbie-arith25/produced/$MODE"
 PASS_SO="./build/passes/ShadowMem/ShadowMem.so"
 RUNTIME="./build/runtime/libpass_runtime.a"
 THRESH="${FPCHECK_THRESHOLD:-1e15}"
@@ -43,18 +43,38 @@ for tl in "$REPORT_DIR"/*/timeline.json; do
 
     # 1. generate C
     if [ "$MODE" = "sample" ] && [ -f "$points" ]; then
-        python3 ./benchmarks/herbie-arith25/parse_herbie.py "$tl" "$src" \
+        python3 ./benchmarks/herbie-arith25/parse_herbie.py "$tl" "$src" --include-clean \
             --sample "$points" > "$OUT_DIR/$name.gen.log" 2>&1
     else
-        python3 ./benchmarks/herbie-arith25/parse_herbie.py "$tl" "$src" \
+        python3 ./benchmarks/herbie-arith25/parse_herbie.py "$tl" "$src" --include-clean \
             > "$OUT_DIR/$name.gen.log" 2>&1
     fi
     rc=$?
     case $rc in
-        0)  echo "  [GEN]" ;;
-        10) echo "  [CLEAN]"; clean=$((clean+1)); continue ;;
-        4)  echo "  [SKIP] unsupported op"; skip=$((skip+1)); continue ;;
-        *)  echo "  [FAIL] parse (rc=$rc)"; fail=$((fail+1)); continue ;;
+        0)
+            if grep -q 'CLEAN (no error)' "$OUT_DIR/$name.gen.log"; then
+                echo "  [GEN CLEAN]"
+                clean=$((clean + 1))
+                echo "$name" >> "$PROD_DIR/clean_benchmarks.txt"   # <-- add this
+            else
+                echo "  [GEN]"
+            fi
+            ;;
+        10)
+            echo "  [CLEAN]"
+            clean=$((clean + 1))
+            continue
+            ;;
+        4)
+            echo "  [SKIP] unsupported op"
+            skip=$((skip + 1))
+            continue
+            ;;
+        *)
+            echo "  [FAIL] parse (rc=$rc)"
+            fail=$((fail + 1))
+            continue
+            ;;
     esac
     gen_ok=$((gen_ok + 1))
 
