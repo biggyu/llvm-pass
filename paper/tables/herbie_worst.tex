@@ -1,0 +1,35 @@
+\begin{table}
+  \caption{Largest runtime overheads among the Herbie benchmarks.}
+  \label{tab:herbie_worst}
+  \centering
+  \small
+  \begin{tabular}{llr}
+    \toprule
+    Opt. & Benchmark & Overhead \\
+    \midrule
+    \texttt{-O0}
+      & IanSimplification
+      & 652$\times$ \\
+    & CompoundInterest
+      & 406$\times$ \\
+    & LogarithmicTransform
+      & 371$\times$ \\
+    \midrule
+    \texttt{-O1}
+      & IanSimplification
+      & 933$\times$ \\
+    & CompoundInterest
+      & 427$\times$ \\
+    & LogarithmicTransform
+      & 389$\times$ \\
+    \midrule
+    \texttt{-O2}
+      & LogarithmicTransform
+      & 247$\times$ \\
+    & TonioloandLinderEquation10
+      & 201$\times$ \\
+    & 2nthrtproblem346
+      & 172$\times$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}

@@ -1,0 +1,30 @@
+\begin{table}
+  \caption{Runtime overhead on the PolyBench benchmark suite.}
+  \label{tab:polybench_overhead}
+  \centering
+  \begin{tabular}{llccc}
+    \toprule
+    Dataset & Opt. & Arith. & Geom. & Median\\
+    \midrule
+    MINI 
+        & \texttt{-O0} & 71.15$\times$ & 60.07$\times$ & 70.24$\times$ \\
+        & \texttt{-O1} & 74.06$\times$ & 58.16$\times$ & 69.43$\times$ \\
+        & \texttt{-O2} & 81.37$\times$ & 41.92$\times$ & 39.00$\times$ \\
+    \midrule
+    SMALL
+        & \texttt{-O0} & 87.88$\times$ & 74.21$\times$ & 75.27$\times$ \\
+        & \texttt{-O1} & 102.66$\times$ & 80.94$\times$ & 100.44$\times$ \\
+        & \texttt{-O2} & 91.49$\times$ & 45.16$\times$ & 87.70$\times$ \\
+    \midrule
+    MEDIUM
+        & \texttt{-O0} & 94.05$\times$ & 78.98$\times$ & 83.71$\times$ \\
+        & \texttt{-O1} & 123.26$\times$ & 96.81$\times$ & 108.66$\times$ \\
+        & \texttt{-O2} & 81.78$\times$ & 40.79$\times$ & 99.72$\times$ \\
+    \midrule
+    LARGE
+        & \texttt{-O0} & 124.93$\times$ & 104.42$\times$ & 110.91$\times$ \\
+        & \texttt{-O1} & 198.31$\times$ & 144.40$\times$ & 214.01$\times$ \\
+        & \texttt{-O2} & 113.17$\times$ & 50.26$\times$ & 88.73$\times$ \\
+  \bottomrule
+\end{tabular}
+\end{table}

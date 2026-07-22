@@ -1,0 +1,75 @@
+\section{Background}
+\label{sec:background}
+
+\subsection{Floating-Point Arithmetic}
+\label{sec:back_fp_arithmetic}
+
+Floating-point arithmetic provides an efficient approximation to real-number arithmetic using a finite-precision representation defined by the IEEE~754 standard. Since only a finite subset of real numbers is representable, most arithmetic operations require rounding to the nearest representable value, introducing round-off error. While the error introduced by a single operation is typically bounded by one-half unit in the last place (ULP), successive operations may propagate and amplify these errors, eventually producing inaccurate program outputs or altering program behavior through non-finite values or control-flow divergence~\cite{ieee754,fptaylor}.
+
+The effects of floating-point error are highly non-compositional. Small local rounding errors may accumulate into large inaccuracies, while operations such as catastrophic cancellation can magnify otherwise insignificant perturbations. Conversely, computations with relatively large intermediate errors may still produce accurate final results. These properties make floating-point bugs difficult to identify through conventional debugging techniques and motivate dynamic analyses that monitor numerical behavior during program execution~\cite{fpdebug,herbgrind,nsan}.
+
+\subsection{Error-Free Transformation}
+\label{sec:back_eft}
+
+Floating-point arithmetic introduces rounding after every primitive operation because the exact real-valued result may not be representable in the target precision. Error-Free Transformations (EFTs) recover this lost information by decomposing an arithmetic operation into the rounded floating-point result and its exact rounding residual using only machine-precision floating-point instructions. Classical EFTs compute both the rounded floating-point result and its exact rounding residual using only machine-precision operations. For addition, algorithms such as TwoSum(and FastTwoSum) recover the exact rounding error of a floating-point sum~\cite{dekker}. TwoSum computes
+
+\[
+a \circ b = \hat{x} + \hat{r},
+\]
+
+where $\hat{x}$ is the rounded IEEE~754 result and $\hat{r}$ is the exact residual introduced by rounding. For multiplication, modern processors provide fused multiply-add(FMA) instructions that recover the exact residual of a floating-point product with a single additional operation. The IEEE-754 fused multiply-add instruction computes $ab+c$ in a single rounding, which allows exact multiplication residual to be obtained as $r=fma(a, b, -\hat{p})$ where $\hat{p}$ is the rounded product. Unlike arbitrary-precision arithmetic, EFTs require only standard floating-point operations while preserving the exact rounding error of each primitive operation~\cite{ogita2008}.
+
+EFTs were originally developed as building blocks for accurately rounded summation and compensated numerical algorithms~\cite{ogita2008}. More recently, they have become attractive for runtime floating-point debugging because the propagated residual provides an efficient approximation of the accumulated numerical error throughout program execution. Compared with arbitrary-precision shadow execution, EFT-based analyses avoid costly MPFR computations while remaining entirely within hardware-supported floating-point arithmetic.
+
+Several dynamic debugging tools exploit this observation. Recent work, including EFTSanitizer, replaces high-precision shadow execution with propagated EFT residuals, substantially reducing runtime overhead while preserving much of the diagnostic capability of previous oracle-based approaches~\cite{eftsanitizer}. More recently, RePo improves the accuracy of EFT-based residue computation by separating rounding-error estimation from residue evaluation, reducing false reports while maintaining machine-precision performance~\cite{accurate_residues}.
+
+Despite these advantages, propagated residuals estimate only the numerical error accumulated along the observed execution. They do not measure the inherent sensitivity of a computation to perturbations in its inputs. Consequently, computations exhibiting small accumulated residuals may still be numerically unstable, motivating the incorporation of condition-number analysis.
+
+\subsection{Condition Numbers}
+\label{sec:back_condition_numbers}
+
+While EFTs accurately estimate the rounding error accumulated during a particular execution, they do not indicate whether a computation is inherently sensitive to perturbations in its inputs. A computation may accumulate only a small rounding residual yet still be numerically unstable because small input errors are greatly amplified by the underlying mathematical function. Quantifying this amplification is the role of the condition number.
+
+Consider a function $f(x)$ evaluated at a perturbed input $x+\delta x$. A first-order Taylor expansion gives
+
+\[
+f(x+\delta x)
+    \approx
+    f(x)+f'(x)\delta x.
+\]
+
+Dividing both sides by $f(x)$ yields the relative-error approximation
+
+\[
+\frac{\delta f}{f}
+    \approx
+    \kappa(x)
+    \frac{\delta x}{x},
+\]
+
+where
+
+\[
+\kappa(x)=
+\left|
+\frac{x f'(x)}
+     {f(x)}
+\right|
+\]
+
+is the relative condition number of $f$. A large condition number indicates that even small perturbations in the input may produce disproportionately large relative errors in the output. Unlike EFT residuals, which measure the error observed during one execution, condition numbers estimate the potential amplification of existing error. This distinction is particularly important for numerically unstable operations such as catastrophic cancellation, where subtracting nearly equal quantities destroys significant digits, and for highly sensitive functions whose outputs vary rapidly with small changes in their inputs.
+
+Several recent analyses exploit this observation by propagating relative-error estimates through arithmetic expressions instead of relying solely on high-precision oracle values. Atomic-condition analysis uses operation-level condition numbers to guide floating-point testing without requiring arbitrary-precision execution~\cite{atomicconditions}. ExplainiFloat further introduces a split-table formulation that propagates operand-wise relative-error contributions through each floating-point operation, enabling efficient runtime classification of cancellation and sensitivity~\cite{explainifloat}.
+
+Our work adopts ExplainiFloat's condition-number propagation rules rather than introducing a new sensitivity formulation. Instead, our contribution is to integrate this propagated relative-error state with an independently propagated EFT/MPFR error signal within a single LLVM instrumentation framework. The two analyses therefore operate over the same shadow state while capturing complementary numerical information.
+
+The propagated EFT/MPFR error and the propagated condition-number state serve different purposes during diagnosis. The EFT/MPFR analysis estimates the numerical error that has actually accumulated along the observed execution, whereas the condition-number analysis estimates how strongly the current operation amplifies perturbations in its operands. Our diagnostic policy evaluates both signals together: the propagated absolute error determines whether a numerically significant error is present, while the condition-number state classifies the underlying source of instability, such as cancellation or sensitivity. Combining these complementary signals enables more informative diagnoses than either analysis independently.
+
+\subsection{Dynamic Floating-Point Debugging}
+\label{sec:back_debugging}
+
+Dynamic floating-point debuggers instrument program execution to estimate numerical error and report operations likely to produce inaccurate results. Existing tools differ primarily in how they construct the shadow execution used to approximate real-number behavior.
+
+Early systems such as FpDebug execute floating-point operations in higher precision and compare shadow values against the original execution to identify rounding errors and catastrophic cancellation~\cite{fpdebug}. Herbgrind extends this approach by tracking error dependencies across function boundaries and heap objects to identify the root causes of numerical inaccuracies~\cite{herbgrind}. More recent compiler-based tools, including NSan and FPSanitizer, reduce instrumentation overhead by performing shadow execution through compiler instrumentation rather than binary translation~\cite{nsan, fpsanitizer}. Verrou instead employs Monte Carlo Arithmetic to estimate numerical stability without recompilation by repeatedly perturbing floating-point computations during execution~\cite{verrou}.
+
+Although these approaches differ substantially in implementation, they generally rely on one of two strategies: higher-precision shadow execution, which provides accurate oracle values at significant runtime cost, or machine-precision techniques such as EFTs, which improve efficiency but may sacrifice diagnostic accuracy. Our work builds upon the latter approach by combining propagated EFT residuals with condition-number analysis within a unified instrumentation framework.
