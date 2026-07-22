@@ -1,7 +1,2 @@
-# add_subdirectory(FPPrinter)
-# add_subdirectory(HelloWorld)
-# add_subdirectory(InjectFuncCall)
-# add_subdirectory(OpCode)
-# add_subdirectory(RIV)
 # add_subdirectory(TwoSum)
 add_subdirectory(ShadowMem)
