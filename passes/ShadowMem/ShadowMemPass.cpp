@@ -50,6 +50,37 @@ void runOnModule(llvm::Module &M) {
                 }
             }
         }
+        struct PHIShadow {
+            PHINode *xhat, *rhat, *ehat, *sign, *isExact, *relerr;
+        };
+        DenseMap<const PHINode*, PHIShadow> PHIMap;
+
+        for (BasicBlock &BB : F) {
+            for (PHINode &PN : BB.phis()) {
+                if (!PN.getType()->isFloatTy() && !PN.getType()->isDoubleTy()) {
+                    continue;
+                }
+                unsigned n = PN.getNumIncomingValues();
+                IRBuilder<> B(&PN);
+                PHIShadow ps;
+                ps.xhat = B.CreatePHI(rt.DoubleTy, n, "phi.xhat");
+                ps.rhat = B.CreatePHI(rt.DoubleTy, n, "phi.rhat");
+                ps.ehat = B.CreatePHI(rt.DoubleTy, n, "phi.ehat");
+                ps.sign = B.CreatePHI(rt.BoolTy, n, "phi.s");
+                ps.isExact = B.CreatePHI(rt.BoolTy, n, "phi.i");
+                ps.relerr = B.CreatePHI(rt.DoubleTy, n, "phi.relerr");
+                PHIMap[&PN] = ps;
+
+                DSLValues d;
+                d.xhat = ps.xhat;
+                d.rhat = ps.rhat;
+                d.ehat = ps.ehat;
+                d.sign = ps.sign;
+                d.isExact = ps.isExact;
+                d.relerr = ps.relerr;
+                DSLMap[&PN] = d;
+            }
+        }
 
         SmallVector<Instruction*, 128> WorkList;
         for (BasicBlock &BB : F) {
@@ -121,7 +152,24 @@ void runOnModule(llvm::Module &M) {
                 }
             }
         }
+        for (auto &kv : PHIMap) {
+            const PHINode *PN = kv.first;
+            PHIShadow &ps = kv.second;
+            for (unsigned i = 0; i < PN->getNumIncomingValues(); i++) {
+                Value *inVal = PN->getIncomingValue(i);
+                BasicBlock *inBB = PN->getIncomingBlock(i);
+                IRBuilder<> PredB(inBB->getTerminator());
+                DSLValues inDSL = getDSL(PredB, inVal, rt, DSLMap);
+                ps.xhat->addIncoming(inDSL.xhat, inBB);
+                ps.rhat->addIncoming(inDSL.rhat, inBB);
+                ps.ehat->addIncoming(inDSL.ehat, inBB);
+                ps.sign->addIncoming(inDSL.sign, inBB);
+                ps.isExact->addIncoming(inDSL.isExact, inBB);
+                ps.relerr->addIncoming(inDSL.relerr, inBB);
+            }
+        }
     }
+
     if (EnableDebugChecks && !SiteDescs.empty()) {
         emitRegisterAllSites(M, SiteDescs, rt);
     }
