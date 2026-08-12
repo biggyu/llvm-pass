@@ -14,7 +14,7 @@ static double load_threshold() {
         }
         std::fprintf(stderr, "[fpcheck] ignoring invalid FPCHECK_THRESHOLD\"%s\"\n", s);
     }
-    return 1e16;
+    return 1e15;
 }
 
 double g_threshold = load_threshold();
@@ -64,7 +64,13 @@ double condition_number(uint32_t opraw, double a, double a_Ex, double b, double 
             splits[0] = {g, ErrKind::Cancellation, aExact};
             n = 1;
             full = g;
-            Ex = g * Ea;
+            if (aExact) {
+                Ex = 0.0;
+            }
+            else {
+                Ex = g * Ea;
+            }
+            printf("%f %f %f %d", full, g, Ex, aExact);
             break;
         }
         case FpOp::Exp: {
@@ -149,8 +155,14 @@ double condition_number(uint32_t opraw, double a, double a_Ex, double b, double 
         }
     }
     if (full > g_threshold) {
-        bool cond = (n == 1) ? splits[0].exact : splits[0].exact && splits[1].exact;
-        if (cond) {
+        bool anyRealError = false;
+        for (int i = 0; i < n; i++) {
+            if (!splits[i].exact) {
+                anyRealError = true;
+                break;
+            }
+        }
+        if (!anyRealError) {
             G.cond_suppressed++;
         }
         else {

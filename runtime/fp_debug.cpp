@@ -212,15 +212,6 @@ extern "C" void check_branch(double a, double da, double b, double db, size_t pr
     // double b_corr = b + db;
 
     bool corrected = eval_pred(a + da, b + db, pred);
-    // bool prog = eval_pred(a, b, pred);
-    // if(corrected != prog) {
-    // printf("branch: a=%g da=%g b=%g db=%g pred=%zu prog=%d corr=%d\n", a, da, b, db, pred, computed_res, corrected);
-    // if (da != 0.0 || db != 0.0) {
-    //     printf("branch: a=%g da=%g b=%g db=%g pred=%zu prog=%d corr=%d\n", a, da, b, db, pred, computed_res, corrected);
-    // }
-    // if (a == 0.0 && da != 0.0) {
-    //     fprintf(stderr, "POTENTIAL FLIP: a=%g da=%g -> prog=%d corr=%d\n", a, da, (a==0.0), ((a+da)==0.0));
-    // }
     if(corrected != computed_res) {
         G.branch_flips++;
     }

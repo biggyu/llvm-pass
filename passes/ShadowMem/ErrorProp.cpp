@@ -6,20 +6,6 @@
 #include "fp_ops.h"
 using namespace llvm;
 
-// static Value* getError(Value *v, Constant *ZeroD, 
-//                         DenseMap<const Value*, Value*> &ErrorMap) {
-//     auto it = ErrorMap.find(v);
-//     if (it != ErrorMap.end()) {
-//         return it->second;
-//     }
-//     // if (!isa<ConstantFP>(v)) {
-//     //     llvm::errs() << "ErrorProp getError MISS on: ";
-//     //     v->print(llvm::errs());
-//     //     llvm::errs() << "\n";
-//     // }
-//     return ZeroD;
-// }
-
 bool handleIntrinsic(IntrinsicInst *II, utils::RuntimeFns &rt,
                 utils::RuntimeMPFRFns &rt_mpfr,
                 DenseMap<const Value*, DSLValues> &DSLMap,
