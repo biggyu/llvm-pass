@@ -28,13 +28,16 @@ bool handleBinary(BinaryOperator *BO, utils::RuntimeFns &rt,
                 std::unordered_map<uint32_t, utils::SiteDesc> &SiteDescs);
 
 bool handleFCmp(FCmpInst *FC, utils::RuntimeFns &rt,
-                DenseMap<const Value*, DSLValues> &DSLMap);
+                DenseMap<const Value*, DSLValues> &DSLMap,
+                std::unordered_map<uint32_t, utils::SiteDesc> &SiteDescs);
 
 bool handleFPToSI(FPToSIInst *CI, utils::RuntimeFns &rt,
-                DenseMap<const Value*, DSLValues> &DSLMap);
+                DenseMap<const Value*, DSLValues> &DSLMap,
+                std::unordered_map<uint32_t, utils::SiteDesc> &SiteDescs);
 
 bool handleFPToUI(FPToUIInst *CI, utils::RuntimeFns &rt,
-                DenseMap<const Value*, DSLValues> &DSLMap);
+                DenseMap<const Value*, DSLValues> &DSLMap,
+                std::unordered_map<uint32_t, utils::SiteDesc> &SiteDescs);
                 
 bool handleSIToFP(SIToFPInst *SI, utils::RuntimeFns &rt,
                 DenseMap<const Value*, DSLValues> &DSLMap);

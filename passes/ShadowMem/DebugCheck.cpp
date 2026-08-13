@@ -4,7 +4,7 @@
 #include "llvm/IR/DebugInfoMetadata.h"
 #include "llvm/Transforms/Utils/ModuleUtils.h"
 
-static std::unordered_map<uint32_t, utils::SiteDesc> g_siteDesc;
+// static std::unordered_map<uint32_t, utils::SiteDesc> g_siteDesc;
 
 cl::opt<bool> EnableDebugChecks(
     "fp-debug-checks",
@@ -57,8 +57,9 @@ uint32_t getSiteId(const llvm::Instruction *I) {
     return hash32string(Key);
 }
 
-void recordSiteDesc(uint32_t id, Instruction *I) {
-    if (g_siteDesc.count(id)) {
+void recordSiteDesc(uint32_t id, Instruction *I,
+                    std::unordered_map<uint32_t, utils::SiteDesc> &SiteDescs) {
+    if (SiteDescs.count(id)) {
         return;
     }
     utils::SiteDesc d;
@@ -75,10 +76,10 @@ void recordSiteDesc(uint32_t id, Instruction *I) {
     }
     d.func = I->getFunction()->getName().str();
     d.opcode = I->getOpcodeName();
-    g_siteDesc[id] = std::move(d);
+    SiteDescs[id] = std::move(d);
 }
 
-bool insertCheckError(IRBuilder<> &B,
+void insertCheckError(IRBuilder<> &B,
                     const DSLValues &aDsl, 
                     const DSLValues &bDsl, 
                     DSLValues &xDsl, 
@@ -89,7 +90,7 @@ bool insertCheckError(IRBuilder<> &B,
     Value *SiteId = ConstantInt::get(rt.I32Ty, id);
     Value *Metric = ConstantInt::get(rt.I32Ty, DebugMetrics);
 
-    recordSiteDesc(id, Site);
+    recordSiteDesc(id, Site, SiteDescs);
 
     bool emitCond = (op != FpOp::Mul && op != FpOp::Div && op != FpOp::Sqrt && op != FpOp::Cbrt && op != FpOp::Unknown);
 
@@ -105,27 +106,59 @@ bool insertCheckError(IRBuilder<> &B,
         xDsl.relerr = B.CreateFAdd(Ex, ci, "x.relerr");
     }
     B.CreateCall(rt.CheckError, {xDsl.xhat, xDsl.rhat, SiteId, Metric});
-    return false;
+    // return false;
 }
 
-void emitRegisterAllSites(Module &M, SmallVector<utils::SiteDesc> SiteDescs, utils::RuntimeFns &rt) {
+void insertCheckBranch(IRBuilder<> &B,
+                    const DSLValues &aDsl, const DSLValues &bDsl, 
+                    Value* pred, Instruction *Site, FpOp op,
+                    utils::RuntimeFns &rt,
+                    std::unordered_map<uint32_t, utils::SiteDesc> &SiteDescs) {
+    uint32_t id = getSiteId(Site);
+    Value *SiteId = ConstantInt::get(rt.I32Ty, id);
+    Value *Metric = ConstantInt::get(rt.I32Ty, DebugMetrics);
+
+    recordSiteDesc(id, Site, SiteDescs);
+    
+    B.CreateCall(rt.CheckBranch, {aDsl.xhat, aDsl.rhat, bDsl.xhat, bDsl.rhat, pred, Site, SiteId});
+}
+
+void insertCheckConv(IRBuilder<> &B, DSLValues &xDsl, 
+                    Value *val, Instruction *Site, FpOp op,
+                    utils::RuntimeFns &rt,
+                    std::unordered_map<uint32_t, utils::SiteDesc> &SiteDescs) {
+    uint32_t id = getSiteId(Site);
+    Value *SiteId = ConstantInt::get(rt.I32Ty, id);
+    Value *Metric = ConstantInt::get(rt.I32Ty, DebugMetrics);
+
+    recordSiteDesc(id, Site, SiteDescs);
+
+    if (op == FpOp::ConvSI) {
+        B.CreateCall(rt.CheckConvSI, {val, xDsl.xhat, xDsl.rhat, SiteId});
+    }
+    else {
+        B.CreateCall(rt.CheckConvUI, {val, xDsl.xhat, xDsl.rhat, SiteId});
+    }
+}
+
+void emitRegisterAllSites(Module &M, std::unordered_map<uint32_t, utils::SiteDesc> SiteDescs, utils::RuntimeFns &rt) {
     LLVMContext &Ctx = M.getContext();
     FunctionType *CtorTy = FunctionType::get(rt.VoidTy, false);
     Function *Ctor = Function::Create(CtorTy, GlobalValue::InternalLinkage, "__fp_register_call", &M);
     // BasicBlock *BB = BasicBlock::Create(Ctx, "entry", Ctor);
     IRBuilder B(BasicBlock::Create(Ctx, "entry", Ctor));
-
+    
     for (const auto &kv : SiteDescs) {
         // const utils::SiteDesc &d = kv.second;
-        Value *FuncStr = B.CreateGlobalStringPtr(kv.func);
-        Value *FileStr = B.CreateGlobalStringPtr(kv.file);
-        Value *OpStr = B.CreateGlobalStringPtr(kv.opcode);
+        Value *FuncStr = B.CreateGlobalStringPtr(kv.second.func);
+        Value *FileStr = B.CreateGlobalStringPtr(kv.second.file);
+        Value *OpStr = B.CreateGlobalStringPtr(kv.second.opcode);
         B.CreateCall(rt.RegisterFPSite, {
-            ConstantInt::get(rt.I32Ty, kv.id), 
+            ConstantInt::get(rt.I32Ty, kv.second.id), 
             FuncStr,
             FileStr,
-            ConstantInt::get(rt.I32Ty, kv.line),
-            ConstantInt::get(rt.I32Ty, kv.col),
+            ConstantInt::get(rt.I32Ty, kv.second.line),
+            ConstantInt::get(rt.I32Ty, kv.second.col),
             OpStr,
         });
     }

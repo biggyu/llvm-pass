@@ -10,7 +10,7 @@ enum class FpOp : uint32_t {
     Log = 6, Exp = 7, Pow = 8,
     Sin = 9, Cos = 10, Tan = 11,
     Acos = 12, Asin = 13, Atan = 14,
-    Unknown = 15,
+    Branch = 15, ConvSI = 16, ConvUI = 17, Unknown = 18,
 };
 
 enum class ErrKind : uint8_t {

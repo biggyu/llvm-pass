@@ -65,18 +65,18 @@ static ErrorClass classify(double x, double dx) {
     return ErrorClass::Normal;
 }
 
-// void register_fp_site(int site_id, const char* function, const char *file, int line, int col, const char* opcode) {
-//     if (cond_sites.find(site_id) != cond_sites.end()) {
-//         return;
-//     }
-//     CondSite info;
-//     info.function = function ? function : "<unknown>";
-//     info.file = file ? file : "<unknown>";
-//     info.line = line;
-//     info.col = col;
-//     info.opcode = opcode ? opcode : "<unknown>";
-//     cond_sites[site_id] = std::move(info);
-// }
+void register_fp_site(int site_id, const char* function, const char *file, int line, int col, const char* opcode) {
+    if (site_infos().find(site_id) != site_infos().end()) {
+        return;
+    }
+    SiteInfo info;
+    info.function = function ? function : "<unknown>";
+    info.file = file ? file : "<unknown>";
+    info.line = line;
+    info.col = col;
+    info.opcode = opcode ? opcode : "<unknown>";
+    site_infos()[site_id] = std::move(info);
+}
 
 template <typename T>
 static double relative_error(T x, double dx) {
@@ -161,7 +161,8 @@ double incorrect_bits_ulp(double computed_val, double error) {
     return log2((double)ulp_err + 1.0);
 }
 
-void check_conv_si(int val, double src, double src_err) {
+void check_conv_si(int val, double src, double src_err, uint32_t site_id) {
+    SiteStats &SS = site_stats()[site_id];
     double conv = src + src_err;
     if(!std::isfinite(conv)) {
         return;
@@ -169,10 +170,12 @@ void check_conv_si(int val, double src, double src_err) {
     int real_val = static_cast<int>(conv);
     if (real_val != val) {
         G.conv_cnt++;
+        SS.conv_hits++;
     }
 }
 
-void check_conv_ui(size_t val, double src, double src_err) {
+void check_conv_ui(size_t val, double src, double src_err, uint32_t site_id) {
+    SiteStats &SS = site_stats()[site_id];
     double conv = src + src_err;
     if(!std::isfinite(conv)) {
         return;
@@ -180,6 +183,7 @@ void check_conv_ui(size_t val, double src, double src_err) {
     size_t real_val = static_cast<size_t>(conv);
     if (real_val != val) {
         G.conv_cnt++;
+        SS.conv_hits++;
     }
 }
 
@@ -207,17 +211,18 @@ static bool eval_pred(double a, double b, size_t pred) {
         default:        return false;
     }
 }
-extern "C" void check_branch(double a, double da, double b, double db, size_t pred, bool computed_res) {
-    // double a_corr = a + da;
-    // double b_corr = b + db;
+extern "C" void check_branch(double a, double da, double b, double db, size_t pred, bool computed_res, uint32_t site_id) {
+    SiteStats &SS = site_stats()[site_id];
 
     bool corrected = eval_pred(a + da, b + db, pred);
     if(corrected != computed_res) {
         G.branch_flips++;
+        SS.branch_hits++;
     }
 }
 
 void check_error(double x, double dx, uint32_t site_id, int metric) {
+    SiteStats &SS = site_stats()[site_id];
     ErrorClass errcls = classify(x, dx);
     double ulp = incorrect_bits_ulp(x, dx);
     // double bitwise = incorrect_bits_bitwise(x, dx);
@@ -241,9 +246,11 @@ void check_error(double x, double dx, uint32_t site_id, int metric) {
             break;
         case ErrorClass::Inf:
             G.inf++;
+            SS.inf_hits++;
             return;
         case ErrorClass::NaN:
             G.nan++;
+            SS.nan_hits;
             return;
         case ErrorClass::XZero:
             G.xzero++;
@@ -251,6 +258,7 @@ void check_error(double x, double dx, uint32_t site_id, int metric) {
     }
     if (ulp >= g_error_threshold) {
         G.above_thres++;
+        SS.thres_hits++;
     }
 }
 
@@ -369,61 +377,62 @@ extern "C" void report_debug_summary() {
 }
 
 void check_cond_error(uint32_t site_id, int err_kind, double gamma, double operand) {
-    CondSite &C = cond_sites[site_id];
+    SiteStats &SS = site_stats()[site_id];
+    // CondSite &C = cond_sites[site_id];
     if (err_kind == (int)ErrKind::Cancellation) {
         G.cond_cancellation++;
-        C.cancellation_hits++;
+        SS.cancellation_hits++;
     }
     else {
         G.cond_sensitivity++;
-        C.sensitivity_hits++;
+        SS.sensitivity_hits++;
     }
     
-    if (gamma > C.max_gamma) {
-        C.max_gamma = gamma;
-        C.sample_operand = operand;
-        C.worst_kind = (ErrKind)err_kind;
+    if (gamma > SS.max_gamma) {
+        SS.max_gamma = gamma;
+        SS.sample_operand = operand;
+        SS.worst_kind = (ErrKind)err_kind;
     }
 }
 
-void report_cond_err() {   // called once at exit
-    if (cond_sites.empty()) {
-        printf("\n[condition-number] no sites flagged\n");
-        return;
-    }
+// void report_cond_err() {   // called once at exit
+//     if (cond_sites.empty()) {
+//         printf("\n[condition-number] no sites flagged\n");
+//         return;
+//     }
 
-    // collect + sort by max_gamma (fragility ranking)
-    std::vector<std::pair<uint32_t, CondSite>> v(cond_sites.begin(), cond_sites.end());
-    std::sort(v.begin(), v.end(),
-        [](const auto &A, const auto &B){ return A.second.max_gamma > B.second.max_gamma; });
+//     // collect + sort by max_gamma (fragility ranking)
+//     std::vector<std::pair<uint32_t, CondSite>> v(cond_sites.begin(), cond_sites.end());
+//     std::sort(v.begin(), v.end(),
+//         [](const auto &A, const auto &B){ return A.second.max_gamma > B.second.max_gamma; });
 
-    printf("\n--- [condition-number report] ---\n");
-    printf("detected=%llu cancellation=%llu sensitivity=%llu untyped=%llu suppressed=%llu\n",
-        (unsigned long long)G.cond_detected,
-        (unsigned long long)G.cond_cancellation,
-        (unsigned long long)G.cond_sensitivity,
-        (unsigned long long)G.cond_untyped,
-        (unsigned long long)G.cond_suppressed);
+//     printf("\n--- [condition-number report] ---\n");
+//     printf("detected=%llu cancellation=%llu sensitivity=%llu untyped=%llu suppressed=%llu\n",
+//         (unsigned long long)G.cond_detected,
+//         (unsigned long long)G.cond_cancellation,
+//         (unsigned long long)G.cond_sensitivity,
+//         (unsigned long long)G.cond_untyped,
+//         (unsigned long long)G.cond_suppressed);
 
-    size_t limit = std::min<size_t>(10, v.size());
-    for (size_t i = 0; i < limit; i++) {
-        uint32_t id = v[i].first;
-        const CondSite &C = v[i].second;
+//     size_t limit = std::min<size_t>(10, v.size());
+//     for (size_t i = 0; i < limit; i++) {
+//         uint32_t id = v[i].first;
+//         const CondSite &C = v[i].second;
 
-        auto it = site_infos.find(id);
-        if (it != site_infos.end()) {
-            const SiteInfo &S = it->second;
-            printf("[%zu] %s:%d:%d in %s (%s)\n",
-                i+1, S.file.c_str(), S.line, S.col,
-                S.function.c_str(), S.opcode.c_str());
-        } else {
-            printf("[%zu] site=%u <no source info>\n", i+1, id);
-        }
-        printf("    kind=%s  max_gamma=%.3e  cancellation_hits=%llu  sensitivity_hits=%llu  (operand=%.6e)\n",
-            C.worst_kind == ErrKind::Cancellation ? "cancellation" : "sensitivity",
-            C.max_gamma,
-            (unsigned long long)C.cancellation_hits,
-            (unsigned long long)C.sensitivity_hits,
-            C.sample_operand);
-    }
-}
+//         auto it = site_infos.find(id);
+//         if (it != site_infos.end()) {
+//             const SiteInfo &S = it->second;
+//             printf("[%zu] %s:%d:%d in %s (%s)\n",
+//                 i+1, S.file.c_str(), S.line, S.col,
+//                 S.function.c_str(), S.opcode.c_str());
+//         } else {
+//             printf("[%zu] site=%u <no source info>\n", i+1, id);
+//         }
+//         printf("    kind=%s  max_gamma=%.3e  cancellation_hits=%llu  sensitivity_hits=%llu  (operand=%.6e)\n",
+//             C.worst_kind == ErrKind::Cancellation ? "cancellation" : "sensitivity",
+//             C.max_gamma,
+//             (unsigned long long)C.cancellation_hits,
+//             (unsigned long long)C.sensitivity_hits,
+//             C.sample_operand);
+//     }
+// }

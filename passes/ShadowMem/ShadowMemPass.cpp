@@ -127,17 +127,17 @@ void runOnModule(llvm::Module &M) {
                 }
             }
             if (auto *FC = dyn_cast<FCmpInst>(I)) {
-                if (handleFCmp(FC, rt, DSLMap)) {
+                if (handleFCmp(FC, rt, DSLMap, SiteDescs)) {
                     continue;
                 }
             }
             if (auto *CI = dyn_cast<FPToSIInst>(I)) {
-                if (handleFPToSI(CI, rt, DSLMap)) {
+                if (handleFPToSI(CI, rt, DSLMap, SiteDescs)) {
                     continue;
                 }
             }
             if (auto *CI = dyn_cast<FPToUIInst>(I)) {
-                if (handleFPToUI(CI, rt, DSLMap)) {
+                if (handleFPToUI(CI, rt, DSLMap, SiteDescs)) {
                     continue;
                 }
             }

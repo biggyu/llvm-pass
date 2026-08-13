@@ -704,7 +704,8 @@ bool handleBinary(BinaryOperator *BO, utils::RuntimeFns &rt,
 }
 
 bool handleFCmp(FCmpInst *FC, utils::RuntimeFns &rt,
-                DenseMap<const Value*, DSLValues> &DSLMap) {
+                DenseMap<const Value*, DSLValues> &DSLMap,
+                std::unordered_map<uint32_t, utils::SiteDesc> &SiteDescs) {
     Value *opr0_org = FC->getOperand(0), *opr0 = nullptr;
     Value *opr1_org = FC->getOperand(1), *opr1 = nullptr;
     if (!opr0_org->getType()->isDoubleTy() && !opr0_org->getType()->isFloatTy()) {
@@ -721,22 +722,25 @@ bool handleFCmp(FCmpInst *FC, utils::RuntimeFns &rt,
         opr0 = opr0_org;
         opr1 = opr1_org;
     }
-    Value *opr0_err = getDSL(AfterFC, opr0_org, rt, DSLMap).rhat;
-    Value *opr1_err = getDSL(AfterFC, opr1_org, rt, DSLMap).rhat;
-
+    DSLValues opr0_dsl = getDSL(AfterFC, opr0_org, rt, DSLMap);
+    DSLValues opr1_dsl = getDSL(AfterFC, opr1_org, rt, DSLMap);
 
     Value *pred = ConstantInt::get(rt.I64Ty, (int)FC->getPredicate());
     // uint32_t id = getSiteId(FC);
     // Value *SiteId = ConstantInt::get(rt.I32Ty, id);
 
     //TODO: Check
-    AfterFC.CreateCall(rt.CheckBranch, {opr0, opr0_err, opr1, opr1_err, pred, FC});
+    if (EnableDebugChecks) {
+        insertCheckBranch(AfterFC, opr0_dsl, opr1_dsl, pred, FC, FpOp::Branch, rt, SiteDescs);
+    }
+    // AfterFC.CreateCall(rt.CheckBranch, {opr0, opr0_err, opr1, opr1_err, pred, FC});
     // AfterFC.CreateCall(rt.CheckBranch, {opr0, opr0_err, opr1, opr1_err, pred, SiteId});
     return true;
 }
 
 bool handleFPToSI(FPToSIInst *CI, utils::RuntimeFns &rt,
-                DenseMap<const Value*, DSLValues> &DSLMap) {
+                DenseMap<const Value*, DSLValues> &DSLMap,
+                std::unordered_map<uint32_t, utils::SiteDesc> &SiteDescs) {
     Value *src_org = CI->getOperand(0), *src = nullptr;
     if (!src_org->getType()->isDoubleTy() && !src_org->getType()->isFloatTy()) {
         return false;
@@ -749,18 +753,22 @@ bool handleFPToSI(FPToSIInst *CI, utils::RuntimeFns &rt,
     else {
         src = src_org;
     }
-    Value *src_err = getDSL(AfterCI, src_org, rt, DSLMap).rhat;
+    DSLValues src_dsl = getDSL(AfterCI, src_org, rt, DSLMap);
 
     Value *sval = CI;
     if (CI->getType() != rt.I32Ty) {
         sval = AfterCI.CreateSExtOrTrunc(CI, rt.I32Ty, "conv.sval");
     }
-    AfterCI.CreateCall(rt.CheckConvSI, {sval, src, src_err});
+    if (EnableDebugChecks) {
+        insertCheckConv(AfterCI, src_dsl, sval, CI, FpOp::ConvSI, rt, SiteDescs);
+    }
+    // AfterCI.CreateCall(rt.CheckConvSI, {sval, src, src_err});
     return true;
 }
 
 bool handleFPToUI(FPToUIInst *CI, utils::RuntimeFns &rt,
-                DenseMap<const Value*, DSLValues> &DSLMap) {
+                DenseMap<const Value*, DSLValues> &DSLMap,
+                std::unordered_map<uint32_t, utils::SiteDesc> &SiteDescs) {
     Value *src_org = CI->getOperand(0), *src = nullptr;
 
     if (!src_org->getType()->isDoubleTy() && !src_org->getType()->isFloatTy()) {
@@ -774,14 +782,17 @@ bool handleFPToUI(FPToUIInst *CI, utils::RuntimeFns &rt,
     else {
         src = src_org;
     }
-    // DSLValues src_dsl = getDSL(src_org, rt.ZeroD, DSLMap);
-    Value *src_err = getDSL(AfterCI, src_org, rt, DSLMap).rhat;
+    DSLValues src_dsl = getDSL(AfterCI, src_org, rt, DSLMap);
+    // Value *src_err = getDSL(AfterCI, src_org, rt, DSLMap).rhat;
 
     Value *uval = CI;
     if (CI->getType() != rt.I64Ty) {
         uval = AfterCI.CreateZExtOrTrunc(CI, rt.I64Ty, "conv.uval");
     }
-    AfterCI.CreateCall(rt.CheckConvUI, {uval, src, src_err});
+    if (EnableDebugChecks) {
+        insertCheckConv(AfterCI, src_dsl, uval, CI, FpOp::ConvUI, rt, SiteDescs);
+    }
+    // AfterCI.CreateCall(rt.CheckConvUI, {uval, src, src_err});
     return true;
 }
 

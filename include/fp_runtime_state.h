@@ -29,10 +29,19 @@ struct SiteInfo {
     int line = 0, col = 0;
 };
 
-struct CondSite {
+struct SiteStats {
+    uint64_t thres_hits = 0;
+    uint64_t nan_hits = 0;
+    uint64_t inf_hits = 0;
+
+    uint64_t branch_hits = 0;
+    uint64_t conv_hits = 0;
+
     uint64_t cancellation_hits = 0;
     uint64_t sensitivity_hits = 0;
+    uint64_t suppressed_hits = 0;
     
+    double max_bits = 0.0;
     double max_gamma = 0.0;
     double sample_operand = 0.0;
     
@@ -40,5 +49,5 @@ struct CondSite {
 };
 
 extern GlobalStats G;
-extern std::unordered_map<uint32_t, SiteInfo> site_infos;
-extern std::unordered_map<uint32_t, CondSite> cond_sites;
+extern std::unordered_map<uint32_t, SiteInfo>& site_infos();
+extern std::unordered_map<uint32_t, SiteStats>& site_stats();

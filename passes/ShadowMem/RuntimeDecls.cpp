@@ -60,17 +60,17 @@ namespace utils {
 
         CheckConvSITy = llvm::FunctionType::get(
             VoidTy,
-            {I32Ty, DoubleTy, DoubleTy},
+            {I32Ty, DoubleTy, DoubleTy, I32Ty},
             false
         );
         CheckConvUITy = llvm::FunctionType::get(
             VoidTy,
-            {I64Ty, DoubleTy, DoubleTy},
+            {I64Ty, DoubleTy, DoubleTy, I32Ty},
             false
         );
         CheckBranchTy = llvm::FunctionType::get(
             VoidTy,
-            {DoubleTy, DoubleTy, DoubleTy, DoubleTy, I64Ty, BoolTy},
+            {DoubleTy, DoubleTy, DoubleTy, DoubleTy, I64Ty, BoolTy, I32Ty},
             false
         );
 

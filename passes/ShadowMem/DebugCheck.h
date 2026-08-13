@@ -14,11 +14,22 @@ extern cl::opt<bool> EnableDebugAutoReport;
 
 extern cl::opt<int> DebugMetrics;
 
-bool insertCheckError(IRBuilder<> &B,
+void insertCheckError(IRBuilder<> &B,
                     const DSLValues &aDsl, 
                     const DSLValues &bDsl, 
                     DSLValues &xDsl, 
                     Instruction *Site, FpOp opcode, 
+                    utils::RuntimeFns &rt,
+                    std::unordered_map<uint32_t, utils::SiteDesc> &SiteDescs);
+
+void insertCheckBranch(IRBuilder<> &B,
+                    const DSLValues &aDsl, const DSLValues &bDsl, 
+                    Value* pred, Instruction *Site, FpOp op,
+                    utils::RuntimeFns &rt,
+                    std::unordered_map<uint32_t, utils::SiteDesc> &SiteDescs);
+
+void insertCheckConv(IRBuilder<> &B, DSLValues &xDsl, 
+                    Value *val, Instruction *Site, FpOp opcode, 
                     utils::RuntimeFns &rt,
                     std::unordered_map<uint32_t, utils::SiteDesc> &SiteDescs);
 
