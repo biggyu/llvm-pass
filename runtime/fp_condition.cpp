@@ -164,6 +164,7 @@ double condition_number(uint32_t opraw, double a, double a_Ex, double b, double 
         }
         if (!anyRealError) {
             G.cond_suppressed++;
+            site_stats()[siteId].suppressed_hits++;
         }
         else {
             G.cond_detected++;

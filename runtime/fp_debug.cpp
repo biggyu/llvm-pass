@@ -76,6 +76,7 @@ void register_fp_site(int site_id, const char* function, const char *file, int l
     info.col = col;
     info.opcode = opcode ? opcode : "<unknown>";
     site_infos()[site_id] = std::move(info);
+    site_stats()[site_id] = {};
 }
 
 template <typename T>
@@ -250,11 +251,14 @@ void check_error(double x, double dx, uint32_t site_id, int metric) {
             return;
         case ErrorClass::NaN:
             G.nan++;
-            SS.nan_hits;
+            SS.nan_hits++;
             return;
         case ErrorClass::XZero:
             G.xzero++;
             return;
+    }
+    if (ulp > SS.max_bits) {
+        SS.max_bits = ulp;
     }
     if (ulp >= g_error_threshold) {
         G.above_thres++;
@@ -373,6 +377,58 @@ extern "C" void report_debug_summary() {
     fprintf(f, "Total untyped found %llu\n", (unsigned long long)G.cond_untyped);
     fprintf(f, "Total suppressed found %llu\n\n", (unsigned long long)G.cond_suppressed);
 
+    struct Row {
+        uint32_t id;
+        const SiteStats *ss;
+    };
+    std::vector<Row> rows;
+    for (auto &kv : site_stats()) {
+        SiteStats &s = kv.second;
+        uint64_t total = s.thres_hits + s.nan_hits + s.inf_hits + 
+                    s.branch_hits + s.conv_hits +
+                    s.cancellation_hits + s.sensitivity_hits + s.suppressed_hits;
+        if (total > 0) {
+            rows.push_back({kv.first, &s});
+        }
+    }
+    
+    if (!rows.empty()) {
+        std::sort(rows.begin(), rows.end(), [](const Row &a, const Row &b) {
+            if (a.ss->max_bits != b.ss->max_bits) {
+                return a.ss->max_bits > b.ss->max_bits;
+            }
+            return a.ss->max_gamma > b.ss->max_gamma;
+        });
+    }
+
+    fprintf(f, "--- Top Error Sites ---\n");
+    int printed = 0;
+    for (auto &kv : rows) {
+        if(printed++ >= 10) {
+            break;
+        }
+        auto it = site_infos().find(kv.id);
+        std::string file = "<unknown>", op = "?";
+        int line = 0, col = 0;
+        if (it != site_infos().end()) {
+            file = it->second.file;
+            op = it->second.opcode;
+            line = it->second.line;
+            col = it->second.col;
+        }
+        fprintf(f, "\t%s:%d:%d\t%-6s\tbits=%.1f gamma=%.3g\n\t[round=%llu nan=%llu inf=%llu cancel=%llu sens=%llu supp=%llu branch=%llu conv=%llu]\n",
+                file.c_str(), line, col, op.c_str(),
+                kv.ss->max_bits, kv.ss->max_gamma,
+                (unsigned long long)kv.ss->thres_hits,
+                (unsigned long long)kv.ss->nan_hits,
+                (unsigned long long)kv.ss->inf_hits,
+                (unsigned long long)kv.ss->cancellation_hits,
+                (unsigned long long)kv.ss->sensitivity_hits,
+                (unsigned long long)kv.ss->suppressed_hits,
+                (unsigned long long)kv.ss->branch_hits,
+                (unsigned long long)kv.ss->conv_hits);
+    }
+    fprintf(f, "\n");
     fclose(f);
 }
 
