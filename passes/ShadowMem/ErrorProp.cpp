@@ -64,7 +64,7 @@ bool handleIntrinsic(IntrinsicInst *II, utils::RuntimeFns &rt,
         return true;
     }
     else if (II->getIntrinsicID() == Intrinsic::sin) {
-        Value *ret = AfterII.CreateCall(rt_mpfr.PropSinDError, {arg0, arg0_err});
+        Value *ret = AfterII.CreateCall(rt_mpfr.PropSinError, {arg0, arg0_err});
         Value *x = AfterII.CreateExtractValue(ret, {0}, "sin.val");
         Value *dx = AfterII.CreateExtractValue(ret, {1}, "sin.err");
 
@@ -76,7 +76,7 @@ bool handleIntrinsic(IntrinsicInst *II, utils::RuntimeFns &rt,
         return true;
     }
     else if (II->getIntrinsicID() == Intrinsic::cos) {
-        Value *ret = AfterII.CreateCall(rt_mpfr.PropCosDError, {arg0, arg0_err});
+        Value *ret = AfterII.CreateCall(rt_mpfr.PropCosError, {arg0, arg0_err});
         Value *x = AfterII.CreateExtractValue(ret, {0}, "cos.val");
         Value *dx = AfterII.CreateExtractValue(ret, {1}, "cos.err");
 
@@ -88,7 +88,7 @@ bool handleIntrinsic(IntrinsicInst *II, utils::RuntimeFns &rt,
         return true;
     }
     else if (II->getIntrinsicID() == Intrinsic::tan) {
-        Value *ret = AfterII.CreateCall(rt_mpfr.PropTanDError, {arg0, arg0_err});
+        Value *ret = AfterII.CreateCall(rt_mpfr.PropTanError, {arg0, arg0_err});
         Value *x = AfterII.CreateExtractValue(ret, {0}, "tan.val");
         Value *dx = AfterII.CreateExtractValue(ret, {1}, "tan.err");
         
@@ -100,7 +100,7 @@ bool handleIntrinsic(IntrinsicInst *II, utils::RuntimeFns &rt,
         return true;
     }
     else if (II->getIntrinsicID() == Intrinsic::asin) {
-        Value *ret = AfterII.CreateCall(rt_mpfr.PropAsinDError, {arg0, arg0_err});
+        Value *ret = AfterII.CreateCall(rt_mpfr.PropAsinError, {arg0, arg0_err});
         Value *x = AfterII.CreateExtractValue(ret, {0}, "asin.val");
         Value *dx = AfterII.CreateExtractValue(ret, {1}, "asin.err");
 
@@ -112,7 +112,7 @@ bool handleIntrinsic(IntrinsicInst *II, utils::RuntimeFns &rt,
         return true;
     }
     else if (II->getIntrinsicID() == Intrinsic::acos) {
-        Value *ret = AfterII.CreateCall(rt_mpfr.PropAcosDError, {arg0, arg0_err});
+        Value *ret = AfterII.CreateCall(rt_mpfr.PropAcosError, {arg0, arg0_err});
         Value *x = AfterII.CreateExtractValue(ret, {0}, "acos.val");
         Value *dx = AfterII.CreateExtractValue(ret, {1}, "acos.err");
 
@@ -124,7 +124,7 @@ bool handleIntrinsic(IntrinsicInst *II, utils::RuntimeFns &rt,
         return true;
     }
     else if (II->getIntrinsicID() == Intrinsic::atan) {
-        Value *ret = AfterII.CreateCall(rt_mpfr.PropAtanDError, {arg0, arg0_err});
+        Value *ret = AfterII.CreateCall(rt_mpfr.PropAtanError, {arg0, arg0_err});
         Value *x = AfterII.CreateExtractValue(ret, {0}, "atan.val");
         Value *dx = AfterII.CreateExtractValue(ret, {1}, "atan.err");
 
@@ -136,7 +136,7 @@ bool handleIntrinsic(IntrinsicInst *II, utils::RuntimeFns &rt,
         return true;
     }
     else if (II->getIntrinsicID() == Intrinsic::exp) {
-        Value *ret = AfterII.CreateCall(rt_mpfr.PropExpDError, {arg0, arg0_err});
+        Value *ret = AfterII.CreateCall(rt_mpfr.PropExpError, {arg0, arg0_err});
         Value *x = AfterII.CreateExtractValue(ret, {0}, "exp.val");
         Value *dx = AfterII.CreateExtractValue(ret, {1}, "exp.err");
 
@@ -158,7 +158,7 @@ bool handleIntrinsic(IntrinsicInst *II, utils::RuntimeFns &rt,
         DSLValues arg1_dsl = getDSL(AfterII, arg1_org, rt, DSLMap);
         Value *arg1_err = arg1_dsl.rhat;
         
-        Value *ret = AfterII.CreateCall(rt_mpfr.PropPowDError, {arg0, arg0_err});
+        Value *ret = AfterII.CreateCall(rt_mpfr.PropPowError, {arg0, arg0_err});
         Value *x = AfterII.CreateExtractValue(ret, {0}, "pow.val");
         Value *dx = AfterII.CreateExtractValue(ret, {1}, "pow.err");
 
@@ -170,7 +170,7 @@ bool handleIntrinsic(IntrinsicInst *II, utils::RuntimeFns &rt,
         return true;
     }
     else if (II->getIntrinsicID() == Intrinsic::log) {
-        Value *ret = AfterII.CreateCall(rt_mpfr.PropLogDError, {arg0, arg0_err});
+        Value *ret = AfterII.CreateCall(rt_mpfr.PropLogError, {arg0, arg0_err});
         Value *x = AfterII.CreateExtractValue(ret, {0}, "log.val");
         Value *dx = AfterII.CreateExtractValue(ret, {1}, "log.err");
 
@@ -207,7 +207,7 @@ bool handleIntrinsic(IntrinsicInst *II, utils::RuntimeFns &rt,
 
         Value *dx = AfterII.CreateSelect(is_same_sign, formula_same, formula_diff, "fabs.err");
 
-        DSLValues x_dsl = makeDSL(AfterII, absX, dx, rt, rt.FalseVal);
+        DSLValues x_dsl = makeDSL(AfterII, absX, dx, rt, ab rt.FalseVal);
         DSLMap[II] = x_dsl;
         if (EnableDebugChecks) {
             insertCheckError(AfterII, arg0_dsl, arg0_dsl, x_dsl, II, FpOp::Unknown, rt, SiteDescs);
@@ -286,7 +286,7 @@ bool handleExternal(CallInst *CI, utils::RuntimeFns &rt,
             }
         }
         else if (N == "sin" || N == "sinf") {
-            Value *ret = AfterCI.CreateCall(rt_mpfr.PropSinDError, {arg0, arg0_err});
+            Value *ret = AfterCI.CreateCall(rt_mpfr.PropSinError, {arg0, arg0_err});
             Value *x = AfterCI.CreateExtractValue(ret, {0}, "sin.val");
             Value *dx = AfterCI.CreateExtractValue(ret, {1}, "sin.err");
 
@@ -297,19 +297,8 @@ bool handleExternal(CallInst *CI, utils::RuntimeFns &rt,
             }
             return true;
         }
-        // else if (N == "sinf") {
-        //     Value *ret = AfterCI.CreateCall(rt_mpfr.PropSinFError, {arg0, arg0_err});
-        //     Value *x = AfterCI.CreateExtractValue(ret, {0}, "sinf.val");
-        //     Value *dx = AfterCI.CreateExtractValue(ret, {1}, "sinf.err");
-
-            // DSLValues x_dsl = makeDSL(AfterCI, x, dx, rt, rt.FalseVal);
-        //     DSLMap[CI] = x_dsl;
-        //     if (EnableDebugChecks) {
-        //         insertCheckError(AfterCI, arg0_dsl, arg0_dsl, x_dsl, CI, FpOp::Sin, rt, SiteDescs);
-        //     }
-        // }
         else if (N == "cos" || N == "cosf") {
-            Value *ret = AfterCI.CreateCall(rt_mpfr.PropCosDError, {arg0, arg0_err});
+            Value *ret = AfterCI.CreateCall(rt_mpfr.PropCosError, {arg0, arg0_err});
             Value *x = AfterCI.CreateExtractValue(ret, {0}, "cos.val");
             Value *dx = AfterCI.CreateExtractValue(ret, {1}, "cos.err");
             DSLValues x_dsl = makeDSL(AfterCI, x, dx, rt, rt.FalseVal);
@@ -318,19 +307,8 @@ bool handleExternal(CallInst *CI, utils::RuntimeFns &rt,
                 insertCheckError(AfterCI, arg0_dsl, arg0_dsl, x_dsl, CI, FpOp::Cos, rt, SiteDescs);
             }
         }
-        // else if (N == "cosf") {
-        //     Value *ret = AfterCI.CreateCall(rt_mpfr.PropCosFError, {arg0, arg0_err});
-        //     Value *x = AfterCI.CreateExtractValue(ret, {0}, "cosf.val");
-        //     Value *dx = AfterCI.CreateExtractValue(ret, {1}, "cosf.err");
-
-            // DSLValues x_dsl = makeDSL(AfterCI, x, dx, rt, rt.FalseVal);
-        //     DSLMap[CI] = x_dsl;
-        //     if (EnableDebugChecks) {
-        //         insertCheckError(AfterCI, arg0_dsl, arg0_dsl, x_dsl, CI, FpOp::Cos, rt, SiteDescs);
-        //     }
-        // }
         else if (N == "tan" || N == "tanf") {
-            Value *ret = AfterCI.CreateCall(rt_mpfr.PropTanDError, {arg0, arg0_err});
+            Value *ret = AfterCI.CreateCall(rt_mpfr.PropTanError, {arg0, arg0_err});
             Value *x = AfterCI.CreateExtractValue(ret, {0}, "tan.val");
             Value *dx = AfterCI.CreateExtractValue(ret, {1}, "tan.err");
 
@@ -339,21 +317,9 @@ bool handleExternal(CallInst *CI, utils::RuntimeFns &rt,
             if (EnableDebugChecks) {
                 insertCheckError(AfterCI, arg0_dsl, arg0_dsl, x_dsl, CI, FpOp::Tan, rt, SiteDescs);
             }
-            // llvm::errs() << "cos\n";
         }
-        // else if (N == "tanf") {
-        //     Value *ret = AfterCI.CreateCall(rt_mpfr.PropTanFError, {arg0, arg0_err});
-        //     Value *x = AfterCI.CreateExtractValue(ret, {0}, "tanf.val");
-        //     Value *dx = AfterCI.CreateExtractValue(ret, {1}, "tanf.err");
-
-            // DSLValues x_dsl = makeDSL(AfterCI, x, dx, rt, rt.FalseVal);
-        //     DSLMap[CI] = x_dsl;
-        //     if (EnableDebugChecks) {
-        //         insertCheckError(AfterCI, arg0_dsl, arg0_dsl, x_dsl, CI, FpOp::Tan, rt, SiteDescs);
-        //     }
-        // }
         else if (N == "asin" || N == "asinf") {
-            Value *ret = AfterCI.CreateCall(rt_mpfr.PropAsinDError, {arg0, arg0_err});
+            Value *ret = AfterCI.CreateCall(rt_mpfr.PropAsinError, {arg0, arg0_err});
             Value *x = AfterCI.CreateExtractValue(ret, {0}, "asin.val");
             Value *dx = AfterCI.CreateExtractValue(ret, {1}, "asin.err");
 
@@ -363,19 +329,8 @@ bool handleExternal(CallInst *CI, utils::RuntimeFns &rt,
                 insertCheckError(AfterCI, arg0_dsl, arg0_dsl, x_dsl, CI, FpOp::Asin, rt, SiteDescs);
             }
         }
-        // else if (N == "asinf") {
-        //     Value *ret = AfterCI.CreateCall(rt_mpfr.PropAsinFError, {arg0, arg0_err});
-        //     Value *x = AfterCI.CreateExtractValue(ret, {0}, "asinf.val");
-        //     Value *dx = AfterCI.CreateExtractValue(ret, {1}, "asinf.err");
-
-            // DSLValues x_dsl = makeDSL(AfterCI, x, dx, rt, rt.FalseVal);
-        //     DSLMap[CI] = x_dsl;
-        //     if (EnableDebugChecks) {
-        //         insertCheckError(AfterCI, arg0_dsl, arg0_dsl, x_dsl, CI, FpOp::Asin, rt, SiteDescs);
-        //     }
-        // }
         else if (N == "acos" || N == "acosf") {
-            Value *ret = AfterCI.CreateCall(rt_mpfr.PropAcosDError, {arg0, arg0_err});
+            Value *ret = AfterCI.CreateCall(rt_mpfr.PropAcosError, {arg0, arg0_err});
             Value *x = AfterCI.CreateExtractValue(ret, {0}, "acos.val");
             Value *dx = AfterCI.CreateExtractValue(ret, {1}, "acos.err");
             
@@ -385,19 +340,8 @@ bool handleExternal(CallInst *CI, utils::RuntimeFns &rt,
                 insertCheckError(AfterCI, arg0_dsl, arg0_dsl, x_dsl, CI, FpOp::Acos, rt, SiteDescs);
             }
         }
-        // else if (N == "acosf") {
-        //     Value *ret = AfterCI.CreateCall(rt_mpfr.PropAcosFError, {arg0, arg0_err});
-        //     Value *x = AfterCI.CreateExtractValue(ret, {0}, "acosf.val");
-        //     Value *dx = AfterCI.CreateExtractValue(ret, {1}, "acosf.err");
-
-            // DSLValues x_dsl = makeDSL(AfterCI, x, dx, rt, rt.FalseVal);
-        //     DSLMap[CI] = x_dsl;
-        //     if (EnableDebugChecks) {
-        //         insertCheckError(AfterCI, arg0_dsl, arg0_dsl, x_dsl, CI, FpOp::Acos, rt, SiteDescs);
-        //     }
-        // }
         else if (N == "atan" || N == "atanf") {
-            Value *ret = AfterCI.CreateCall(rt_mpfr.PropAtanDError, {arg0, arg0_err});
+            Value *ret = AfterCI.CreateCall(rt_mpfr.PropAtanError, {arg0, arg0_err});
             Value *x = AfterCI.CreateExtractValue(ret, {0}, "atan.val");
             Value *dx = AfterCI.CreateExtractValue(ret, {1}, "atan.err");
             
@@ -407,19 +351,8 @@ bool handleExternal(CallInst *CI, utils::RuntimeFns &rt,
                 insertCheckError(AfterCI, arg0_dsl, arg0_dsl, x_dsl, CI, FpOp::Atan, rt, SiteDescs);
             }
         }
-        // else if (N == "atanf") {
-        //     Value *ret = AfterCI.CreateCall(rt_mpfr.PropAtanFError, {arg0, arg0_err});
-        //     Value *x = AfterCI.CreateExtractValue(ret, {0}, "atanf.val");
-        //     Value *dx = AfterCI.CreateExtractValue(ret, {1}, "atanf.err");
-
-            // DSLValues x_dsl = makeDSL(AfterCI, x, dx, rt, rt.FalseVal);
-        //     DSLMap[CI] = x_dsl;
-        //     if (EnableDebugChecks) {
-        //         insertCheckError(AfterCI, arg0_dsl, arg0_dsl, x_dsl, CI, FpOp::Unknown, rt, SiteDescs);
-        //     }
-        // }
         else if (N == "log" || N == "logf") {
-            Value *ret = AfterCI.CreateCall(rt_mpfr.PropLogDError, {arg0, arg0_err});
+            Value *ret = AfterCI.CreateCall(rt_mpfr.PropLogError, {arg0, arg0_err});
             Value *x = AfterCI.CreateExtractValue(ret, {0}, "log.val");
             Value *dx = AfterCI.CreateExtractValue(ret, {1}, "log.err");
             
@@ -429,19 +362,8 @@ bool handleExternal(CallInst *CI, utils::RuntimeFns &rt,
                 insertCheckError(AfterCI, arg0_dsl, arg0_dsl, x_dsl, CI, FpOp::Log, rt, SiteDescs);
             }
         }
-        // else if (N == "logf") {
-        //     Value *ret = AfterCI.CreateCall(rt_mpfr.PropLogFError, {arg0, arg0_err});
-        //     Value *x = AfterCI.CreateExtractValue(ret, {0}, "logf.val");
-        //     Value *dx = AfterCI.CreateExtractValue(ret, {1}, "logf.err");
-
-            // DSLValues x_dsl = makeDSL(AfterCI, x, dx, rt, rt.FalseVal);
-        //     DSLMap[CI] = x_dsl;
-        //     if (EnableDebugChecks) {
-        //         insertCheckError(AfterCI, arg0_dsl, arg0_dsl, x_dsl, CI, FpOp::Log, rt, SiteDescs);
-        //     }
-        // }
         else if (N == "exp" || N == "expf") {
-            Value *ret = AfterCI.CreateCall(rt_mpfr.PropExpDError, {arg0, arg0_err});
+            Value *ret = AfterCI.CreateCall(rt_mpfr.PropExpError, {arg0, arg0_err});
             Value *x = AfterCI.CreateExtractValue(ret, {0}, "exp.val");
             Value *dx = AfterCI.CreateExtractValue(ret, {1}, "exp.err");
 
@@ -451,17 +373,6 @@ bool handleExternal(CallInst *CI, utils::RuntimeFns &rt,
                 insertCheckError(AfterCI, arg0_dsl, arg0_dsl, x_dsl, CI, FpOp::Exp, rt, SiteDescs);
             }
         }
-        // else if (N == "expf") {
-        //     Value *ret = AfterCI.CreateCall(rt_mpfr.PropExpFError, {arg0, arg0_err});
-        //     Value *x = AfterCI.CreateExtractValue(ret, {0}, "expf.val");
-        //     Value *dx = AfterCI.CreateExtractValue(ret, {1}, "expf.err");
-
-            // DSLValues x_dsl = makeDSL(AfterCI, x, dx, rt, rt.FalseVal);
-        //     DSLMap[CI] = x_dsl;
-        //     if (EnableDebugChecks) {
-        //         insertCheckError(AfterCI, arg0_dsl, arg0_dsl, x_dsl, CI, FpOp::Exp, rt, SiteDescs);
-        //     }
-        // }
         else if (N == "pow" || N == "powf") {
             Value *arg1_org = CI->getArgOperand(1), *arg1 = nullptr, *arg1_err = nullptr;
             DSLValues arg1_dsl;
@@ -475,7 +386,7 @@ bool handleExternal(CallInst *CI, utils::RuntimeFns &rt,
             arg1_dsl = getDSL(AfterCI, arg1_org, rt, DSLMap);
             arg1_err = arg1_dsl.rhat;
 
-            Value *ret = AfterCI.CreateCall(rt_mpfr.PropPowDError, {arg0, arg0_err, arg1, arg1_err});
+            Value *ret = AfterCI.CreateCall(rt_mpfr.PropPowError, {arg0, arg0_err, arg1, arg1_err});
             Value *x = AfterCI.CreateExtractValue(ret, {0}, "pow.val");
             Value *dx = AfterCI.CreateExtractValue(ret, {1}, "pow.err");
 
@@ -485,20 +396,6 @@ bool handleExternal(CallInst *CI, utils::RuntimeFns &rt,
                 insertCheckError(AfterCI, arg0_dsl, arg1_dsl, x_dsl, CI, FpOp::Pow, rt, SiteDescs);
             }
         }
-        // else if (N == "powf") {
-        //     Value *arg1 = CI->getArgOperand(1);
-        //     DSLValues arg1_dsl = getDSL(arg1, rt.ZeroD, DSLMap);
-        //     Value *arg1_err = arg1_dsl.rhat;
-        //     Value *ret = AfterCI.CreateCall(rt_mpfr.PropPowFError, {arg0, arg0_err, arg1, arg1_err});
-        //     Value *x = AfterCI.CreateExtractValue(ret, {0}, "powf.val");
-        //     Value *dx = AfterCI.CreateExtractValue(ret, {1}, "powf.err");
-
-        //     DSLValues x_dsl = makeDSL(x, dx, rt.ZeroD);
-        //     DSLMap[CI] = x_dsl;
-        //     if (EnableDebugChecks) {
-        //         insertCheckError(AfterCI, arg0_dsl, arg1_dsl, x_dsl, CI, FpOp::Pow, rt, SiteDescs);
-        //     }
-        // }
         else if (N == "fabs" || N == "fabsf") {
             Value *x_true = AfterCI.CreateFAdd(arg0, arg0_err, "fabs.x_true");
             IntegerType *IntTy = AfterCI.getIntNTy(arg0->getType()->getPrimitiveSizeInBits());
@@ -542,7 +439,9 @@ bool handleExternal(CallInst *CI, utils::RuntimeFns &rt,
                         BeforeCI.CreateCall(rt.ShadowStackPush, {d.xhat, d.rhat, d.sign, d.ehat, d.isExact, d.relerr});
                     }
                 }
-                Value *ret_err = AfterCI.CreateCall(rt.ShadowStackPop, {});
+                Value *outPtr = AfterCI.CreateAlloca(rt.ShadowEntryTy, nullptr, "callee.out");
+                AfterCI.CreateCall(rt.ShadowStackPop, {outPtr});
+                Value *ret_err = AfterCI.CreateLoad(rt.ShadowEntryTy, outPtr);
                 DSLMap[CI] = extractDSL(AfterCI, ret_err);
             }
             else {
