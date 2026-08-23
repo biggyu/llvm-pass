@@ -23,6 +23,7 @@ fi
 rm -rf ./build
 sh ./scripts/build.sh "$PROFILE" "$FP_DEBUG" "$OPT"
 
+rm -rf "$PRODUCED_DIR"
 mkdir -p "$PRODUCED_DIR"
 
 PASS_SO="./build/passes/$PASS/$PASS.so"

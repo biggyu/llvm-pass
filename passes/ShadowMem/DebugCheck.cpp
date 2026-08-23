@@ -80,8 +80,7 @@ void recordSiteDesc(uint32_t id, Instruction *I,
 }
 
 void insertCheckError(IRBuilder<> &B,
-                    const DSLValues &aDsl, 
-                    const DSLValues &bDsl, 
+                    const DSLValues &aDsl, const DSLValues &bDsl, 
                     DSLValues &xDsl, 
                     Instruction *Site, FpOp op,
                     utils::RuntimeFns &rt,
@@ -92,14 +91,18 @@ void insertCheckError(IRBuilder<> &B,
 
     recordSiteDesc(id, Site, SiteDescs);
 
-    bool emitCond = (op != FpOp::Mul && op != FpOp::Div && op != FpOp::Sqrt && op != FpOp::Cbrt && op != FpOp::Unknown);
+    bool emitCond = (
+        op != FpOp::Mul && op != FpOp::Div && 
+        op != FpOp::Sqrt && op != FpOp::Cbrt && 
+        op != FpOp::Branch && op != FpOp::ConvSI && 
+        op != FpOp::ConvUI && op != FpOp::Unknown);
 
     if (emitCond) {
         Value *Ex = B.CreateCall(rt.ConditionNumber, {
             ConstantInt::get(rt.I32Ty, (uint32_t)op), 
             aDsl.xhat, aDsl.relerr, 
             bDsl.xhat, bDsl.relerr, 
-            aDsl.isExact, bDsl.isExact, 
+            aDsl.fpval, bDsl.fpval, 
             SiteId
         });
         Value *ci = ConstantFP::get(rt.DoubleTy, std::numeric_limits<double>::epsilon() / 2.0);
@@ -145,11 +148,9 @@ void emitRegisterAllSites(Module &M, std::unordered_map<uint32_t, utils::SiteDes
     LLVMContext &Ctx = M.getContext();
     FunctionType *CtorTy = FunctionType::get(rt.VoidTy, false);
     Function *Ctor = Function::Create(CtorTy, GlobalValue::InternalLinkage, "__fp_register_call", &M);
-    // BasicBlock *BB = BasicBlock::Create(Ctx, "entry", Ctor);
     IRBuilder B(BasicBlock::Create(Ctx, "entry", Ctor));
     
     for (const auto &kv : SiteDescs) {
-        // const utils::SiteDesc &d = kv.second;
         Value *FuncStr = B.CreateGlobalStringPtr(kv.second.func);
         Value *FileStr = B.CreateGlobalStringPtr(kv.second.file);
         Value *OpStr = B.CreateGlobalStringPtr(kv.second.opcode);

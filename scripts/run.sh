@@ -20,5 +20,5 @@ rm -rf ./build
 sh ./scripts/build.sh "$PROFILE" "$DEBUG" "$OPT_FLAG"
 # echo "instruments_lnk.sh"
 # sh ./scripts/instruments_lnk.sh "$PASS" "$PLUGIN" "$SRC" "$PROFILE" "$DEBUG" "$OPT_FLAG"
-echo "instruments.sh"
+# echo "instruments.sh"
 sh ./scripts/instruments.sh "$PASS" "$PLUGIN" "$SRC" "$DEBUG" "$OPT_FLAG"

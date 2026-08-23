@@ -15,8 +15,7 @@ extern cl::opt<bool> EnableDebugAutoReport;
 extern cl::opt<int> DebugMetrics;
 
 void insertCheckError(IRBuilder<> &B,
-                    const DSLValues &aDsl, 
-                    const DSLValues &bDsl, 
+                    const DSLValues &aDsl, const DSLValues &bDsl, 
                     DSLValues &xDsl, 
                     Instruction *Site, FpOp opcode, 
                     utils::RuntimeFns &rt,
@@ -52,6 +51,15 @@ inline bool isRuntimeFunction(const Function &F) {
            N == "atexit"              ||
            N == "register_fp_site"    ||
            N == "condition_number"    ||
-           N == "report_debug_summary";
+           N == "report_debug_summary"|| 
+           N == "PropSinError"        ||
+           N == "PropCosError"        ||
+           N == "PropTanError"        ||
+           N == "PropAsinError"       ||
+           N == "PropAcosError"       ||
+           N == "PropAtanError"       ||
+           N == "PropLogError"        ||
+           N == "PropExpError"        ||
+           N == "PropPowError";
 }
     

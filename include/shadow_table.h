@@ -7,16 +7,14 @@ struct ShadowEntry{
     uintptr_t key;
     double xhat; // value
     double rhat; // residual
-    bool sign;
-    double ehat; // log value
-    bool isExact;
+    double fp_val;
     double relerr;
     bool used;
 };
 class ShadowTable {
 private:
     static const int TABLE_SIZE = 1 << 24;
-    ShadowEntry table[TABLE_SIZE];
+    ShadowEntry *table;
 
     static inline uint64_t mix64(uint64_t x) {
         x ^= x >> 30;
@@ -31,26 +29,25 @@ private:
         return (std::size_t)(mix64(x) & (TABLE_SIZE - 1));
     }
 public:
-    ShadowTable() {
-        std::memset(table, 0, sizeof(table));
+    ShadowTable() : table(new ShadowEntry[TABLE_SIZE]()) {}
+    ~ShadowTable() {
+        delete[] table;
     }
-    void insert(void* key, double xhat, double rhat, bool sign, double ehat, bool isExact, double relerr) {
+    void insert(void* key, double xhat, double rhat, double fp_val, double relerr) {
         size_t idx = hashPtr(key);
         ShadowEntry &entry = table[idx];
         entry.used = true;
         entry.key = (uintptr_t)key;
         entry.xhat = xhat;
         entry.rhat = rhat;
+        entry.fp_val = fp_val;
         entry.relerr = relerr;
-        entry.sign = sign;
-        entry.isExact = isExact;
-        entry.ehat = ehat;
     }
 
     ShadowEntry* get(void* key, double progVal) {
         size_t idx = hashPtr(key);
         ShadowEntry &entry = table[idx];
-        if(entry.used && entry.key == (uintptr_t)key && entry.xhat == progVal) {
+        if(entry.used && entry.key == (uintptr_t)key && entry.fp_val == progVal) {
             return &entry;
         }
         return nullptr;
@@ -59,20 +56,23 @@ public:
 
 class ShadowStack {
 private:
-    ShadowEntry shadow_stack[1024];
+    static const int STACK_SIZE = 1 << 10;
+    ShadowEntry *stack;
     int top = 0;
 public:
-    void push(double xhat, double rhat, bool sign, double ehat, bool isExact, double relerr) {
-        ShadowEntry &e = shadow_stack[top++];
+    ShadowStack() : stack(new ShadowEntry[STACK_SIZE]()) {}
+    ~ShadowStack() {
+        delete[] stack;
+    }
+    void push(double xhat, double rhat, double fp_val, double relerr) {
+        ShadowEntry &e = stack[top++];
         e.used = true;
         e.xhat = xhat;
         e.rhat = rhat;
+        e.fp_val = fp_val;
         e.relerr = relerr;
-        e.sign = sign;
-        e.isExact = isExact;
-        e.ehat = ehat;
     }
     ShadowEntry* pop() {
-        return &shadow_stack[--top];
+        return &stack[--top];
     }
 };

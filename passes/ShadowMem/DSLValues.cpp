@@ -15,9 +15,7 @@ DSLValues getDSL(IRBuilder<> &B,
     if (!v->getType()->isFloatTy() && !v->getType()->isDoubleTy()) {
         d.xhat = rt.ZeroD;
         d.rhat = rt.ZeroD;
-        d.sign = rt.FalseVal;
-        d.ehat = ConstantFP::get(rt.DoubleTy, -std::numeric_limits<double>::infinity());
-        d.isExact = rt.TrueVal;
+        d.fpval = rt.ZeroD;
         d.relerr = rt.ZeroD;
     }
     else {
@@ -25,16 +23,7 @@ DSLValues getDSL(IRBuilder<> &B,
         d.xhat = xd;
         
         d.rhat = rt.ZeroD;
-        d.sign = B.CreateFCmpOLT(xd, rt.ZeroD, "dsl.sign");
-    
-        Value *absX = B.CreateUnaryIntrinsic(Intrinsic::fabs, xd);
-        Value *isZero = B.CreateFCmpOEQ(absX, rt.ZeroD);
-    
-        Value *neg_inf = ConstantFP::get(rt.DoubleTy, -std::numeric_limits<double>::infinity());
-        Value *log_abs = B.CreateUnaryIntrinsic(Intrinsic::log2, absX);
-        d.ehat = B.CreateSelect(isZero, neg_inf, log_abs, "dsl.ehat");
-    
-        d.isExact = rt.TrueVal;
+        d.fpval = xd;
         d.relerr = rt.ZeroD;
     }
     return d;
@@ -44,9 +33,7 @@ DSLValues extractDSL(IRBuilder<> &B, Value *v) {
     DSLValues d;
     d.xhat = B.CreateExtractValue(v, {1}, "xhat");
     d.rhat = B.CreateExtractValue(v, {2}, "rhat");
-    d.sign = B.CreateExtractValue(v, {3}, "sign");
-    d.ehat = B.CreateExtractValue(v, {4}, "ehat");
-    d.isExact = B.CreateExtractValue(v, {5}, "isExact");
-    d.relerr = B.CreateExtractValue(v, {6}, "relerr");
+    d.fpval = B.CreateExtractValue(v, {3}, "fpval");
+    d.relerr = B.CreateExtractValue(v, {4}, "relerr");
     return d;
 }

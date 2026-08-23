@@ -53,7 +53,7 @@ bool handleIntrinsic(IntrinsicInst *II, utils::RuntimeFns &rt,
         Value *den = AfterII.CreateFAdd(x, sqrtxPluse, "sqrt.den");
         Value *dx = AfterII.CreateFDiv(num, den, "sqrt.err");
         
-        DSLValues x_dsl = makeDSL(AfterII, x, dx, rt, rt.FalseVal);
+        DSLValues x_dsl = makeDSL(AfterII, x, dx, rt, x, rt.FalseVal);
         DSLMap[II] = x_dsl;
         if (EnableDebugChecks) {
             insertCheckError(AfterII, arg0_dsl, arg0_dsl, x_dsl, II, FpOp::Sqrt, rt, SiteDescs);
@@ -68,7 +68,7 @@ bool handleIntrinsic(IntrinsicInst *II, utils::RuntimeFns &rt,
         Value *x = AfterII.CreateExtractValue(ret, {0}, "sin.val");
         Value *dx = AfterII.CreateExtractValue(ret, {1}, "sin.err");
 
-        DSLValues x_dsl = makeDSL(AfterII, x, dx, rt, rt.FalseVal);
+        DSLValues x_dsl = makeDSL(AfterII, x, dx, rt, x, rt.FalseVal);
         DSLMap[II] = x_dsl;
         if (EnableDebugChecks) {
             insertCheckError(AfterII, arg0_dsl, arg0_dsl, x_dsl, II, FpOp::Sin, rt, SiteDescs);
@@ -80,7 +80,7 @@ bool handleIntrinsic(IntrinsicInst *II, utils::RuntimeFns &rt,
         Value *x = AfterII.CreateExtractValue(ret, {0}, "cos.val");
         Value *dx = AfterII.CreateExtractValue(ret, {1}, "cos.err");
 
-        DSLValues x_dsl = makeDSL(AfterII, x, dx, rt, rt.FalseVal);
+        DSLValues x_dsl = makeDSL(AfterII, x, dx, rt, x, rt.FalseVal);
         DSLMap[II] = x_dsl;
         if (EnableDebugChecks) {
             insertCheckError(AfterII, arg0_dsl, arg0_dsl, x_dsl, II, FpOp::Cos, rt, SiteDescs);
@@ -92,7 +92,7 @@ bool handleIntrinsic(IntrinsicInst *II, utils::RuntimeFns &rt,
         Value *x = AfterII.CreateExtractValue(ret, {0}, "tan.val");
         Value *dx = AfterII.CreateExtractValue(ret, {1}, "tan.err");
         
-        DSLValues x_dsl = makeDSL(AfterII, x, dx, rt, rt.FalseVal);
+        DSLValues x_dsl = makeDSL(AfterII, x, dx, rt, x, rt.FalseVal);
         DSLMap[II] = x_dsl;
         if (EnableDebugChecks) {
             insertCheckError(AfterII, arg0_dsl, arg0_dsl, x_dsl, II, FpOp::Tan, rt, SiteDescs);
@@ -104,7 +104,7 @@ bool handleIntrinsic(IntrinsicInst *II, utils::RuntimeFns &rt,
         Value *x = AfterII.CreateExtractValue(ret, {0}, "asin.val");
         Value *dx = AfterII.CreateExtractValue(ret, {1}, "asin.err");
 
-        DSLValues x_dsl = makeDSL(AfterII, x, dx, rt, rt.FalseVal);
+        DSLValues x_dsl = makeDSL(AfterII, x, dx, rt, x, rt.FalseVal);
         DSLMap[II] = x_dsl;
         if (EnableDebugChecks) {
             insertCheckError(AfterII, arg0_dsl, arg0_dsl, x_dsl, II, FpOp::Asin, rt, SiteDescs);
@@ -116,7 +116,7 @@ bool handleIntrinsic(IntrinsicInst *II, utils::RuntimeFns &rt,
         Value *x = AfterII.CreateExtractValue(ret, {0}, "acos.val");
         Value *dx = AfterII.CreateExtractValue(ret, {1}, "acos.err");
 
-        DSLValues x_dsl = makeDSL(AfterII, x, dx, rt, rt.FalseVal);
+        DSLValues x_dsl = makeDSL(AfterII, x, dx, rt, x, rt.FalseVal);
         DSLMap[II] = x_dsl;
         if (EnableDebugChecks) {
             insertCheckError(AfterII, arg0_dsl, arg0_dsl, x_dsl, II, FpOp::Acos, rt, SiteDescs);
@@ -128,7 +128,7 @@ bool handleIntrinsic(IntrinsicInst *II, utils::RuntimeFns &rt,
         Value *x = AfterII.CreateExtractValue(ret, {0}, "atan.val");
         Value *dx = AfterII.CreateExtractValue(ret, {1}, "atan.err");
 
-        DSLValues x_dsl = makeDSL(AfterII, x, dx, rt, rt.FalseVal);
+        DSLValues x_dsl = makeDSL(AfterII, x, dx, rt, x, rt.FalseVal);
         DSLMap[II] = x_dsl;
         if (EnableDebugChecks) {
             insertCheckError(AfterII, arg0_dsl, arg0_dsl, x_dsl, II, FpOp::Atan, rt, SiteDescs);
@@ -140,7 +140,7 @@ bool handleIntrinsic(IntrinsicInst *II, utils::RuntimeFns &rt,
         Value *x = AfterII.CreateExtractValue(ret, {0}, "exp.val");
         Value *dx = AfterII.CreateExtractValue(ret, {1}, "exp.err");
 
-        DSLValues x_dsl = makeDSL(AfterII, x, dx, rt, rt.FalseVal);
+        DSLValues x_dsl = makeDSL(AfterII, x, dx, rt, x, rt.FalseVal);
         DSLMap[II] = x_dsl;
         if (EnableDebugChecks) {
             insertCheckError(AfterII, arg0_dsl, arg0_dsl, x_dsl, II, FpOp::Exp, rt, SiteDescs);
@@ -162,7 +162,7 @@ bool handleIntrinsic(IntrinsicInst *II, utils::RuntimeFns &rt,
         Value *x = AfterII.CreateExtractValue(ret, {0}, "pow.val");
         Value *dx = AfterII.CreateExtractValue(ret, {1}, "pow.err");
 
-        DSLValues x_dsl = makeDSL(AfterII, x, dx, rt, rt.FalseVal);
+        DSLValues x_dsl = makeDSL(AfterII, x, dx, rt, x, rt.FalseVal);
         DSLMap[II] = x_dsl;
         if (EnableDebugChecks) {
             insertCheckError(AfterII, arg0_dsl, arg1_dsl, x_dsl, II, FpOp::Pow, rt, SiteDescs);
@@ -174,7 +174,7 @@ bool handleIntrinsic(IntrinsicInst *II, utils::RuntimeFns &rt,
         Value *x = AfterII.CreateExtractValue(ret, {0}, "log.val");
         Value *dx = AfterII.CreateExtractValue(ret, {1}, "log.err");
 
-        DSLValues x_dsl = makeDSL(AfterII, x, dx, rt, rt.FalseVal);
+        DSLValues x_dsl = makeDSL(AfterII, x, dx, rt, x, rt.FalseVal);
         DSLMap[II] = x_dsl;
         if (EnableDebugChecks) {
             insertCheckError(AfterII, arg0_dsl, arg0_dsl, x_dsl, II, FpOp::Log, rt, SiteDescs);
@@ -207,7 +207,7 @@ bool handleIntrinsic(IntrinsicInst *II, utils::RuntimeFns &rt,
 
         Value *dx = AfterII.CreateSelect(is_same_sign, formula_same, formula_diff, "fabs.err");
 
-        DSLValues x_dsl = makeDSL(AfterII, absX, dx, rt, ab rt.FalseVal);
+        DSLValues x_dsl = makeDSL(AfterII, absX, dx, rt, absX, rt.FalseVal);
         DSLMap[II] = x_dsl;
         if (EnableDebugChecks) {
             insertCheckError(AfterII, arg0_dsl, arg0_dsl, x_dsl, II, FpOp::Unknown, rt, SiteDescs);
@@ -276,7 +276,7 @@ bool handleExternal(CallInst *CI, utils::RuntimeFns &rt,
             Value *sqrtxPluse = AfterCI.CreateIntrinsic(Intrinsic::sqrt, {rt.DoubleTy}, {xPluse}, nullptr, "sqrt.xpe_root");
             Value *den = AfterCI.CreateFAdd(x, sqrtxPluse, "sqrt.den");
             Value *dx = AfterCI.CreateFDiv(num, den, "sqrt.err");
-            DSLValues x_dsl = makeDSL(AfterCI, x, dx, rt, rt.FalseVal);
+            DSLValues x_dsl = makeDSL(AfterCI, x, dx, rt, x, rt.FalseVal);
             DSLMap[CI] = x_dsl;
             // Value *fmt = AfterCI.CreateGlobalStringPtr("sqrt_CI: x=%f, dx=%e\n");
             // AfterCI.CreateCall(rt.Printf, {fm,S x, dx});
@@ -290,7 +290,7 @@ bool handleExternal(CallInst *CI, utils::RuntimeFns &rt,
             Value *x = AfterCI.CreateExtractValue(ret, {0}, "sin.val");
             Value *dx = AfterCI.CreateExtractValue(ret, {1}, "sin.err");
 
-            DSLValues x_dsl = makeDSL(AfterCI, x, dx, rt, rt.FalseVal);
+            DSLValues x_dsl = makeDSL(AfterCI, x, dx, rt, x, rt.FalseVal);
             DSLMap[CI] = x_dsl;
             if (EnableDebugChecks) {
                 insertCheckError(AfterCI, arg0_dsl, arg0_dsl, x_dsl, CI, FpOp::Sin, rt, SiteDescs);
@@ -301,7 +301,7 @@ bool handleExternal(CallInst *CI, utils::RuntimeFns &rt,
             Value *ret = AfterCI.CreateCall(rt_mpfr.PropCosError, {arg0, arg0_err});
             Value *x = AfterCI.CreateExtractValue(ret, {0}, "cos.val");
             Value *dx = AfterCI.CreateExtractValue(ret, {1}, "cos.err");
-            DSLValues x_dsl = makeDSL(AfterCI, x, dx, rt, rt.FalseVal);
+            DSLValues x_dsl = makeDSL(AfterCI, x, dx, rt, x, rt.FalseVal);
             DSLMap[CI] = x_dsl;
             if (EnableDebugChecks) {
                 insertCheckError(AfterCI, arg0_dsl, arg0_dsl, x_dsl, CI, FpOp::Cos, rt, SiteDescs);
@@ -312,7 +312,7 @@ bool handleExternal(CallInst *CI, utils::RuntimeFns &rt,
             Value *x = AfterCI.CreateExtractValue(ret, {0}, "tan.val");
             Value *dx = AfterCI.CreateExtractValue(ret, {1}, "tan.err");
 
-            DSLValues x_dsl = makeDSL(AfterCI, x, dx, rt, rt.FalseVal);
+            DSLValues x_dsl = makeDSL(AfterCI, x, dx, rt, x, rt.FalseVal);
             DSLMap[CI] = x_dsl;
             if (EnableDebugChecks) {
                 insertCheckError(AfterCI, arg0_dsl, arg0_dsl, x_dsl, CI, FpOp::Tan, rt, SiteDescs);
@@ -323,7 +323,7 @@ bool handleExternal(CallInst *CI, utils::RuntimeFns &rt,
             Value *x = AfterCI.CreateExtractValue(ret, {0}, "asin.val");
             Value *dx = AfterCI.CreateExtractValue(ret, {1}, "asin.err");
 
-            DSLValues x_dsl = makeDSL(AfterCI, x, dx, rt, rt.FalseVal);
+            DSLValues x_dsl = makeDSL(AfterCI, x, dx, rt, x, rt.FalseVal);
             DSLMap[CI] = x_dsl;
             if (EnableDebugChecks) {
                 insertCheckError(AfterCI, arg0_dsl, arg0_dsl, x_dsl, CI, FpOp::Asin, rt, SiteDescs);
@@ -334,7 +334,7 @@ bool handleExternal(CallInst *CI, utils::RuntimeFns &rt,
             Value *x = AfterCI.CreateExtractValue(ret, {0}, "acos.val");
             Value *dx = AfterCI.CreateExtractValue(ret, {1}, "acos.err");
             
-            DSLValues x_dsl = makeDSL(AfterCI, x, dx, rt, rt.FalseVal);
+            DSLValues x_dsl = makeDSL(AfterCI, x, dx, rt, x, rt.FalseVal);
             DSLMap[CI] = x_dsl;
             if (EnableDebugChecks) {
                 insertCheckError(AfterCI, arg0_dsl, arg0_dsl, x_dsl, CI, FpOp::Acos, rt, SiteDescs);
@@ -345,7 +345,7 @@ bool handleExternal(CallInst *CI, utils::RuntimeFns &rt,
             Value *x = AfterCI.CreateExtractValue(ret, {0}, "atan.val");
             Value *dx = AfterCI.CreateExtractValue(ret, {1}, "atan.err");
             
-            DSLValues x_dsl = makeDSL(AfterCI, x, dx, rt, rt.FalseVal);
+            DSLValues x_dsl = makeDSL(AfterCI, x, dx, rt, x, rt.FalseVal);
             DSLMap[CI] = x_dsl;
             if (EnableDebugChecks) {
                 insertCheckError(AfterCI, arg0_dsl, arg0_dsl, x_dsl, CI, FpOp::Atan, rt, SiteDescs);
@@ -356,7 +356,7 @@ bool handleExternal(CallInst *CI, utils::RuntimeFns &rt,
             Value *x = AfterCI.CreateExtractValue(ret, {0}, "log.val");
             Value *dx = AfterCI.CreateExtractValue(ret, {1}, "log.err");
             
-            DSLValues x_dsl = makeDSL(AfterCI, x, dx, rt, rt.FalseVal);
+            DSLValues x_dsl = makeDSL(AfterCI, x, dx, rt, x, rt.FalseVal);
             DSLMap[CI] = x_dsl;
             if (EnableDebugChecks) {
                 insertCheckError(AfterCI, arg0_dsl, arg0_dsl, x_dsl, CI, FpOp::Log, rt, SiteDescs);
@@ -367,7 +367,7 @@ bool handleExternal(CallInst *CI, utils::RuntimeFns &rt,
             Value *x = AfterCI.CreateExtractValue(ret, {0}, "exp.val");
             Value *dx = AfterCI.CreateExtractValue(ret, {1}, "exp.err");
 
-            DSLValues x_dsl = makeDSL(AfterCI, x, dx, rt, rt.FalseVal);
+            DSLValues x_dsl = makeDSL(AfterCI, x, dx, rt, x, rt.FalseVal);
             DSLMap[CI] = x_dsl;
             if (EnableDebugChecks) {
                 insertCheckError(AfterCI, arg0_dsl, arg0_dsl, x_dsl, CI, FpOp::Exp, rt, SiteDescs);
@@ -390,7 +390,7 @@ bool handleExternal(CallInst *CI, utils::RuntimeFns &rt,
             Value *x = AfterCI.CreateExtractValue(ret, {0}, "pow.val");
             Value *dx = AfterCI.CreateExtractValue(ret, {1}, "pow.err");
 
-            DSLValues x_dsl = makeDSL(AfterCI, x, dx, rt, rt.FalseVal);
+            DSLValues x_dsl = makeDSL(AfterCI, x, dx, rt, x, rt.FalseVal);
             DSLMap[CI] = x_dsl;
             if (EnableDebugChecks) {
                 insertCheckError(AfterCI, arg0_dsl, arg1_dsl, x_dsl, CI, FpOp::Pow, rt, SiteDescs);
@@ -421,7 +421,7 @@ bool handleExternal(CallInst *CI, utils::RuntimeFns &rt,
 
             Value *dx = AfterCI.CreateSelect(is_same_sign, formula_same, formula_diff, "fabs.err");
 
-            DSLValues x_dsl = makeDSL(AfterCI, absX, dx, rt, rt.FalseVal);
+            DSLValues x_dsl = makeDSL(AfterCI, absX, dx, rt, absX, rt.FalseVal);
             DSLMap[CI] = x_dsl;
             if (EnableDebugChecks) {
                 insertCheckError(AfterCI, arg0_dsl, arg0_dsl, x_dsl, CI, FpOp::Unknown, rt, SiteDescs);
@@ -436,7 +436,7 @@ bool handleExternal(CallInst *CI, utils::RuntimeFns &rt,
                 for (auto it = args.rbegin(); it != args.rend(); ++it) {
                     if ((*it)->getType()->isDoubleTy() || (*it)->getType()->isFloatTy()) {
                         DSLValues d = getDSL(BeforeCI, ((*it)), rt, DSLMap);
-                        BeforeCI.CreateCall(rt.ShadowStackPush, {d.xhat, d.rhat, d.sign, d.ehat, d.isExact, d.relerr});
+                        BeforeCI.CreateCall(rt.ShadowStackPush, {d.xhat, d.rhat, d.fpval, d.relerr});
                     }
                 }
                 Value *outPtr = AfterCI.CreateAlloca(rt.ShadowEntryTy, nullptr, "callee.out");
@@ -446,7 +446,7 @@ bool handleExternal(CallInst *CI, utils::RuntimeFns &rt,
             }
             else {
                 if (CI->getType()->isDoubleTy() || CI->getType()->isFloatTy()) {
-                    DSLMap[CI] = makeDSL(AfterCI, CI, rt.ZeroD, rt, rt.TrueVal);
+                    DSLMap[CI] = makeDSL(AfterCI, CI, rt.ZeroD, rt, CI, rt.TrueVal);
                 }
             }
             return true;
@@ -467,7 +467,7 @@ bool handleUnary(UnaryOperator *UO, utils::RuntimeFns &rt,
     switch (UO->getOpcode()) {
         case Instruction::FNeg : {
             Value *dx = AfterUO.CreateFNeg(opr_err, "fneg.err");
-            DSLMap[UO] = makeDSL(AfterUO, UO, dx, rt, opr_dsl.isExact);
+            DSLMap[UO] = makeDSL(AfterUO, UO, dx, rt, UO, rt.FalseVal);
             return true;
         }
         default: 
@@ -517,7 +517,7 @@ bool handleBinary(BinaryOperator *BO, utils::RuntimeFns &rt,
             Value *tmp = AfterBO.CreateFAdd(opr0_err, dab, "fadd.tmp");
             Value *dx = AfterBO.CreateFAdd(opr1_err, tmp, "fadd.err");
 
-            DSLValues x_dsl = makeDSL(AfterBO, x, dx, rt, rt.FalseVal);
+            DSLValues x_dsl = makeDSL(AfterBO, x, dx, rt, x, rt.FalseVal);
             DSLMap[BO] = x_dsl;
             if (EnableDebugChecks) {
                 insertCheckError(AfterBO, opr0_dsl, opr1_dsl, x_dsl, BO, FpOp::Add, rt, SiteDescs);
@@ -534,7 +534,7 @@ bool handleBinary(BinaryOperator *BO, utils::RuntimeFns &rt,
             Value *tmp = AfterBO.CreateFAdd(opr0_err, dab, "fsub.tmp");
             Value *dx = AfterBO.CreateFSub(tmp, opr1_err, "fsub.err");
             
-            DSLValues x_dsl = makeDSL(AfterBO, x, dx, rt, rt.FalseVal);
+            DSLValues x_dsl = makeDSL(AfterBO, x, dx, rt, x, rt.FalseVal);
             DSLMap[BO] = x_dsl;
             if (EnableDebugChecks) {
                 insertCheckError(AfterBO, opr0_dsl, opr1_dsl, x_dsl, BO, FpOp::Sub, rt, SiteDescs);
@@ -561,7 +561,7 @@ bool handleBinary(BinaryOperator *BO, utils::RuntimeFns &rt,
             Value *dadb = AfterBO.CreateFMul(opr0_err, opr1_err, "fmul.dadb");
             Value *dx = AfterBO.CreateFAdd(tmp2, dadb, "fmul.err");
             
-            DSLValues x_dsl = makeDSL(AfterBO, x, dx, rt, rt.FalseVal);
+            DSLValues x_dsl = makeDSL(AfterBO, x, dx, rt, x, rt.FalseVal);
             DSLMap[BO] = x_dsl;
             if (EnableDebugChecks) {
                 insertCheckError(AfterBO, opr0_dsl, opr1_dsl, x_dsl, BO, FpOp::Mul, rt, SiteDescs);
@@ -590,7 +590,7 @@ bool handleBinary(BinaryOperator *BO, utils::RuntimeFns &rt,
             Value *denom = AfterBO.CreateFAdd(opr1, opr1_err, "fdiv.denom");
             Value *dx = AfterBO.CreateFDiv(numer, denom, "fdiv.err");
             
-            DSLValues x_dsl = makeDSL(AfterBO, x, dx, rt, rt.FalseVal);
+            DSLValues x_dsl = makeDSL(AfterBO, x, dx, rt, x, rt.FalseVal);
             DSLMap[BO] = x_dsl;
             if (EnableDebugChecks) {
                 insertCheckError(AfterBO, opr0_dsl, opr1_dsl, x_dsl, BO, FpOp::Div, rt, SiteDescs);
@@ -701,7 +701,7 @@ bool handleSIToFP(SIToFPInst *SI, utils::RuntimeFns &rt,
         return false;
     }
     IRBuilder<> AfterSI(SI->getNextNode());
-    DSLMap[SI] = makeDSL(AfterSI, SI, rt.ZeroD, rt, rt.TrueVal);
+    DSLMap[SI] = makeDSL(AfterSI, SI, rt.ZeroD, rt, SI, rt.TrueVal);
     return true;
 }
                 
@@ -711,6 +711,6 @@ bool handleUIToFP(UIToFPInst *UI, utils::RuntimeFns &rt,
         return false;
     }
     IRBuilder<> AfterUI(UI->getNextNode());
-    DSLMap[UI] = makeDSL(AfterUI, UI, rt.ZeroD, rt, rt.TrueVal);
+    DSLMap[UI] = makeDSL(AfterUI, UI, rt.ZeroD, rt, UI, rt.TrueVal);
     return true;
 }

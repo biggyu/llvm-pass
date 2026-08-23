@@ -16,7 +16,14 @@ namespace utils {
         FnPtrTy = llvm::PointerType::get(Ctx, 0);
         
         ShadowEntryTy = llvm::StructType::create(Ctx, "ShadowEntry");
-        ShadowEntryTy->setBody({I64Ty, DoubleTy, DoubleTy, BoolTy, DoubleTy, BoolTy, DoubleTy, BoolTy}, false);
+        ShadowEntryTy->setBody(
+            {I64Ty, 
+            DoubleTy, 
+            DoubleTy, 
+            DoubleTy, 
+            DoubleTy, 
+            BoolTy}, false
+        );
 
         ZeroD = llvm::ConstantFP::get(DoubleTy, 0.0);
         ZeroF = llvm::ConstantFP::get(FloatTy, 0.0);
@@ -29,32 +36,32 @@ namespace utils {
 
         ShadowStoreDTy = llvm::FunctionType::get(
             VoidTy,
-            {PtrTy, DoubleTy, DoubleTy, BoolTy, DoubleTy, BoolTy, DoubleTy},
+            {PtrTy, DoubleTy, DoubleTy, DoubleTy, DoubleTy},
             false
         );
         ShadowStoreFTy = llvm::FunctionType::get(
             VoidTy,
-            {PtrTy, FloatTy, DoubleTy, BoolTy, DoubleTy, BoolTy, DoubleTy},
+            {PtrTy, FloatTy, DoubleTy, FloatTy, DoubleTy},
             false
         );
         ShadowLoadDTy = llvm::FunctionType::get(
             ShadowEntryTy,
-            {PtrTy, DoubleTy},
+            {PtrTy, DoubleTy, PtrTy},
             false
         );
         ShadowLoadFTy = llvm::FunctionType::get(
             ShadowEntryTy,
-            {PtrTy, FloatTy},
+            {PtrTy, FloatTy, PtrTy},
             false
         );
         ShadowStackPushTy = llvm::FunctionType::get(
             VoidTy,
-            {DoubleTy, DoubleTy, BoolTy, DoubleTy, BoolTy, DoubleTy},
+            {DoubleTy, DoubleTy, DoubleTy, DoubleTy},
             false
         );
         ShadowStackPopTy = llvm::FunctionType::get(
             ShadowEntryTy,
-            {},
+            {PtrTy},
             false
         );
 
@@ -99,19 +106,9 @@ namespace utils {
 
         ConditionNumberTy = llvm::FunctionType::get(
             DoubleTy,
-            {I32Ty, DoubleTy, DoubleTy, DoubleTy, DoubleTy, BoolTy, BoolTy, I32Ty},
+            {I32Ty, DoubleTy, DoubleTy, DoubleTy, DoubleTy, DoubleTy, DoubleTy, I32Ty},
             false
         );
-        // ConditionNumberDTy = llvm::FunctionType::get(
-        //     VoidTy,
-        //     {I32Ty, DoubleTy, DoubleTy, DoubleTy, DoubleTy, BoolTy, BoolTy, I32Ty},
-        //     false
-        // );
-        // ConditionNumberFTy = llvm::FunctionType::get(
-        //     VoidTy,
-        //     {I32Ty, FloatTy, FloatTy, FloatTy, FloatTy, BoolTy, BoolTy, I32Ty},
-        //     false
-        // );
 
         Printf = M.getOrInsertFunction("printf", PrintfTy);
         
@@ -129,8 +126,6 @@ namespace utils {
         Atexit = M.getOrInsertFunction("atexit", AtexitTy);
         RegisterFPSite = M.getOrInsertFunction("register_fp_site", RegisterFPSiteTy);
         ReportDebugSummary = M.getOrInsertFunction("report_debug_summary", ReportDebugSummaryTy);
-        // ConditionNumberF = M.getOrInsertFunction("condition_number_float", ConditionNumberFTy);
-        // ConditionNumberD = M.getOrInsertFunction("condition_number_double", ConditionNumberDTy);
         ConditionNumber = M.getOrInsertFunction("condition_number", ConditionNumberTy);
     }
 }

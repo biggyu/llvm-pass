@@ -20,7 +20,16 @@ static double load_error_threshold() {
     }
     return 50.0;
 }
-double g_error_threshold = load_error_threshold();
+
+static double g_error_threshold_val = 0.0;
+static bool g_error_threshold_init = false;
+double get_error_threshold() {
+    if (!g_error_threshold_init) {
+        g_error_threshold_val = load_error_threshold();
+        g_error_threshold_init = true;
+    }
+    return g_error_threshold_val;
+}
 
 enum class ErrorClass : uint8_t {
     Exact, Normal, TotalLoss,
@@ -233,8 +242,6 @@ void check_error(double x, double dx, uint32_t site_id, int metric) {
 
     G.total_checks++;
 
-    // SiteStats &S = sites[site_id];
-    // S.cnt++;
     switch (errcls) {
         case ErrorClass::Exact:
             G.exact++;
@@ -260,7 +267,7 @@ void check_error(double x, double dx, uint32_t site_id, int metric) {
     if (ulp > SS.max_bits) {
         SS.max_bits = ulp;
     }
-    if (ulp >= g_error_threshold) {
+    if (ulp >= get_error_threshold()) {
         G.above_thres++;
         SS.thres_hits++;
     }
@@ -365,7 +372,7 @@ extern "C" void report_debug_summary() {
     }
     FILE *f = fopen(path, "w");
     if (!f) return;
-    fprintf(f, "Error above bits %d found %llu\n", (int)g_error_threshold, (unsigned long long) G.above_thres);
+    fprintf(f, "Error above bits %d found %llu\n", (int)get_error_threshold(), (unsigned long long) G.above_thres);
     fprintf(f, "Total NaN found %llu\n", (unsigned long long) G.nan);
     fprintf(f, "Total Inf found %llu\n", (unsigned long long) G.inf);
     fprintf(f, "Total branch flips found %llu\n", (unsigned long long) G.branch_flips);

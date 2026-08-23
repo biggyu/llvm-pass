@@ -1,7 +1,5 @@
 #include "smem_runtime.h"
-// #include "shadow_table.h"
-// #include <unordered_map>
-// #include <cstdint>
+#include "shadow_table.h"
 #include <iostream>
 #ifdef ENABLE_PROFILE
 #include <chrono>
@@ -27,56 +25,60 @@ struct ProfScope {
     #define PROFILE(slot) ((void)0)
 #endif
 
-static ShadowTable s_tbl;
+static ShadowTable *s_tbl = nullptr;
+static ShadowStack *s_stk = nullptr;
 
-extern "C" void shadow_store_double(void* addr, double xhat, double rhat, bool sign, double ehat, bool isExact, double relerr) {
-    PROFILE(shadowstore);
-    s_tbl.insert(addr, xhat, rhat, sign, ehat, isExact, relerr);
+static ShadowTable& getTbl() {
+    if (!s_tbl) {
+        s_tbl = new ShadowTable();
+    }
+    return *s_tbl;
 }
-extern "C" void shadow_store_float(void* addr, float xhat, double rhat, bool sign, double ehat, bool isExact, double relerr) {
+
+static ShadowStack& getStk() {
+    if (!s_stk) {
+        s_stk = new ShadowStack();
+    }
+    return *s_stk;
+}
+
+extern "C" void shadow_store_double(void* addr, double xhat, double rhat, double fp_val, double relerr) {
     PROFILE(shadowstore);
-    s_tbl.insert(addr, (double)xhat, rhat, sign, ehat, isExact, relerr);
+    getTbl().insert(addr, xhat, rhat, fp_val, relerr);
+}
+extern "C" void shadow_store_float(void* addr, float xhat, double rhat, float fp_val, double relerr) {
+    PROFILE(shadowstore);
+    getTbl().insert(addr, (double)xhat, rhat, (double)fp_val, relerr);
 } 
 
-extern "C" ShadowEntry shadow_load_double(void* addr, double progVal) {
+extern "C" void shadow_load_double(void* addr, double progVal, ShadowEntry* out) {
     PROFILE(shadowload);
-    ShadowEntry *e = s_tbl.get(addr, progVal);
+    ShadowEntry *e = getTbl().get(addr, progVal);
     if (e) {
-        return *e;
+        out = e;
     }
-    s_tbl.insert(addr, progVal, 0.0, false, 0.0, true, 0.0);
-    return *s_tbl.get(addr, progVal);
+    getTbl().insert(addr, progVal, 0.0, progVal, 0.0);
+    out = getTbl().get(addr, progVal);
 }
-extern "C" ShadowEntry shadow_load_float(void* addr, float progVal) {
+extern "C" void shadow_load_float(void* addr, float progVal, ShadowEntry* out) {
     PROFILE(shadowload);
-    ShadowEntry *e = s_tbl.get(addr, (double)progVal);
+    ShadowEntry *e = getTbl().get(addr, (double)progVal);
     if (e) {
-        return *e;
+        out = e;
     }
-    s_tbl.insert(addr, progVal, 0.0, false, 0.0, true, 0.0);
-    return *s_tbl.get(addr, (double)progVal);
+    getTbl().insert(addr, progVal, 0.0, (double)progVal, 0.0);
+    out = getTbl().get(addr, (double)progVal);
 }
 
-static ShadowStack s_stk;
-extern "C" void shadow_stack_push(double xhat, double rhat, bool sign, double ehat, bool isExact, double relerr) {
+extern "C" void shadow_stack_push(double xhat, double rhat, double fp_val, double relerr) {
     PROFILE(shadowpush);
-    s_stk.push(xhat, rhat, sign, ehat, isExact, relerr);
+    getStk().push(xhat, rhat, fp_val, relerr);
 }
 
-extern "C" ShadowEntry shadow_stack_pop() {
+extern "C" void shadow_stack_pop(ShadowEntry* out) {
     PROFILE(shadowpop);
-    ShadowEntry *e = s_stk.pop();
-    if (e) {
-        return *e;
-    }
-    ShadowEntry z{};
-    z.xhat = 0.0;
-    z.rhat = 0.0;
-    z.sign = false;
-    z.ehat = 0.0;
-    z.isExact = true;
-    z.relerr = 0.0;
-    return z;
+    ShadowEntry *e = getStk().pop();
+    out = e? e : new ShadowEntry{(uintptr_t)0.0, 0.0, 0.0, 0.0, 0.0};
 }
 
 extern "C" void report_smem_profile() {

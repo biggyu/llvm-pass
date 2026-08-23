@@ -48,8 +48,6 @@ namespace utils {
         llvm::FunctionCallee RegisterFPSite;
         llvm::FunctionCallee ReportDebugSummary;
         llvm::FunctionCallee ConditionNumber;
-        // llvm::FunctionCallee ConditionNumberD;
-        // llvm::FunctionCallee ConditionNumberF;
 
         llvm::FunctionType *PrintfTy;
         llvm::FunctionType *ShadowStoreFTy;
@@ -66,8 +64,6 @@ namespace utils {
         llvm::FunctionType *AtexitTy;
         llvm::FunctionType *RegisterFPSiteTy;
         llvm::FunctionType *ReportDebugSummaryTy;
-        // llvm::FunctionType *ConditionNumberFTy;
-        // llvm::FunctionType *ConditionNumberDTy;
         llvm::FunctionType *ConditionNumberTy;
         
         explicit RuntimeFns(llvm::Module &Mod);

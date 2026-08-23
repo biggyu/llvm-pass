@@ -16,13 +16,11 @@ bool handleStore(StoreInst *SI, utils::RuntimeFns &rt,
     IRBuilder<> AfterSI(SI->getNextNode());
     
     DSLValues dsl = getDSL(AfterSI, val, rt, DSLMap);
-    // AfterSI.CreateCall(rt.ShadowStoreD, {ptr, val, dsl.rhat, dsl.error, dsl.sign, dsl.isExact, dsl.ehat});
-    // AfterSI.CreateCall(rt.ShadowStore, {ptr, val, dsl.rhat, dsl.sign, dsl.isExact, dsl.ehat, dsl.error});
     if (val->getType()->isDoubleTy()) {
-        AfterSI.CreateCall(rt.ShadowStoreD, {ptr, val, dsl.rhat, dsl.sign, dsl.ehat, dsl.isExact, dsl.relerr});
+        AfterSI.CreateCall(rt.ShadowStoreD, {ptr, val, dsl.rhat, val, dsl.relerr});
     }
     else {
-        AfterSI.CreateCall(rt.ShadowStoreF, {ptr, val, dsl.rhat, dsl.sign, dsl.ehat, dsl.isExact, dsl.relerr});
+        AfterSI.CreateCall(rt.ShadowStoreF, {ptr, val, dsl.rhat, val, dsl.relerr});
     }
     return true;
 }
@@ -38,16 +36,15 @@ bool handleLoad(LoadInst *LI, utils::RuntimeFns &rt,
         return true;
     }
     llvm::Value *ptr = LI->getPointerOperand();
-    // llvm::Value *entryPtr = AfterLI.CreateCall(rt.ShadowLoad, {ptr});
-    
-    llvm::Value *entryPtr = LI->getType()->isDoubleTy() ? AfterLI.CreateCall(rt.ShadowLoadD, {ptr, LI}) : AfterLI.CreateCall(rt.ShadowLoadF, {ptr, LI});
-    // if (LI->getType()->isDoubleTy()) {
-        //     dx = AfterLI.CreateCall(rt.ShadowLoadD, {ptr});
-        // }
-        // else {
-        //     dx = AfterLI.CreateCall(rt.ShadowLoadF, {ptr});
-        // }
-    DSLMap[LI] = extractDSL(AfterLI, entryPtr);
+    llvm::Value *outPtr = AfterLI.CreateAlloca(rt.ShadowEntryTy, nullptr, "load.out");
+    if (LI->getType()->isDoubleTy()) {
+        AfterLI.CreateCall(rt.ShadowLoadD, {ptr, LI, outPtr});
+    }
+    else {
+        AfterLI.CreateCall(rt.ShadowLoadF, {ptr, LI, outPtr});
+    }
+    Value *entry = AfterLI.CreateLoad(rt.ShadowEntryTy, outPtr);
+    DSLMap[LI] = extractDSL(AfterLI, entry);
     return true;  
 }
 
@@ -59,6 +56,6 @@ bool handleReturn(ReturnInst *RI, utils::RuntimeFns &rt,
     }
     IRBuilder<> B(RI);
     DSLValues ret_err = getDSL(B, ret, rt, DSLMap);
-    B.CreateCall(rt.ShadowStackPush, {ret_err.xhat, ret_err.rhat, ret_err.sign, ret_err.ehat, ret_err.isExact, ret_err.relerr});
+    B.CreateCall(rt.ShadowStackPush, {ret_err.xhat, ret_err.rhat, ret_err.fpval, ret_err.relerr});
     return true;
 }

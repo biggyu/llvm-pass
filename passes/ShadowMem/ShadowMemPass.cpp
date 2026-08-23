@@ -12,21 +12,6 @@
 
 using namespace llvm;
 
-// bool isRuntimeFunction(const Function &F) {
-//     StringRef N = F.getName();
-//     return N == "shadow_store_double" ||
-//            N == "shadow_store_float"  ||
-//            N == "shadow_load_double"  ||
-//            N == "shadow_load_float"   ||
-//            N == "shadow_stack_push"   ||
-//            N == "shadow_stack_pop"    ||
-//            N == "check_conv_ui"       ||
-//            N == "check_conv_si"       ||
-//            N == "check_branch"        ||
-//            N == "check_error"         ||
-//            N == "report_debug_summary";
-// }
-
 void runOnModule(llvm::Module &M) {
     utils::RuntimeFns rt(M);
     utils::RuntimeMPFRFns rt_mpfr(M);
@@ -45,13 +30,15 @@ void runOnModule(llvm::Module &M) {
             IRBuilder<> Entry(&*F.getEntryBlock().getFirstInsertionPt());
             for (Argument &param : F.args()) {
                 if (param.getType()->isDoubleTy() || param.getType()->isFloatTy()) {
-                    Value *entry = Entry.CreateCall(rt.ShadowStackPop, {});
+                    Value *outPtr = Entry.CreateAlloca(rt.ShadowEntryTy, nullptr, "pop.out");
+                    Entry.CreateCall(rt.ShadowStackPop, {outPtr});
+                    Value *entry = Entry.CreateLoad(rt.ShadowEntryTy, outPtr);
                     DSLMap[&param] = extractDSL(Entry, entry);
                 }
             }
         }
         struct PHIShadow {
-            PHINode *xhat, *rhat, *ehat, *sign, *isExact, *relerr;
+            PHINode *xhat, *rhat, *fpval, *relerr;
         };
         DenseMap<const PHINode*, PHIShadow> PHIMap;
 
@@ -65,18 +52,14 @@ void runOnModule(llvm::Module &M) {
                 PHIShadow ps;
                 ps.xhat = B.CreatePHI(rt.DoubleTy, n, "phi.xhat");
                 ps.rhat = B.CreatePHI(rt.DoubleTy, n, "phi.rhat");
-                ps.ehat = B.CreatePHI(rt.DoubleTy, n, "phi.ehat");
-                ps.sign = B.CreatePHI(rt.BoolTy, n, "phi.s");
-                ps.isExact = B.CreatePHI(rt.BoolTy, n, "phi.i");
+                ps.fpval = B.CreatePHI(rt.DoubleTy, n, "phi.fpval");
                 ps.relerr = B.CreatePHI(rt.DoubleTy, n, "phi.relerr");
                 PHIMap[&PN] = ps;
 
                 DSLValues d;
                 d.xhat = ps.xhat;
                 d.rhat = ps.rhat;
-                d.ehat = ps.ehat;
-                d.sign = ps.sign;
-                d.isExact = ps.isExact;
+                d.fpval = ps.fpval;
                 d.relerr = ps.relerr;
                 DSLMap[&PN] = d;
             }
@@ -162,9 +145,7 @@ void runOnModule(llvm::Module &M) {
                 DSLValues inDSL = getDSL(PredB, inVal, rt, DSLMap);
                 ps.xhat->addIncoming(inDSL.xhat, inBB);
                 ps.rhat->addIncoming(inDSL.rhat, inBB);
-                ps.ehat->addIncoming(inDSL.ehat, inBB);
-                ps.sign->addIncoming(inDSL.sign, inBB);
-                ps.isExact->addIncoming(inDSL.isExact, inBB);
+                ps.fpval->addIncoming(inDSL.fpval, inBB);
                 ps.relerr->addIncoming(inDSL.relerr, inBB);
             }
         }
