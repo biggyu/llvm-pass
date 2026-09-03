@@ -55,19 +55,21 @@ extern "C" void shadow_load_double(void* addr, double progVal, ShadowEntry* out)
     PROFILE(shadowload);
     ShadowEntry *e = getTbl().get(addr, progVal);
     if (e) {
-        out = e;
+        *out = *e;
+        return;
     }
     getTbl().insert(addr, progVal, 0.0, progVal, 0.0);
-    out = getTbl().get(addr, progVal);
+    *out = *getTbl().get(addr, progVal);
 }
 extern "C" void shadow_load_float(void* addr, float progVal, ShadowEntry* out) {
     PROFILE(shadowload);
     ShadowEntry *e = getTbl().get(addr, (double)progVal);
     if (e) {
-        out = e;
+        *out = *e;
+        return;
     }
     getTbl().insert(addr, progVal, 0.0, (double)progVal, 0.0);
-    out = getTbl().get(addr, (double)progVal);
+    *out = *getTbl().get(addr, (double)progVal);
 }
 
 extern "C" void shadow_stack_push(double xhat, double rhat, double fp_val, double relerr) {
@@ -78,7 +80,7 @@ extern "C" void shadow_stack_push(double xhat, double rhat, double fp_val, doubl
 extern "C" void shadow_stack_pop(ShadowEntry* out) {
     PROFILE(shadowpop);
     ShadowEntry *e = getStk().pop();
-    out = e? e : new ShadowEntry{(uintptr_t)0.0, 0.0, 0.0, 0.0, 0.0};
+    *out = e? *e : ShadowEntry{(uintptr_t)0.0, 0.0, 0.0, 0.0, 0.0, false};
 }
 
 extern "C" void report_smem_profile() {

@@ -158,7 +158,7 @@ bool handleIntrinsic(IntrinsicInst *II, utils::RuntimeFns &rt,
         DSLValues arg1_dsl = getDSL(AfterII, arg1_org, rt, DSLMap);
         Value *arg1_err = arg1_dsl.rhat;
         
-        Value *ret = AfterII.CreateCall(rt_mpfr.PropPowError, {arg0, arg0_err});
+        Value *ret = AfterII.CreateCall(rt_mpfr.PropPowError, {arg0, arg0_err, arg1, arg1_err});
         Value *x = AfterII.CreateExtractValue(ret, {0}, "pow.val");
         Value *dx = AfterII.CreateExtractValue(ret, {1}, "pow.err");
 
@@ -221,13 +221,32 @@ bool handleIntrinsic(IntrinsicInst *II, utils::RuntimeFns &rt,
 
 bool handleExternal(CallInst *CI, utils::RuntimeFns &rt,
                 utils::RuntimeMPFRFns &rt_mpfr,
+                Value *sharedExtOut,
                 DenseMap<const Value*, DSLValues> &DSLMap,
                 std::unordered_map<uint32_t, utils::SiteDesc> &SiteDescs) {
+    Function *Callee = CI->getCalledFunction();
+    if (Callee && isRuntimeFunction(*Callee)) {
+        return false;
+    }
 
-    if (Function *Callee = CI->getCalledFunction()) {
-        if (isRuntimeFunction(*Callee)) {
-            return false;
+    if (Callee && !Callee->isDeclaration()) {
+        IRBuilder<> BeforeCI(CI);
+        SmallVector<Value *, 4> args(CI->arg_begin(), CI->arg_end());
+        for (auto it = args.rbegin(); it != args.rend(); ++it) {
+            if ((*it)->getType()->isDoubleTy() || (*it)->getType()->isFloatTy()) {
+                DSLValues d = getDSL(BeforeCI, *it, rt, DSLMap);
+                BeforeCI.CreateCall(rt.ShadowStackPush, {d.xhat, d.rhat, d.fpval, d.relerr});
+            }
         }
+
+        if (CI->getType()->isDoubleTy() || CI->getType()->isFloatTy()) {
+            IRBuilder<> AfterCI(CI->getNextNode());
+            // Value *outPtr = AfterCI.CreateAlloca(rt.ShadowEntryTy, nullptr, "callee.out");
+            AfterCI.CreateCall(rt.ShadowStackPop, {sharedExtOut});
+            Value *ret_err = AfterCI.CreateLoad(rt.ShadowEntryTy, sharedExtOut);
+            DSLMap[CI] = extractDSL(AfterCI, ret_err);
+        }
+        return true;
     }
 
     if (!CI->getType()->isDoubleTy() && !CI->getType()->isFloatTy()) {
@@ -429,28 +448,11 @@ bool handleExternal(CallInst *CI, utils::RuntimeFns &rt,
             return true;
         }
         else {
-            Function *Callee = CI->getCalledFunction();
-            if (Callee && !Callee->isDeclaration()) {
-                IRBuilder<> BeforeCI(CI);
-                SmallVector<Value *, 4> args(CI->arg_begin(), CI->arg_end());
-                for (auto it = args.rbegin(); it != args.rend(); ++it) {
-                    if ((*it)->getType()->isDoubleTy() || (*it)->getType()->isFloatTy()) {
-                        DSLValues d = getDSL(BeforeCI, ((*it)), rt, DSLMap);
-                        BeforeCI.CreateCall(rt.ShadowStackPush, {d.xhat, d.rhat, d.fpval, d.relerr});
-                    }
-                }
-                Value *outPtr = AfterCI.CreateAlloca(rt.ShadowEntryTy, nullptr, "callee.out");
-                AfterCI.CreateCall(rt.ShadowStackPop, {outPtr});
-                Value *ret_err = AfterCI.CreateLoad(rt.ShadowEntryTy, outPtr);
-                DSLMap[CI] = extractDSL(AfterCI, ret_err);
+            if (CI->getType()->isDoubleTy() || CI->getType()->isFloatTy()) {
+                DSLMap[CI] = makeDSL(AfterCI, CI, rt.ZeroD, rt, CI, rt.TrueVal);
             }
-            else {
-                if (CI->getType()->isDoubleTy() || CI->getType()->isFloatTy()) {
-                    DSLMap[CI] = makeDSL(AfterCI, CI, rt.ZeroD, rt, CI, rt.TrueVal);
-                }
-            }
-            return true;
         }
+        return true;
     }
     return false;
 }
@@ -461,13 +463,21 @@ bool handleUnary(UnaryOperator *UO, utils::RuntimeFns &rt,
         return false;
     }
     IRBuilder<> AfterUO(UO->getNextNode());
-    Value *opr = UO->getOperand(0);
-    DSLValues opr_dsl = getDSL(AfterUO, opr, rt, DSLMap);
+    Value *opr_org = UO->getOperand(0), *opr = nullptr;
+    Value *x = UO;
+    if (opr_org->getType()->isFloatTy()) {
+        opr = AfterUO.CreateFPExt(opr_org, rt.DoubleTy, "UO.opr");
+        x = AfterUO.CreateFPExt(UO, rt.DoubleTy, "UO.x");
+    }
+    else {
+        opr = opr_org;
+    }
+    DSLValues opr_dsl = getDSL(AfterUO, opr_org, rt, DSLMap);
     Value *opr_err = opr_dsl.rhat;
     switch (UO->getOpcode()) {
         case Instruction::FNeg : {
             Value *dx = AfterUO.CreateFNeg(opr_err, "fneg.err");
-            DSLMap[UO] = makeDSL(AfterUO, UO, dx, rt, UO, rt.FalseVal);
+            DSLMap[UO] = makeDSL(AfterUO, x, dx, rt, x, rt.FalseVal);
             return true;
         }
         default: 
@@ -701,7 +711,11 @@ bool handleSIToFP(SIToFPInst *SI, utils::RuntimeFns &rt,
         return false;
     }
     IRBuilder<> AfterSI(SI->getNextNode());
-    DSLMap[SI] = makeDSL(AfterSI, SI, rt.ZeroD, rt, SI, rt.TrueVal);
+    Value *val = SI;
+    if (SI->getType()->isFloatTy()) {
+        val = AfterSI.CreateFPExt(SI, rt.DoubleTy, "sitofp.ext");
+    }
+    DSLMap[SI] = makeDSL(AfterSI, val, rt.ZeroD, rt, val, rt.TrueVal);
     return true;
 }
                 
@@ -711,6 +725,10 @@ bool handleUIToFP(UIToFPInst *UI, utils::RuntimeFns &rt,
         return false;
     }
     IRBuilder<> AfterUI(UI->getNextNode());
-    DSLMap[UI] = makeDSL(AfterUI, UI, rt.ZeroD, rt, UI, rt.TrueVal);
+    Value *val = UI;
+    if (UI->getType()->isFloatTy()) {
+        val = AfterUI.CreateFPExt(UI, rt.DoubleTy, "uitofp.ext");
+    }
+    DSLMap[UI] = makeDSL(AfterUI, val, rt.ZeroD, rt, val, rt.TrueVal);
     return true;
 }

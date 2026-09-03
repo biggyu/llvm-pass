@@ -1,4 +1,5 @@
 #pragma once
+#include <cstdio>
 #include <cstdint>
 #include <cstddef>
 #include <cstring>
@@ -56,7 +57,7 @@ public:
 
 class ShadowStack {
 private:
-    static const int STACK_SIZE = 1 << 10;
+    static const int STACK_SIZE = 1 << 20;
     ShadowEntry *stack;
     int top = 0;
 public:
@@ -65,6 +66,15 @@ public:
         delete[] stack;
     }
     void push(double xhat, double rhat, double fp_val, double relerr) {
+        static int maxTop = 0;
+        if (top > maxTop) {
+            maxTop = top;
+            fprintf(stderr, "stack depth: %d\n", maxTop);
+        }
+        if (top >= STACK_SIZE) {
+            fprintf(stderr, "[shadow stack overflow]\n");
+            return;
+        }
         ShadowEntry &e = stack[top++];
         e.used = true;
         e.xhat = xhat;
@@ -73,6 +83,10 @@ public:
         e.relerr = relerr;
     }
     ShadowEntry* pop() {
+        if (top <= 0) {
+            static ShadowEntry dummy{};
+            return &dummy;
+        }
         return &stack[--top];
     }
 };

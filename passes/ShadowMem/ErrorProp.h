@@ -17,6 +17,7 @@ bool handleIntrinsic(IntrinsicInst *II, utils::RuntimeFns &rt,
 
 bool handleExternal(CallInst *CI, utils::RuntimeFns &rt,
                 utils::RuntimeMPFRFns &rt_mpfr,
+                Value *sharedExtOut,
                 DenseMap<const Value*, DSLValues> &DSLMap,
                 std::unordered_map<uint32_t, utils::SiteDesc> &SiteDescs);
 

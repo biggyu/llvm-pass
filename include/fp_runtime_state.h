@@ -49,5 +49,11 @@ struct SiteStats {
 };
 
 extern GlobalStats G;
-extern std::unordered_map<uint32_t, SiteInfo>& site_infos();
-extern std::unordered_map<uint32_t, SiteStats>& site_stats();
+inline std::unordered_map<uint32_t, SiteInfo>& site_infos() {
+    static std::unordered_map<uint32_t, SiteInfo> m;
+    return m;
+}
+inline std::unordered_map<uint32_t, SiteStats>& site_stats() {
+    static std::unordered_map<uint32_t, SiteStats> m;
+    return m;
+}

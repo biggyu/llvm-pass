@@ -45,12 +45,12 @@ namespace utils {
             false
         );
         ShadowLoadDTy = llvm::FunctionType::get(
-            ShadowEntryTy,
+            VoidTy,
             {PtrTy, DoubleTy, PtrTy},
             false
         );
         ShadowLoadFTy = llvm::FunctionType::get(
-            ShadowEntryTy,
+            VoidTy,
             {PtrTy, FloatTy, PtrTy},
             false
         );
@@ -60,7 +60,7 @@ namespace utils {
             false
         );
         ShadowStackPopTy = llvm::FunctionType::get(
-            ShadowEntryTy,
+            VoidTy,
             {PtrTy},
             false
         );

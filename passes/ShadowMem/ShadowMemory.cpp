@@ -26,7 +26,8 @@ bool handleStore(StoreInst *SI, utils::RuntimeFns &rt,
 }
 
 bool handleLoad(LoadInst *LI, utils::RuntimeFns &rt, 
-                DenseMap<const Value*, DSLValues> &DSLMap) {
+                DenseMap<const Value*, DSLValues> &DSLMap, 
+                Value *sharedLoadOut) {
     if (!LI->getType()->isDoubleTy() && !LI->getType()->isFloatTy()) {
         return false;
     }
@@ -36,14 +37,14 @@ bool handleLoad(LoadInst *LI, utils::RuntimeFns &rt,
         return true;
     }
     llvm::Value *ptr = LI->getPointerOperand();
-    llvm::Value *outPtr = AfterLI.CreateAlloca(rt.ShadowEntryTy, nullptr, "load.out");
+    // llvm::Value *outPtr = AfterLI.CreateAlloca(rt.ShadowEntryTy, nullptr, "load.out");
     if (LI->getType()->isDoubleTy()) {
-        AfterLI.CreateCall(rt.ShadowLoadD, {ptr, LI, outPtr});
+        AfterLI.CreateCall(rt.ShadowLoadD, {ptr, LI, sharedLoadOut});
     }
     else {
-        AfterLI.CreateCall(rt.ShadowLoadF, {ptr, LI, outPtr});
+        AfterLI.CreateCall(rt.ShadowLoadF, {ptr, LI, sharedLoadOut});
     }
-    Value *entry = AfterLI.CreateLoad(rt.ShadowEntryTy, outPtr);
+    Value *entry = AfterLI.CreateLoad(rt.ShadowEntryTy, sharedLoadOut);
     DSLMap[LI] = extractDSL(AfterLI, entry);
     return true;  
 }

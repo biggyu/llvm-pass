@@ -26,6 +26,14 @@ void runOnModule(llvm::Module &M) {
         // DenseMap<const Value*, Value*> ErrorMap;
         DenseMap<const Value*, DSLValues> DSLMap;
 
+        Value *sharedLoadOut = nullptr;
+        Value *sharedExtOut = nullptr;
+        {
+            IRBuilder<> Entry(&*F.getEntryBlock().getFirstInsertionPt());
+            sharedLoadOut = Entry.CreateAlloca(rt.ShadowEntryTy, nullptr, "shared.load.out");
+            sharedExtOut = Entry.CreateAlloca(rt.ShadowEntryTy, nullptr, "shared.external.out");
+        }
+
         if (F.getName() != "main") {
             IRBuilder<> Entry(&*F.getEntryBlock().getFirstInsertionPt());
             for (Argument &param : F.args()) {
@@ -75,7 +83,7 @@ void runOnModule(llvm::Module &M) {
             if (isa<PHINode>(I)) continue;
 
             if (auto *LI = dyn_cast<LoadInst>(I)) {
-                if (handleLoad(LI, rt, DSLMap)) {
+                if (handleLoad(LI, rt, DSLMap, sharedLoadOut)) {
                     continue;
                 }
             }
@@ -95,7 +103,7 @@ void runOnModule(llvm::Module &M) {
                 }
             }
             if (auto *CI = dyn_cast<CallInst>(I)) {
-                if (handleExternal(CI, rt, rt_mpfr, DSLMap, SiteDescs)) {
+                if (handleExternal(CI, rt, rt_mpfr, sharedExtOut, DSLMap, SiteDescs)) {
                     continue;
                 }
             }
@@ -145,7 +153,12 @@ void runOnModule(llvm::Module &M) {
                 DSLValues inDSL = getDSL(PredB, inVal, rt, DSLMap);
                 ps.xhat->addIncoming(inDSL.xhat, inBB);
                 ps.rhat->addIncoming(inDSL.rhat, inBB);
-                ps.fpval->addIncoming(inDSL.fpval, inBB);
+                Value *fpv = inDSL.fpval;
+                if (inDSL.fpval->getType()->isFloatTy()) {
+                    fpv = PredB.CreateFPExt(fpv, rt.DoubleTy);
+                }
+                ps.fpval->addIncoming(fpv, inBB);
+                // ps.fpval->addIncoming(inDSL.fpval, inBB);
                 ps.relerr->addIncoming(inDSL.relerr, inBB);
             }
         }
