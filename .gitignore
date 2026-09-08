@@ -3,6 +3,7 @@ build/
 /**/*.o
 /**/*.out
 *.ll
+*.txt
 # Prerequisites
 *.d
 
@@ -14,6 +15,8 @@ benchmarks/herbie-arith25/produced
 benchmarks/herbie-arith25/src
 benchmarks/polybench/produced
 benchmarks/polybench/out
+benchmarks/npb-c
+benchmarks/rodinia
 *.log
 
 # Test Code

@@ -1,17 +1,17 @@
 #!usr/bin/bash
 # sh scripts/run.sh ShadowMem shadowmem ./examples/input_for_matmul.cpp 0 0 1
 
-PASS=${1:-0}
-PLUGIN=${2:-0}
+PASS=${1:-ShadowMem}
+PLUGIN=${2:-shadowmem}
 SRC=${3:-0}
 PROFILE=${4:-0}
-DEBUG=${5:-0}
+DEBUG=${5:-1}
 OPT_FLAG=${6:-0}
 
-if [ $# -ne 6 ]; then 
-    echo "Usage: $0 <PASS> <PLUGIN> <INPUT> <PROFILING> <DEBUG> <OPT_FLAG>"
-    exit 1
-fi
+# if [ $# -ne 6 ]; then 
+#     echo "Usage: $0 <PASS> <PLUGIN> <INPUT> <PROFILING> <DEBUG> <OPT_FLAG>"
+#     exit 1
+# fi
 
 OUTDIR=build/out/org
 mkdir -p "$OUTDIR"
