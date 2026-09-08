@@ -54,21 +54,23 @@ extern "C" void shadow_store_float(void* addr, float xhat, double rhat, float fp
 extern "C" void shadow_load_double(void* addr, double progVal, ShadowEntry* out) {
     PROFILE(shadowload);
     ShadowEntry *e = getTbl().get(addr, progVal);
-    if (e) {
+    if (e && e->used) {
         *out = *e;
         return;
     }
-    getTbl().insert(addr, progVal, 0.0, progVal, 0.0);
+    static constexpr double UNIT_ROUNDOFF_D = 0x1p-53;
+    getTbl().insert(addr, progVal, 0.0, progVal, UNIT_ROUNDOFF_D);
     *out = *getTbl().get(addr, progVal);
 }
 extern "C" void shadow_load_float(void* addr, float progVal, ShadowEntry* out) {
     PROFILE(shadowload);
     ShadowEntry *e = getTbl().get(addr, (double)progVal);
-    if (e) {
+    if (e && e->used) {
         *out = *e;
         return;
     }
-    getTbl().insert(addr, progVal, 0.0, (double)progVal, 0.0);
+    static constexpr double UNIT_ROUNDOFF_F = 0x1p-24;
+    getTbl().insert(addr, progVal, 0.0, (double)progVal, UNIT_ROUNDOFF_F);
     *out = *getTbl().get(addr, (double)progVal);
 }
 

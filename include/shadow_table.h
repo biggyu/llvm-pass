@@ -69,10 +69,8 @@ public:
         static int maxTop = 0;
         if (top > maxTop) {
             maxTop = top;
-            fprintf(stderr, "stack depth: %d\n", maxTop);
         }
         if (top >= STACK_SIZE) {
-            fprintf(stderr, "[shadow stack overflow]\n");
             return;
         }
         ShadowEntry &e = stack[top++];
