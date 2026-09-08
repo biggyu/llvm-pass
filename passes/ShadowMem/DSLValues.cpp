@@ -24,7 +24,10 @@ DSLValues getDSL(IRBuilder<> &B,
         
         d.rhat = rt.ZeroD;
         d.fpval = xd;
-        d.relerr = rt.ZeroD;
+        Value *unitroundoff = v->getType()->isFloatTy()
+            ? llvm::ConstantFP::get(rt.DoubleTy, 0x1p-24)
+            : llvm::ConstantFP::get(rt.DoubleTy, 0x1p-53);
+        d.relerr = unitroundoff;
     }
     return d;
 }

@@ -423,9 +423,28 @@ extern "C" void report_debug_summary() {
             line = it->second.line;
             col = it->second.col;
         }
-        fprintf(f, "\t%s:%d:%d\t%-6s\tbits=%.1f gamma=%.3g\n\t[round=%llu nan=%llu inf=%llu cancel=%llu sens=%llu supp=%llu branch=%llu conv=%llu]\n",
+        const char *classification = "none";
+        if (kv.ss->sensitivity_hits > 0 && kv.ss->inf_hits > 0) {
+            classification = "OVERFLOW-SENSITIVITY";
+        }
+        else if (kv.ss->sensitivity_hits > 0) {
+            classification = "SENSITIVITY";
+        }
+        else if (kv.ss->cancellation_hits > 0) {
+            classification = "CANCELLATION";
+        }
+        else if (kv.ss->inf_hits > 0) {
+            classification = "OVERFLOW";
+        }
+        else if (kv.ss->thres_hits > 0) {
+            classification = "ERROR";
+        }
+        else if (kv.ss->nan_hits > 0) {
+            classification = "NAN";
+        }
+        fprintf(f, "\t%s:%d:%d\t%-6s\t[%s]\tbits=%.1f gamma=%.3g\n\t[round=%llu nan=%llu inf=%llu cancel=%llu sens=%llu supp=%llu branch=%llu conv=%llu]\n",
                 file.c_str(), line, col, op.c_str(),
-                kv.ss->max_bits, kv.ss->max_gamma,
+                classification, kv.ss->max_bits, kv.ss->max_gamma,
                 (unsigned long long)kv.ss->thres_hits,
                 (unsigned long long)kv.ss->nan_hits,
                 (unsigned long long)kv.ss->inf_hits,
@@ -433,7 +452,8 @@ extern "C" void report_debug_summary() {
                 (unsigned long long)kv.ss->sensitivity_hits,
                 (unsigned long long)kv.ss->suppressed_hits,
                 (unsigned long long)kv.ss->branch_hits,
-                (unsigned long long)kv.ss->conv_hits);
+                (unsigned long long)kv.ss->conv_hits
+        );
     }
     fprintf(f, "\n");
     fclose(f);

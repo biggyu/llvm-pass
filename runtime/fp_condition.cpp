@@ -27,6 +27,13 @@ double get_g_threshold() {
     return g_threshold_val;
 }
 
+static inline double safe_gamma(double g) {
+    if (std::isnan(g) || std::isinf(g)) {
+        return get_g_threshold();
+    }
+    return std::min(g, get_g_threshold());
+}
+
 double condition_number(uint32_t opraw, double a, double a_Ex, double b, double b_Ex, double aVal, double bVal, uint32_t siteId) {
     SplitGamma splits[2];
     int n = 0;
@@ -39,13 +46,29 @@ double condition_number(uint32_t opraw, double a, double a_Ex, double b, double 
         case FpOp::Add:
         case FpOp::Sub: {
             double denom = (opcode == FpOp::Add) ? (a + b) : (a - b);
+            if (denom == 0) {
+                printf("denom==0: a=%.17g b=%.17g siteId=%u\n", a, b, siteId);
+                G.cond_detected++;
+                G.cond_cancellation++;
+                check_cond_error(siteId, (int)ErrKind::Cancellation, get_g_threshold(), a);
+                return get_g_threshold();
+            }
             double ga = std::fabs(a / denom);
             double gb = std::fabs(b / denom);
-            splits[0] = {ga, ErrKind::Cancellation, a == aVal};
-            splits[1] = {gb, ErrKind::Cancellation, b == bVal};
+            
+            splits[0] = {safe_gamma(ga), ErrKind::Cancellation, a == aVal};
+            splits[1] = {safe_gamma(gb), ErrKind::Cancellation, b == bVal};
             n = 2;
             full = std::max(ga, gb);
             Ex = ga * Ea + gb * Eb;
+            
+            if (std::isnan(ga) || std::isnan(gb)) {
+                printf("ga or gb is NaN\n");
+            }
+            if (std::isnan(Ex)) {
+                Ex = get_g_threshold();
+                printf("Ex is NaN\n");
+            }
             break;
         }
 
@@ -68,8 +91,14 @@ double condition_number(uint32_t opraw, double a, double a_Ex, double b, double 
         // }
 
         case FpOp::Log: {
+            if (a == 1.0) {
+                G.cond_detected++;
+                G.cond_cancellation++;
+                check_cond_error(siteId, (int)ErrKind::Cancellation, get_g_threshold(), a);
+                return get_g_threshold();
+            }
             double g = std::fabs(1.0 / std::log(a));
-            splits[0] = {g, ErrKind::Cancellation, a == aVal};
+            splits[0] = {safe_gamma(g), ErrKind::Cancellation, a == aVal};
             n = 1;
             full = g;
             if (a == aVal) {
@@ -78,81 +107,164 @@ double condition_number(uint32_t opraw, double a, double a_Ex, double b, double 
             else {
                 Ex = g * Ea;
             }
-            printf("%f %f %f %d", full, g, Ex, a == aVal);
+            if (std::isnan(g)) {
+                printf("ga or gb is NaN\n");
+            }
+            if (std::isnan(Ex)) {
+                printf("Ex is NaN\n");
+            }
             break;
         }
         case FpOp::Exp: {
             double g = std::fabs(a);
-            splits[0] = {g, ErrKind::Sensitivity, a == aVal};
+            splits[0] = {safe_gamma(g), ErrKind::Sensitivity, a == aVal};
             n = 1;
             full = g;
             Ex = g * Ea;
+            if (std::isnan(g)) {
+                printf("ga or gb is NaN\n");
+            }
+            if (std::isnan(Ex)) {
+                printf("Ex is NaN\n");
+            }
             break;
         }
         case FpOp::Pow: {
             double ga = std::fabs(b);
             double gb = std::fabs(b * std::log(a));
-            splits[0] = {ga, ErrKind::Sensitivity, a == aVal};
-            splits[1] = {gb, ErrKind::Sensitivity, b == bVal};
+            splits[0] = {safe_gamma(ga), ErrKind::Sensitivity, a == aVal};
+            splits[1] = {safe_gamma(gb), ErrKind::Sensitivity, b == bVal};
             n = 2;
             full = std::max(ga, gb);
             Ex = ga * Ea + gb * Eb;
+            if (std::isnan(ga) || std::isnan(gb)) {
+                printf("ga or gb is NaN\n");
+            }
+            if (std::isnan(Ex)) {
+                printf("Ex is NaN\n");
+            }
             break;
         }
 
         case FpOp::Sin: {
+            if (std::tan(a) == 0 || std::isinf(std::tan(a))) {
+                G.cond_detected++;
+                G.cond_cancellation++;
+                check_cond_error(siteId, (int)ErrKind::Cancellation, get_g_threshold(), a);
+                return get_g_threshold();
+            }
             double g1 = std::fabs(1.0 / std::tan(a));
             double g2 = std::fabs(a);
-            splits[0] = {g1, ErrKind::Cancellation, a == aVal};
-            splits[1] = {g2, ErrKind::Sensitivity, a == aVal};
+            splits[0] = {safe_gamma(g1), ErrKind::Cancellation, a == aVal};
+            splits[1] = {safe_gamma(g2), ErrKind::Sensitivity, a == aVal};
             n = 2;
             full = g1 * g2;
             Ex = full * Ea;
+            if (std::isnan(g1) || std::isnan(g2)) {
+                printf("g1 or g2 is NaN\n");
+            }
+            if (std::isnan(Ex)) {
+                printf("Ex is NaN\n");
+            }
             break;
         }
         case FpOp::Cos: {
             double g1 = std::fabs(std::tan(a));
             double g2 = std::fabs(a);
-            splits[0] = {g1, ErrKind::Cancellation, a == aVal};
-            splits[1] = {g2, ErrKind::Sensitivity, a == aVal};
+            splits[0] = {safe_gamma(g1), ErrKind::Cancellation, a == aVal};
+            splits[1] = {safe_gamma(g2), ErrKind::Sensitivity, a == aVal};
             n = 2;
             full = g1 * g2;
             Ex = full * Ea;
+            if (std::isnan(g1) || std::isnan(g2)) {
+                printf("g1 or g2 is NaN\n");
+            }
+            if (std::isnan(Ex)) {
+                printf("Ex is NaN\n");
+            }
             break;
         }
         case FpOp::Tan: {
+            if (std::tan(a) == 0 || std::isinf(std::tan(a))) {
+                G.cond_detected++;
+                G.cond_cancellation++;
+                check_cond_error(siteId, (int)ErrKind::Cancellation, get_g_threshold(), a);
+                return get_g_threshold();
+            }
             double g1 = std::fabs(std::tan(a) + 1.0 / std::tan(a));
             double g2 = std::fabs(a);
-            splits[0] = {g1, ErrKind::Cancellation, a == aVal};
-            splits[1] = {g2, ErrKind::Sensitivity, a == aVal};
+            splits[0] = {safe_gamma(g1), ErrKind::Cancellation, a == aVal};
+            splits[1] = {safe_gamma(g2), ErrKind::Sensitivity, a == aVal};
             n = 2;
             full = g1 * g2;
             Ex = full * Ea;
+            if (std::isnan(g1) || std::isnan(g2)) {
+                printf("g1 or g2 is NaN\n");
+            }
+            if (std::isnan(Ex)) {
+                printf("Ex is NaN\n");
+            }
             break;
         }
 
         case FpOp::Acos: {
+            if (std::acos(a) == 0.0) {
+                G.cond_detected++;
+                G.cond_cancellation++;
+                check_cond_error(siteId, (int)ErrKind::Cancellation, get_g_threshold(), a);
+                return get_g_threshold();
+            }
             double g = std::fabs(a / (std::sqrt(1.0 - a * a) * std::acos(a)));
-            splits[0] = {g, ErrKind::Cancellation, a == aVal};
+            splits[0] = {safe_gamma(g), ErrKind::Cancellation, a == aVal};
             n = 1;
             full = g;
             Ex = g * Ea;
+            if (std::isnan(g)) {
+                printf("g1 or g2 is NaN\n");
+            }
+            if (std::isnan(Ex)) {
+                printf("Ex is NaN\n");
+            }
             break;
         }
         case FpOp::Asin: {
+            if (std::asin(a) == 0.0) {
+                G.cond_detected++;
+                G.cond_cancellation++;
+                check_cond_error(siteId, (int)ErrKind::Cancellation, get_g_threshold(), a);
+                return get_g_threshold();
+            }
             double g = std::fabs(a / (std::sqrt(1.0 - a * a) * std::asin(a)));
-            splits[0] = {g, ErrKind::Cancellation, a == aVal};
+            splits[0] = {safe_gamma(g), ErrKind::Cancellation, a == aVal};
             n = 1;
             full = g;
             Ex = g * Ea;
+            if (std::isnan(g)) {
+                printf("g1 or g2 is NaN\n");
+            }
+            if (std::isnan(Ex)) {
+                printf("Ex is NaN\n");
+            }
             break;
         }
         case FpOp::Atan: {
+            if (std::atan(a) == 0.0) {
+                G.cond_detected++;
+                G.cond_cancellation++;
+                check_cond_error(siteId, (int)ErrKind::Cancellation, get_g_threshold(), a);
+                return get_g_threshold();
+            }
             double g = std::fabs(a / ((1.0 + a * a) * std::atan(a)));
-            splits[0] = {g, ErrKind::Cancellation, a == aVal};
+            splits[0] = {safe_gamma(g), ErrKind::Cancellation, a == aVal};
             n = 1;
             full = g;
             Ex = g * Ea;
+            if (std::isnan(g)) {
+                printf("g1 or g2 is NaN\n");
+            }
+            if (std::isnan(Ex)) {
+                printf("Ex is NaN\n");
+            }
             break;
         }
         
