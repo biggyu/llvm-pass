@@ -33,7 +33,9 @@ inline DSLValues makeDSL(IRBuilder<> &B,
     Value *pos_inf = ConstantFP::get(rt.DoubleTy, std::numeric_limits<double>::infinity());
     Value *ratio = B.CreateFDiv(absR, absX, "dsl.ratio");
     Value *relerr_comp = B.CreateSelect(isZero, pos_inf, ratio, "dsl.relerr_comp");
-    d.relerr = B.CreateSelect(isExact, rt.ZeroD, relerr_comp, "dsl.relerr");
+    
+    d.relerr = B.CreateSelect(isExact, llvm::ConstantFP::get(rt.DoubleTy, 0x1p-53), relerr_comp, "dsl.relerr");
+    // d.relerr = B.CreateSelect(isExact, rt.ZeroD, relerr_comp, "dsl.relerr");
 
     return d;
 }

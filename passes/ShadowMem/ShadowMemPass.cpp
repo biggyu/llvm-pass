@@ -108,7 +108,7 @@ void runOnModule(llvm::Module &M) {
                 }
             }
             if (auto *UO = dyn_cast<UnaryOperator>(I)) {
-                if (handleUnary(UO, rt, DSLMap)) {
+                if (handleUnary(UO, rt, DSLMap, SiteDescs)) {
                     continue;
                 }
             }

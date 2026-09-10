@@ -92,8 +92,8 @@ void insertCheckError(IRBuilder<> &B,
     recordSiteDesc(id, Site, SiteDescs);
 
     bool emitCond = (
-        op != FpOp::Mul && op != FpOp::Div && 
-        op != FpOp::Sqrt && op != FpOp::Cbrt && 
+        // op != FpOp::Mul && op != FpOp::Div && 
+        // op != FpOp::Sqrt && op != FpOp::Cbrt && 
         op != FpOp::Branch && op != FpOp::ConvSI && 
         op != FpOp::ConvUI && op != FpOp::Unknown);
 
@@ -108,7 +108,11 @@ void insertCheckError(IRBuilder<> &B,
         Value *ci = ConstantFP::get(rt.DoubleTy, std::numeric_limits<double>::epsilon() / 2.0);
         xDsl.relerr = B.CreateFAdd(Ex, ci, "x.relerr");
     }
-    B.CreateCall(rt.CheckError, {xDsl.xhat, xDsl.rhat, SiteId, Metric});
+    Value *progVal = Site;
+    if (Site->getType()->isFloatTy()) {
+        progVal = B.CreateFPExt(Site, rt.DoubleTy, "site.ext");
+    }
+    B.CreateCall(rt.CheckError, {progVal, xDsl.rhat, SiteId, Metric});
     // return false;
 }
 

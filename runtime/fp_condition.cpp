@@ -39,15 +39,16 @@ double condition_number(uint32_t opraw, double a, double a_Ex, double b, double 
     int n = 0;
     double full, Ex = 0;
     // bool aExact = (a == aVal), bExact = (b == bVal);
-    double Ea = a == aVal ? 0.0 : std::fabs(a_Ex);
-    double Eb = b == bVal ? 0.0 : std::fabs(b_Ex);
+    // double Ea = a == aVal ? 0.0 : std::fabs(a_Ex);
+    // double Eb = b == bVal ? 0.0 : std::fabs(b_Ex);
+    double Ea = std::fabs(a_Ex);
+    double Eb = std::fabs(b_Ex);
     FpOp opcode = (FpOp)opraw;
     switch (opcode) {
         case FpOp::Add:
         case FpOp::Sub: {
             double denom = (opcode == FpOp::Add) ? (a + b) : (a - b);
             if (denom == 0) {
-                printf("denom==0: a=%.17g b=%.17g siteId=%u\n", a, b, siteId);
                 G.cond_detected++;
                 G.cond_cancellation++;
                 check_cond_error(siteId, (int)ErrKind::Cancellation, get_g_threshold(), a);
@@ -61,34 +62,36 @@ double condition_number(uint32_t opraw, double a, double a_Ex, double b, double 
             n = 2;
             full = std::max(ga, gb);
             Ex = ga * Ea + gb * Eb;
-            
-            if (std::isnan(ga) || std::isnan(gb)) {
-                printf("ga or gb is NaN\n");
-            }
             if (std::isnan(Ex)) {
                 Ex = get_g_threshold();
-                printf("Ex is NaN\n");
             }
             break;
         }
 
-        // case FpOp::Mul:
-        // case FpOp::Div: {
-        //     n = 0;
-        //     full = 1.0;
-        //     break;
-        // }
+        case FpOp::Mul:
+        case FpOp::Div: {
+            n = 0;
+            full = 1.0;
+            Ex = Ea + Eb;
+            break;
+        }
 
-        // case FpOp::Sqrt: {
-        //     n = 0;
-        //     full = .5;
-        //     break;
-        // }
-        // case FpOp::Cbrt: {
-        //     n = 0;
-        //     full = 1/3;
-        //     break;
-        // }
+        case FpOp::Sqrt: {
+            double g = .5;
+            splits[0] = {safe_gamma(g), ErrKind::Cancellation, a == aVal};
+            n = 0;
+            full = g;
+            Ex = g * Ea;
+            break;
+        }
+        case FpOp::Cbrt: {
+            double g = 1/3;
+            splits[0] = {safe_gamma(g), ErrKind::Cancellation, a == aVal};
+            n = 0;
+            full = g;
+            Ex = g * Ea;
+            break;
+        }
 
         case FpOp::Log: {
             if (a == 1.0) {
@@ -107,12 +110,6 @@ double condition_number(uint32_t opraw, double a, double a_Ex, double b, double 
             else {
                 Ex = g * Ea;
             }
-            if (std::isnan(g)) {
-                printf("ga or gb is NaN\n");
-            }
-            if (std::isnan(Ex)) {
-                printf("Ex is NaN\n");
-            }
             break;
         }
         case FpOp::Exp: {
@@ -121,12 +118,6 @@ double condition_number(uint32_t opraw, double a, double a_Ex, double b, double 
             n = 1;
             full = g;
             Ex = g * Ea;
-            if (std::isnan(g)) {
-                printf("ga or gb is NaN\n");
-            }
-            if (std::isnan(Ex)) {
-                printf("Ex is NaN\n");
-            }
             break;
         }
         case FpOp::Pow: {
@@ -137,12 +128,6 @@ double condition_number(uint32_t opraw, double a, double a_Ex, double b, double 
             n = 2;
             full = std::max(ga, gb);
             Ex = ga * Ea + gb * Eb;
-            if (std::isnan(ga) || std::isnan(gb)) {
-                printf("ga or gb is NaN\n");
-            }
-            if (std::isnan(Ex)) {
-                printf("Ex is NaN\n");
-            }
             break;
         }
 
@@ -160,12 +145,6 @@ double condition_number(uint32_t opraw, double a, double a_Ex, double b, double 
             n = 2;
             full = g1 * g2;
             Ex = full * Ea;
-            if (std::isnan(g1) || std::isnan(g2)) {
-                printf("g1 or g2 is NaN\n");
-            }
-            if (std::isnan(Ex)) {
-                printf("Ex is NaN\n");
-            }
             break;
         }
         case FpOp::Cos: {
@@ -176,12 +155,6 @@ double condition_number(uint32_t opraw, double a, double a_Ex, double b, double 
             n = 2;
             full = g1 * g2;
             Ex = full * Ea;
-            if (std::isnan(g1) || std::isnan(g2)) {
-                printf("g1 or g2 is NaN\n");
-            }
-            if (std::isnan(Ex)) {
-                printf("Ex is NaN\n");
-            }
             break;
         }
         case FpOp::Tan: {
@@ -198,12 +171,6 @@ double condition_number(uint32_t opraw, double a, double a_Ex, double b, double 
             n = 2;
             full = g1 * g2;
             Ex = full * Ea;
-            if (std::isnan(g1) || std::isnan(g2)) {
-                printf("g1 or g2 is NaN\n");
-            }
-            if (std::isnan(Ex)) {
-                printf("Ex is NaN\n");
-            }
             break;
         }
 
@@ -219,12 +186,6 @@ double condition_number(uint32_t opraw, double a, double a_Ex, double b, double 
             n = 1;
             full = g;
             Ex = g * Ea;
-            if (std::isnan(g)) {
-                printf("g1 or g2 is NaN\n");
-            }
-            if (std::isnan(Ex)) {
-                printf("Ex is NaN\n");
-            }
             break;
         }
         case FpOp::Asin: {
@@ -239,12 +200,6 @@ double condition_number(uint32_t opraw, double a, double a_Ex, double b, double 
             n = 1;
             full = g;
             Ex = g * Ea;
-            if (std::isnan(g)) {
-                printf("g1 or g2 is NaN\n");
-            }
-            if (std::isnan(Ex)) {
-                printf("Ex is NaN\n");
-            }
             break;
         }
         case FpOp::Atan: {
@@ -259,12 +214,6 @@ double condition_number(uint32_t opraw, double a, double a_Ex, double b, double 
             n = 1;
             full = g;
             Ex = g * Ea;
-            if (std::isnan(g)) {
-                printf("g1 or g2 is NaN\n");
-            }
-            if (std::isnan(Ex)) {
-                printf("Ex is NaN\n");
-            }
             break;
         }
         

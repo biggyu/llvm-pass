@@ -22,7 +22,8 @@ bool handleExternal(CallInst *CI, utils::RuntimeFns &rt,
                 std::unordered_map<uint32_t, utils::SiteDesc> &SiteDescs);
 
 bool handleUnary(UnaryOperator *UO, utils::RuntimeFns &rt,
-                DenseMap<const Value*, DSLValues> &DSLMap);
+                DenseMap<const Value*, DSLValues> &DSLMap,
+                std::unordered_map<uint32_t, utils::SiteDesc> &SiteDescs);
 
 bool handleBinary(BinaryOperator *BO, utils::RuntimeFns &rt,
                 DenseMap<const Value*, DSLValues> &DSLMap,
