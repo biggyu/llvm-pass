@@ -3,7 +3,6 @@
 #   MAX  = max benchmarks (default 5; 0 = all)
 #   MODE = "sample" (timed, loops Herbie's points) or "worst" (single input)
 #   OPT  = optimization level for baseline+instrumented (default 0)
-set -u
 
 MAX=${1:-5}
 MODE=${2:-sample}
@@ -18,9 +17,9 @@ RUNTIME="./build/runtime/libpass_runtime.a"
 THRESH="${FPCHECK_THRESHOLD:-1e15}"
 TIMING_CSV="$PROD_DIR/timing_${MODE}_O${OPT}.csv"
 
-: "${LLVM_CLANG:=clang}"
-: "${LLVM_CLANGXX:=clang++}"
-: "${LLVM_OPT:=opt}"
+# : "${LLVM_CLANG:=clang}"
+# : "${LLVM_CLANGXX:=clang++}"
+# : "${LLVM_OPT:=opt}"
 
 rm -rf ./build
 sh ./scripts/build.sh 0 1 "$OPT"
@@ -43,16 +42,16 @@ for tl in "$REPORT_DIR"/*/timeline.json; do
 
     # 1. generate C
     if [ "$MODE" = "sample" ] && [ -f "$points" ]; then
-        python3 ./benchmarks/herbie-arith25/parse_herbie.py "$tl" "$src" --include-clean \
-            --sample "$points" > "$OUT_DIR/$name.gen.log" 2>&1
+        python ./benchmarks/herbie-arith25/parse_herbie.py "$tl" "$src" --include-clean \
+            --sample "$points" > "$OUT_DIR/$name/gen.log" 2>&1
     else
-        python3 ./benchmarks/herbie-arith25/parse_herbie.py "$tl" "$src" --include-clean \
-            > "$OUT_DIR/$name.gen.log" 2>&1
+        python ./benchmarks/herbie-arith25/parse_herbie.py "$tl" "$src" --include-clean \
+            > "$OUT_DIR/$name/gen.log" 2>&1
     fi
     rc=$?
     case $rc in
         0)
-            if grep -q 'CLEAN (no error)' "$OUT_DIR/$name.gen.log"; then
+            if grep -q 'CLEAN (no error)' "$OUT_DIR/$name/gen.log"; then
                 echo "  [GEN CLEAN]"
                 clean=$((clean + 1))
                 echo "$name" >> "$PROD_DIR/clean_benchmarks.txt"   # <-- add this
@@ -81,7 +80,6 @@ for tl in "$REPORT_DIR"/*/timeline.json; do
     OUTDIR="$OUT_DIR/$name"; mkdir -p "$OUTDIR"
     PROD_SUB="$PROD_DIR/$name"; mkdir -p "$PROD_SUB"
 
-        # 2. baseline binary
     echo "  [BASELINE COMPILE]"
 
     if ! "$LLVM_CLANG" -O"$OPT" -g -ffp-contract=off \
@@ -95,7 +93,7 @@ for tl in "$REPORT_DIR"/*/timeline.json; do
 
     echo "  [EMIT LLVM]"
 
-    if ! "$LLVM_CLANG" -O"$OPT" -g -S -emit-llvm \
+    if ! "$LLVM_CLANGXX" -O"$OPT" -g -S -emit-llvm \
          -ffp-contract=off \
          "$src" \
          -o "$OUTDIR/bench.ll" \
@@ -128,10 +126,30 @@ for tl in "$REPORT_DIR"/*/timeline.json; do
         continue
     fi
 
+    if ! "$LLVM_OPT" -O"$OPT" \
+        -S "$OUTDIR/bench.instr.ll" \
+        -o "$OUTDIR/bench.opt.ll" \
+        2>"$OUTDIR/opt2.err"; then
+        echo "  [FAIL] second opt (rc=$?)"
+        cat "$OUTDIR/opt2.err"
+        fail=$((fail + 1))
+        continue
+    fi
+
+    if ! "$LLVM_CLANGXX" -O"$OPT" \
+        -c "$OUTDIR/bench.opt.ll" \
+        -o "$OUTDIR/bench.opt.o" \
+        2>"$OUTDIR/opt3.err"; then
+        echo "  [FAIL] third opt (rc=$?)"
+        cat "$OUTDIR/opt3.err"
+        fail=$((fail + 1))
+        continue
+    fi
+
     echo "  [LINK]"
 
     if ! "$LLVM_CLANGXX" -O"$OPT" \
-         "$OUTDIR/bench.instr.ll" \
+         "$OUTDIR/bench.opt.o" \
          "$RUNTIME" \
          -lm -lmpfr -lgmp \
          -o "$OUTDIR/a.out" \

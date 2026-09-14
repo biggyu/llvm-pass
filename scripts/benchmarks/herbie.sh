@@ -5,7 +5,7 @@
 set -u
 
 MAX=${1:-0}
-SINGLE_SCRIPT="./scripts/herbie_single.sh"
+SINGLE_SCRIPT="./scripts/benchmarks/herbie_single.sh"
 
 case "$MAX" in ''|*[!0-9]*) echo "[ERROR] MAX must be a non-negative integer"; exit 1;; esac
 
@@ -31,7 +31,7 @@ for opt in $OPTS; do
         echo "Herbie run $total: mode=$mode opt=O$opt max=$MAX"
         echo "================================================================"
 
-        if HERBIE_SKIP_BUILD=1 bash "$SINGLE_SCRIPT" "$MAX" "$mode" "$opt"; then
+        if sh "$SINGLE_SCRIPT" "$MAX" "$mode" "$opt"; then
             completed=$((completed + 1))
         else
             failed=$((failed + 1))

@@ -2,7 +2,7 @@
 
 set -u
 
-RUNNER=${RUNNER:-"./scripts/polybench_single.sh"}
+RUNNER=${RUNNER:-"./scripts/benchmarks/polybench_single.sh"}
 MAX=${1:-0}
 
 if [ ! -f "$RUNNER" ]; then
@@ -18,8 +18,8 @@ case "$MAX" in
         ;;
 esac
 
-DATASETS="LARGE"
-# DATASETS="MINI SMALL MEDIUM LARGE"
+# DATASETS="LARGE"
+DATASETS="MINI SMALL MEDIUM LARGE"
 OPTS="0 1 2"
 
 total=0
