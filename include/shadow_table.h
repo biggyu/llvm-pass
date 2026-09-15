@@ -10,7 +10,7 @@ struct ShadowEntry{
     double rhat; // residual
     double fp_val;
     double relerr;
-    bool used;
+    // bool used;
 };
 class ShadowTable {
 private:
@@ -37,7 +37,7 @@ public:
     void insert(void* key, double xhat, double rhat, double fp_val, double relerr) {
         size_t idx = hashPtr(key);
         ShadowEntry &entry = table[idx];
-        entry.used = true;
+        // entry.used = true;
         entry.key = (uintptr_t)key;
         entry.xhat = xhat;
         entry.rhat = rhat;
@@ -48,7 +48,8 @@ public:
     ShadowEntry* get(void* key, double progVal) {
         size_t idx = hashPtr(key);
         ShadowEntry &entry = table[idx];
-        if(entry.used && entry.key == (uintptr_t)key && entry.fp_val == progVal) {
+        if(entry.key == (uintptr_t)key && entry.fp_val == progVal) {
+        // if(entry.used && entry.key == (uintptr_t)key && entry.fp_val == progVal) {
             return &entry;
         }
         return nullptr;
@@ -74,17 +75,17 @@ public:
             return;
         }
         ShadowEntry &e = stack[top++];
-        e.used = true;
+        // e.used = true;
         e.xhat = xhat;
         e.rhat = rhat;
         e.fp_val = fp_val;
         e.relerr = relerr;
     }
     ShadowEntry* pop() {
-        if (top <= 0) {
-            static ShadowEntry dummy{};
-            return &dummy;
-        }
-        return &stack[--top];
+        return top <= 0 ? nullptr : &stack[--top];
+        // if (top <= 0) {
+        //     return nullptr;
+        // }
+        // return &stack[--top];
     }
 };
