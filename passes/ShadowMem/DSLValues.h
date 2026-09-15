@@ -14,17 +14,17 @@ struct DSLValues {
 
 inline DSLValues makeDSL(IRBuilder<> &B, 
                         Value *xhat, Value *rhat, 
-                        utils::RuntimeFns &rt,
-                        Value *fpval, Value *isExact) {
+                        utils::RuntimeFns &rt, Value *isExact) {
+                        // Value *fpval, Value *isExact) {
     LLVMContext &Ctx = xhat->getContext();
     
     DSLValues d;
     Value *xd = xhat->getType()->isFloatTy() ? B.CreateFPExt(xhat, rt.DoubleTy, "dsl.xhat") : xhat;
     Value *rd = rhat->getType()->isFloatTy() ? B.CreateFPExt(rhat, rt.DoubleTy, "dsl.rhat") : rhat;
-    Value *fpd = fpval->getType()->isFloatTy() ? B.CreateFPExt(fpval, rt.DoubleTy, "dsl.fpval") : fpval;
+    // Value *fpd = fpval->getType()->isFloatTy() ? B.CreateFPExt(fpval, rt.DoubleTy, "dsl.fpval") : fpval;
     d.xhat = xd;
     d.rhat = rd;
-    d.fpval = fpval;
+    d.fpval = xd;
 
     Value *absR = B.CreateUnaryIntrinsic(Intrinsic::fabs, rd);
     Value *absX = B.CreateUnaryIntrinsic(Intrinsic::fabs, xd);
