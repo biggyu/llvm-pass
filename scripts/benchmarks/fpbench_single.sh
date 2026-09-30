@@ -46,7 +46,6 @@ $LLVM_OPT \
   -load-pass-plugin "./build/passes/$PASS/$PASS.so" \
   --passes="$PLUGIN" \
   -fp-debug-checks=true \
-  -fp-debug-metric=0 \
   -S "$OUTDIR/bench.ll" \
   -o "$OUTDIR/bench.instrumented.ll"
 

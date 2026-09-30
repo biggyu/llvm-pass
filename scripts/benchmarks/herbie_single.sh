@@ -109,7 +109,6 @@ for tl in "$REPORT_DIR"/*/timeline.json; do
          -load-pass-plugin "$PASS_SO" \
          --passes=shadowmem \
          -fp-debug-checks=true \
-         -fp-debug-metric=0 \
          -S "$OUTDIR/bench.ll" \
          -o "$OUTDIR/bench.instr.ll" \
          2>"$OUTDIR/opt.err"; then

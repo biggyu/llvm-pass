@@ -231,7 +231,7 @@ extern "C" void check_branch(double a, double da, double b, double db, size_t pr
     }
 }
 
-void check_error(double x, double dx, uint32_t site_id, int metric) {
+void check_error(double x, double dx, uint32_t site_id) {
     SiteStats &SS = site_stats()[site_id];
     ErrorClass errcls = classify(x, dx);
     double ulp = incorrect_bits_ulp(x, dx);

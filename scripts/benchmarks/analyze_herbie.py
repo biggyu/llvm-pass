@@ -1,5 +1,5 @@
 
-import json, os, re, sys, glob
+import json, os, re, sys, argparse
 from pathlib import Path
 from collections import defaultdict
 
@@ -7,7 +7,8 @@ PROJECT_ROOT = Path(".")
 SCRIPT_DIR   = PROJECT_ROOT / "scripts" / "benchmarks" / "herbie"
 HERBIE_DIR   = PROJECT_ROOT / "benchmarks" / "herbie-arith25" / "report"
 PRODUCED_DIR = PROJECT_ROOT / "benchmarks" / "herbie-arith25" / "produced" / "sample"
-OPT_LEVELS   = ["O0", "O1", "O2"]
+OPT_LEVELS   = ["O0"]
+# OPT_LEVELS   = ["O0", "O1", "O2"]
 
 SCRIPT_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -28,12 +29,12 @@ def herbie_reference(timeline_path: Path) -> dict | None:
 
     error_ops = []
     for e in fperrors:
-        expr   = e[0]
-        c1     = e[1] if len(e) > 1 else 0
+        expr    = e[0]
+        c1      = e[1] if len(e) > 1 else 0
         inputsA = e[3] if len(e) > 3 and isinstance(e[3], list) else None
-        c3     = e[4] if len(e) > 4 else 0
+        c3      = e[4] if len(e) > 4 else 0
         inputsB = e[5] if len(e) > 5 and isinstance(e[5], list) else None
-        count  = max(c1, c3)
+        count   = max(c1, c3)
         if count <= 0:
             continue
         worst = inputsB or inputsA
@@ -41,28 +42,23 @@ def herbie_reference(timeline_path: Path) -> dict | None:
 
     if not error_ops:
         return {
-            "has_error": False,
-            "top_expr": None,
-            "top_count": 0,
-            "error_ops": [],
-            "likely_overflow": False,
-            "likely_cancel": False,
-            "category": "clean",
+            "has_error": False, "top_expr": None, "top_count": 0,
+            "error_ops": [], "likely_overflow": False,
+            "likely_cancel": False, "category": "clean",
         }
 
     top   = max(error_ops, key=lambda o: o["count"])
     expr  = top["expr"]
     worst = top["worst"]
 
-    big            = bool(worst) and any(abs(float(x)) > 1e150 for x in worst)
-    has_sub        = "-.f64" in expr or "-.f32" in expr
-    has_div        = "/.f64" in expr or "/.f32" in expr
-    has_mul        = "*.f64" in expr or "*.f32" in expr
-    has_exp        = "exp" in expr
-    has_trig       = any(op in expr for op in
-                         ["sin", "cos", "tan", "asin", "acos", "atan"])
-    has_log        = "log" in expr
-
+    big                = bool(worst) and any(abs(float(x)) > 1e150 for x in worst)
+    has_sub            = "-.f64" in expr or "-.f32" in expr
+    has_div            = "/.f64" in expr or "/.f32" in expr
+    has_mul            = "*.f64" in expr or "*.f32" in expr
+    has_exp            = "exp" in expr
+    has_trig           = any(op in expr for op in
+                             ["sin", "cos", "tan", "asin", "acos", "atan"])
+    has_log            = "log" in expr
     likely_overflow    = big and (has_div or has_mul or has_exp)
     likely_cancel      = has_sub or has_log
     likely_sensitivity = has_exp or has_trig
@@ -87,6 +83,7 @@ def herbie_reference(timeline_path: Path) -> dict | None:
     }
 
 
+# ── Parallax log parsing ──────────────────────────────────────────────────────
 def parse_error_log(log_path: Path) -> dict | None:
     if not log_path.exists():
         return None
@@ -111,7 +108,6 @@ def parse_error_log(log_path: Path) -> dict | None:
 
 
 def parallax_category(p: dict) -> str:
-    """Map Parallax counters to a single category string."""
     if p["inf"] > 0 or p["nan"] > 0:
         if p["sensitivity"] > 0:
             return "overflow-sensitivity"
@@ -169,15 +165,14 @@ def collect_benchmarks() -> list[str]:
 
 
 def build_ground_truth(benchmarks: list[str]) -> dict[str, dict | None]:
-    gt = {}
-    for name in benchmarks:
-        tl = HERBIE_DIR / name / "timeline.json"
-        gt[name] = herbie_reference(tl) if tl.exists() else None
-    return gt
+    return {
+        name: herbie_reference(HERBIE_DIR / name / "timeline.json")
+        if (HERBIE_DIR / name / "timeline.json").exists() else None
+        for name in benchmarks
+    }
 
 
-def analyze_opt(opt: str,
-                benchmarks: list[str],
+def analyze_opt(opt: str, benchmarks: list[str],
                 gt: dict) -> dict[str, dict]:
     results = {}
     opt_dir = PRODUCED_DIR / opt
@@ -186,41 +181,33 @@ def analyze_opt(opt: str,
         prod  = parse_error_log(log)
         ref   = gt.get(name)
         verdict, note = classify(ref, prod)
-        p_cat = parallax_category(prod) if prod else "no_log"
-        h_cat = ref["category"] if ref else "unknown"
         results[name] = {
-            "ref":      ref,
-            "prod":     prod,
-            "verdict":  verdict,
-            "note":     note,
-            "h_cat":    h_cat,
-            "p_cat":    p_cat,
+            "ref":     ref,
+            "prod":    prod,
+            "verdict": verdict,
+            "note":    note,
+            "h_cat":   ref["category"] if ref else "unknown",
+            "p_cat":   parallax_category(prod) if prod else "no_log",
         }
     return results
 
 
 def compute_stats(results: dict, clean_names: set[str]) -> dict:
-    tally       = defaultdict(int)
-    fp_eft      = 0
-    fp_cond     = 0
-    fp_total    = 0
-    sens_names  = set()
-    ovf_names   = set()
-    reclass     = set()
+    tally      = defaultdict(int)
+    fp_eft     = 0; fp_cond = 0; fp_total = 0
+    sens_names = set(); ovf_names = set(); reclass = set()
 
     for name, r in results.items():
         tally[r["verdict"]] += 1
         p = r["prod"]
         if p is None:
             continue
-
         if name in clean_names:
             fp_total += 1
             if p["above_thres"] > 0 or p["nan"] > 0 or p["inf"] > 0:
                 fp_eft += 1
             if your_error_fired(p):
                 fp_cond += 1
-
         if p["sensitivity"] > 0:
             sens_names.add(name)
         if p["inf"] > 0 or p["nan"] > 0:
@@ -230,7 +217,6 @@ def compute_stats(results: dict, clean_names: set[str]) -> dict:
 
     agreed = sum(v for k, v in tally.items() if k.startswith("AGREE"))
     total  = sum(tally.values())
-
     return {
         "tally":        dict(tally),
         "agreed":       agreed,
@@ -249,16 +235,13 @@ def compute_stats(results: dict, clean_names: set[str]) -> dict:
     }
 
 
-def write_opt_report(opt: str,
-                     results: dict,
-                     stats: dict,
-                     clean_names: set[str]) -> None:
-    out = SCRIPT_DIR / f"analysis_{opt}.txt"
+def write_opt_report(opt: str, results: dict, stats: dict,
+                     clean_names: set[str], out_dir: Path) -> None:
+    out = out_dir / f"analysis_{opt}.txt"
     with open(out, "w") as f:
         f.write(f"Parallax vs Herbie — {opt}\n")
         f.write("=" * 70 + "\n\n")
 
-        # Agreement table
         f.write("── Agreement ──\n")
         f.write(f"  Total benchmarks : {stats['total']}\n")
         f.write(f"  Agreed           : {stats['agreed']} "
@@ -272,42 +255,32 @@ def write_opt_report(opt: str,
                   if r["verdict"] in ("MISS", "MISS_OVERFLOW")]
         fps    = [(n, r) for n, r in results.items()
                   if r["verdict"] == "FALSE_POS"]
+
         if misses:
-            f.write("── Misses (herbie error, Parallax silent) ───\n")
+            f.write("── Misses ───\n")
             for name, r in sorted(misses):
                 f.write(f"  {name:<45}  [{r['verdict']}] {r['note']}\n")
             f.write("\n")
         if fps:
-            f.write("── False positives (Parallax flagged, Herbie clean) ───\n")
+            f.write("── False positives ───\n")
             for name, r in sorted(fps):
-                f.write(f"  {name:<45}  eft={int(r['prod']['above_thres'] > 0)}"
+                f.write(f"  {name:<45}"
+                        f"  eft={int(r['prod']['above_thres'] > 0)}"
                         f"  cond={int(r['prod']['cond_detected'] > 0)}\n")
             f.write("\n")
 
         f.write("── False-positive rate on Herbie-clean benchmarks ───\n")
-        f.write(f"  Clean benchmarks tested : {stats['fp_total']}\n")
-        f.write(f"  EFT-only   FP           : {stats['fp_eft']}"
-                f"  ({stats['fp_eft_rate']:.1f}%)\n")
-        f.write(f"  EFT+cond   FP           : {stats['fp_cond']}"
-                f"  ({stats['fp_cond_rate']:.1f}%)\n\n")
+        f.write(f"  Clean tested  : {stats['fp_total']}\n")
+        f.write(f"  EFT-only FP   : {stats['fp_eft']} ({stats['fp_eft_rate']:.1f}%)\n")
+        f.write(f"  EFT+cond FP   : {stats['fp_cond']} ({stats['fp_cond_rate']:.1f}%)\n\n")
 
         f.write("── Sensitivity / Overflow disambiguation ───\n")
         f.write(f"  Sensitivity-flagged : {len(stats['sens'])}\n")
         f.write(f"  Overflow-flagged    : {len(stats['ovf'])}\n")
         f.write(f"  Intersection        : {len(stats['both'])}\n")
         f.write(f"  Genuine sensitivity : {len(stats['genuine_sens'])}\n")
-        f.write(f"  Auto-reclassified   : {len(stats['reclass'])}\n")
-        if stats["genuine_sens"]:
-            f.write("  Genuine sensitivity benchmarks:\n")
-            for n in sorted(stats["genuine_sens"]):
-                f.write(f"    {n}\n")
-        if stats["both"]:
-            f.write("  Reclassified (sens+overflow):\n")
-            for n in sorted(stats["both"]):
-                f.write(f"    {n}\n")
-        f.write("\n")
+        f.write(f"  Auto-reclassified   : {len(stats['reclass'])}\n\n")
 
-        # Full benchmark table
         f.write("── Per-benchmark detail ──\n")
         f.write(f"  {'benchmark':<45} {'herbie':<14} {'parallax':<22} verdict\n")
         f.write("  " + "-" * 100 + "\n")
@@ -318,16 +291,24 @@ def write_opt_report(opt: str,
     print(f"  Written: {out}")
 
 
-def write_summary(all_results: dict[str, dict],
-                  all_stats:   dict[str, dict]) -> None:
-    out = SCRIPT_DIR / "summary.txt"
+def write_summary(all_results: dict, all_stats: dict,
+                  out_dir: Path, label: str = "") -> None:
+    out = out_dir / "summary.txt"
     opts = OPT_LEVELS
     with open(out, "w") as f:
-        f.write("Parallax Herbie Evaluation Summary\n")
+        header = "Parallax Herbie Evaluation Summary"
+        if label:
+            header += f" [{label}]"
+        f.write(header + "\n")
         f.write("=" * 70 + "\n\n")
 
-        def row(label, vals):
-            f.write(f"  {label:<42}")
+        thresh = os.environ.get("FPCHECK_THRESHOLD", "1e15")
+        bits   = os.environ.get("FPCHECK_BITS", "50")
+        f.write(f"  Configuration: FPCHECK_THRESHOLD={thresh}"
+                f"  FPCHECK_BITS={bits}\n\n")
+
+        def row(label_str, vals):
+            f.write(f"  {label_str:<42}")
             for v in vals:
                 f.write(f" {str(v):>10}")
             f.write("\n")
@@ -365,21 +346,84 @@ def write_summary(all_results: dict[str, dict],
     print(f"  Written: {out}")
 
 
+def write_sweep_table(sweep_dir: Path) -> None:
+    """
+    Compile a threshold sweep table from all labeled subdirectories.
+    Run after completing all labeled threshold runs.
+    """
+    rows = []
+    for sub in sorted(sweep_dir.iterdir()):
+        if not sub.is_dir():
+            continue
+        summary = sub / "summary.txt"
+        if not summary.exists():
+            continue
+        txt = summary.read_text()
+        thresh_m = re.search(r"FPCHECK_THRESHOLD=([\d.e+]+)", txt)
+        agree_m  = re.search(
+            r"Agreement rate\s+([\d.]+%)\s+([\d.]+%)\s+([\d.]+%)", txt)
+        fp_m     = re.search(
+            r"EFT\+cond FP rate.*?([\d.]+%)\s+([\d.]+%)\s+([\d.]+%)", txt)
+        cancel_m = re.search(
+            r"AGREE_CANCEL\s+(\d+)", txt)
+        miss_m   = re.search(
+            r"MISS\b.*?(\d+).*?MISS_OVERFLOW.*?(\d+)", txt, re.DOTALL)
+        if thresh_m and agree_m:
+            rows.append({
+                "thresh":    thresh_m.group(1),
+                "agree_O0":  agree_m.group(1),
+                "agree_O1":  agree_m.group(2),
+                "agree_O2":  agree_m.group(3),
+                "fp_O0":     fp_m.group(1) if fp_m else "?",
+                "cancel":    cancel_m.group(1) if cancel_m else "?",
+            })
+
+    if not rows:
+        print("No labeled subdirectories with summary.txt found.")
+        return
+
+    out = sweep_dir / "threshold_sweep_summary.txt"
+    with open(out, "w") as f:
+        f.write("Condition-Number Threshold Sweep (T_EFT=50 bits fixed)\n")
+        f.write("=" * 70 + "\n")
+        f.write(f"  {'T_kappa':<14} {'Agree O0':>10} {'Agree O1':>10}"
+                f" {'Agree O2':>10} {'FP O0':>10} {'Cancel':>10}\n")
+        f.write("  " + "-" * 65 + "\n")
+        for r in rows:
+            f.write(f"  {r['thresh']:<14} {r['agree_O0']:>10} {r['agree_O1']:>10}"
+                    f" {r['agree_O2']:>10} {r['fp_O0']:>10} {r['cancel']:>10}\n")
+    print(f"  Sweep table written: {out}")
+
+
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--label", default="")
+    parser.add_argument(
+        "--sweep-table", action="store_true",
+        help="Compile threshold sweep table from all labeled subdirectories.")
+    args = parser.parse_args()
+
+    if args.sweep_table:
+        write_sweep_table(SCRIPT_DIR)
+        return
+
+    out_dir = SCRIPT_DIR / args.label if args.label else SCRIPT_DIR
+    print(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+
     print("Collecting benchmarks...")
     benchmarks = collect_benchmarks()
     if not benchmarks:
         print(f"ERROR: no benchmarks found under {PRODUCED_DIR}/O*/")
-        print("Check that PRODUCED_DIR is correct and runs have completed.")
         sys.exit(1)
     print(f"  {len(benchmarks)} benchmarks found")
 
-    print("Parsing Herbie timeline.json ground truth...")
+    print("Parsing Herbie ground truth...")
     gt = build_ground_truth(benchmarks)
     known = sum(1 for v in gt.values() if v is not None)
     print(f"  {known}/{len(benchmarks)} have a timeline.json")
 
-    # Write per-benchmark Herbie categories
+    # Shared files always go to SCRIPT_DIR
     cats_path = SCRIPT_DIR / "herbie_categories.txt"
     with open(cats_path, "w") as f:
         for name in benchmarks:
@@ -388,8 +432,8 @@ def main():
             f.write(f"{name}\t{cat}\n")
     print(f"  Written: {cats_path}")
 
-    # Derive and write clean list
-    clean_names = {n for n, r in gt.items() if r is not None and not r["has_error"]}
+    clean_names = {n for n, r in gt.items()
+                   if r is not None and not r["has_error"]}
     clean_path  = SCRIPT_DIR / "clean_benchmarks.txt"
     with open(clean_path, "w") as f:
         for n in sorted(clean_names):
@@ -405,13 +449,14 @@ def main():
         stats   = compute_stats(results, clean_names)
         all_results[opt] = results
         all_stats[opt]   = stats
-        write_opt_report(opt, results, stats, clean_names)
+        write_opt_report(opt, results, stats, clean_names, out_dir)
         print(f"  Agreement: {stats['agreed']}/{stats['total']}"
-              f"  ({stats['agree_rate']:.1f}%)")
+              f"  ({stats['agree_rate']:.1f}%)"
+              f"  FP: {stats['fp_cond']}/{stats['fp_total']}"
+              f"  ({stats['fp_cond_rate']:.1f}%)")
 
-    write_summary(all_results, all_stats)
-
-    print("\nAll done. Results in:", SCRIPT_DIR)
+    write_summary(all_results, all_stats, out_dir, args.label)
+    print(f"\nDone. Results in: {out_dir}")
 
 
 if __name__ == "__main__":

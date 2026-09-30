@@ -14,8 +14,9 @@ if [ ! -f "$SINGLE_SCRIPT" ]; then
     exit 1
 fi
 
-OPTS="0 1 2"
-MODES="sample worst"
+OPTS="0"
+MODES="sample"
+# MODES="sample worst"
 total=0; completed=0; failed=0
 
 for opt in $OPTS; do

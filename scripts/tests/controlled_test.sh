@@ -60,7 +60,7 @@ for BENCH_SRC in "$SRC_DIR"/*.c "$SRC_DIR"/*.cpp; do
         "$BENCH_SRC" -o "$OUTDIR/bench.ll" || { echo "  [FAIL] emit-llvm"; continue; }
 
     $LLVM_OPT -load-pass-plugin "$PASS_SO" --passes="$PLUGIN" \
-        -fp-debug-checks=true -fp-debug-metric=0 \
+        -fp-debug-checks=true \
         -S "$OUTDIR/bench.ll" -o "$OUTDIR/bench.instrumented.ll" || { echo "  [FAIL] opt pass"; continue; }
 
     $LLVM_CLANGXX -O"$OPT" -c "$OUTDIR/bench.instrumented.ll" \

@@ -22,7 +22,7 @@ CFLAGS="-O$OPT -g -std=gnu89 -ffp-contract=off -fno-vectorize -fno-slp-vectorize
     || { echo "  [FAIL] emit main.c"; exit 1; }
 
 "$LLVM_OPT" -load-pass-plugin "$PASS_SO" --passes="$PLUGIN" \
-    -fp-debug-checks=true -fp-debug-metric=0 \
+    -fp-debug-checks=true \
     -S "$OUTDIR/combined.ll" -o "$OUTDIR/instrumented.ll" \
     || { echo "  [FAIL] pass"; exit 1; }
 

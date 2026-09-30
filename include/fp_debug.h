@@ -12,7 +12,7 @@ void check_conv_ui(size_t val, double src, double src_err, uint32_t site_id);
 
 void check_branch(double a, double da, double b, double db, size_t pred, bool computed_res, uint32_t site_id);
 
-void check_error(double x, double dx, uint32_t site_id, int metric);
+void check_error(double x, double dx, uint32_t site_id);
 
 void report_debug_summary();
 

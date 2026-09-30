@@ -44,7 +44,7 @@ echo "=== 2. llvm-link into one module ==="
 
 echo "=== 3. instrument combined module ==="
 "$LLVM_OPT" -load-pass-plugin "$PASS_SO" --passes=shadowmem \
-    -fp-debug-checks=true -fp-debug-metric=0 \
+    -fp-debug-checks=true \
     -S "$OUT/combined.ll" -o "$OUT/instrumented.ll"
 
 echo "=== 4. compile instrumented IR to object WITH asan ==="

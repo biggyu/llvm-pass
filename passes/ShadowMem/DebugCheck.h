@@ -12,7 +12,7 @@ using namespace llvm;
 extern cl::opt<bool> EnableDebugChecks;
 extern cl::opt<bool> EnableDebugAutoReport;
 
-extern cl::opt<int> DebugMetrics;
+extern cl::opt<bool> EFTOnly;
 
 void insertCheckError(IRBuilder<> &B,
                     const DSLValues &aDsl, const DSLValues &bDsl, 

@@ -54,7 +54,7 @@ done
 
 # --- 3. instrument combined module ---
 "$LLVM_OPT" -load-pass-plugin "$PASS_SO" --passes="$PLUGIN" \
-    -fp-debug-checks=true -fp-debug-metric=0 \
+    -fp-debug-checks=true \
     -S "$OUTDIR/combined.ll" -o "$OUTDIR/instrumented.ll" \
     || { echo "  [FAIL] pass"; return 1 2>/dev/null || exit 1; }
 

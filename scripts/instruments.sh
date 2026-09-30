@@ -32,7 +32,6 @@ $LLVM_OPT \
     -load-pass-plugin "./build/passes/$PASS/$PASS.so" \
     --passes="$PLUGIN" \
     -fp-debug-checks="$FP_DEBUG_CMAKE" \
-    -fp-debug-metric=0 \
     -S "$OUTDIR/input_O$OPT.ll" \
     -o "$OUTDIR/instrumented.ll"
 
@@ -50,8 +49,9 @@ $LLVM_CLANGXX -O"$OPT" \
     -o "$OUTDIR/a.out" \
     -lm -lmpfr -lgmp
 
-for i in 1 2 3;
-do
-    "$OUTDIR/a.out"
-done
-# "$OUTDIR/a.out"
+# for i in 1 2 3;
+# do
+#     "$OUTDIR/a.out"
+# done
+export LD_LIBRARY_PATH=$(echo "$LD_LIBRARY_PATH" | tr ':' '\n' | grep -v cuda | paste -sd ':')
+"$OUTDIR/a.out"

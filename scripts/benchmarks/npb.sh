@@ -83,7 +83,7 @@ for BM in $BENCHMARKS; do
     "$LLVM_CLANG" $CFLAGS -S -emit-llvm "$BM_DIR/$bm_lower.c" -o "$OUTDIR/bench.ll" \
         || { echo "  [FAIL] emit-llvm"; continue; }
     "$LLVM_OPT" -load-pass-plugin "$PASS_SO" --passes="$PLUGIN" \
-        -fp-debug-checks=true -fp-debug-metric=0 \
+        -fp-debug-checks=true \
         -S "$OUTDIR/bench.ll" -o "$OUTDIR/bench.inst.ll" \
         || { echo "  [FAIL] opt pass"; continue; }
     "$LLVM_CLANGXX" -O"$OPT" -c "$OUTDIR/bench.inst.ll" -o "$OUTDIR/bench.o" \

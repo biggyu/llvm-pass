@@ -61,7 +61,7 @@ for SRC in $CASES; do
  
     # ── 3b. Instrument ──────────────────────────────────────────────────────
     "$LLVM_OPT" -load-pass-plugin "$PASS_SO" --passes="$PLUGIN" \
-        -fp-debug-checks=true -fp-debug-metric=0 \
+        -fp-debug-checks=true \
         -S "$OUTDIR/bench.ll" -o "$OUTDIR/bench.inst.ll" \
         || { echo "  [FAIL] opt pass"; failed=$((failed+1)); continue; }
  

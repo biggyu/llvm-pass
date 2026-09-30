@@ -155,7 +155,7 @@ while IFS= read -r "bench_c"; do
         continue
     fi
 
-    if ! "$LLVM_OPT" -load-pass-plugin "$PASS_SO" --passes=shadowmem -fp-debug-checks=true -fp-debug-metric=0 -S "$OUTDIR/kernel.ll" -o "$OUTDIR/kernel.instr.ll" 2>"$OUTDIR/opt.err"; then
+    if ! "$LLVM_OPT" -load-pass-plugin "$PASS_SO" --passes=shadowmem -fp-debug-checks=true -S "$OUTDIR/kernel.ll" -o "$OUTDIR/kernel.instr.ll" 2>"$OUTDIR/opt.err"; then
         echo "  [FAIL] opt pass failed"
         echo "         log: $OUTDIR/opt.err"
         crash=$((crash + 1))

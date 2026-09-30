@@ -83,7 +83,7 @@ namespace utils {
 
         CheckErrorTy = llvm::FunctionType::get(
             VoidTy,
-            {DoubleTy, DoubleTy, I32Ty, I32Ty},
+            {DoubleTy, DoubleTy, I32Ty},
             false
         );
 

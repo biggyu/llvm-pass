@@ -25,7 +25,7 @@ CFLAGS="-O$OPT -g -ffp-contract=off -fno-vectorize -fno-slp-vectorize -I $ROOT/s
 "$LLVM_CLANGXX" $CFLAGS -S -emit-llvm "$HS_DIR/hotspot_openmp.cpp" -o "$OUTDIR/bench.ll" \
     || { echo "  [FAIL] emit-llvm"; exit 1; }
 "$LLVM_OPT" -load-pass-plugin "$PASS_SO" --passes="$PLUGIN" \
-    -fp-debug-checks=true -fp-debug-metric=0 \
+    -fp-debug-checks=true \
     -S "$OUTDIR/bench.ll" -o "$OUTDIR/bench.inst.ll" \
     || { echo "  [FAIL] opt pass"; exit 1; }
 "$LLVM_CLANGXX" -O$OPT -c "$OUTDIR/bench.inst.ll" -o "$OUTDIR/bench.o" \

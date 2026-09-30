@@ -18,10 +18,10 @@ cl::opt<bool> EnableDebugAutoReport(
     cl::init(false)
 );
 
-cl::opt<int> DebugMetrics(
-    "fp-debug-metric",
-    cl::desc("Metric for floating-point debug checks"),
-    cl::init(0)
+cl::opt<bool> EFTOnly(
+    "run-eft-only",
+    cl::desc("Disable condition number computation"),
+    cl::init(false)
 );
 
 static uint32_t hash32string(llvm::StringRef S) {
@@ -87,32 +87,32 @@ void insertCheckError(IRBuilder<> &B,
                     std::unordered_map<uint32_t, utils::SiteDesc> &SiteDescs) {
     uint32_t id = getSiteId(Site);
     Value *SiteId = ConstantInt::get(rt.I32Ty, id);
-    Value *Metric = ConstantInt::get(rt.I32Ty, DebugMetrics);
 
     recordSiteDesc(id, Site, SiteDescs);
-
-    bool emitCond = (
-        // op != FpOp::Mul && op != FpOp::Div && 
-        // op != FpOp::Sqrt && op != FpOp::Cbrt && 
-        op != FpOp::Branch && op != FpOp::ConvSI && 
-        op != FpOp::ConvUI && op != FpOp::Unknown);
-
-    if (emitCond) {
-        Value *Ex = B.CreateCall(rt.ConditionNumber, {
-            ConstantInt::get(rt.I32Ty, (uint32_t)op), 
-            aDsl.xhat, aDsl.relerr, 
-            bDsl.xhat, bDsl.relerr, 
-            aDsl.fpval, bDsl.fpval, 
-            SiteId
-        });
-        Value *ci = ConstantFP::get(rt.DoubleTy, std::numeric_limits<double>::epsilon() / 2.0);
-        xDsl.relerr = B.CreateFAdd(Ex, ci, "x.relerr");
+    if (!EFTOnly) {
+        bool emitCond = (
+            // op != FpOp::Mul && op != FpOp::Div && 
+            // op != FpOp::Sqrt && op != FpOp::Cbrt && 
+            op != FpOp::Branch && op != FpOp::ConvSI && 
+            op != FpOp::ConvUI && op != FpOp::Unknown);
+    
+        if (emitCond) {
+            Value *Ex = B.CreateCall(rt.ConditionNumber, {
+                ConstantInt::get(rt.I32Ty, (uint32_t)op), 
+                aDsl.xhat, aDsl.relerr, 
+                bDsl.xhat, bDsl.relerr, 
+                aDsl.fpval, bDsl.fpval, 
+                SiteId
+            });
+            Value *ci = ConstantFP::get(rt.DoubleTy, std::numeric_limits<double>::epsilon() / 2.0);
+            xDsl.relerr = B.CreateFAdd(Ex, ci, "x.relerr");
+        }
     }
     Value *progVal = Site;
     if (Site->getType()->isFloatTy()) {
         progVal = B.CreateFPExt(Site, rt.DoubleTy, "site.ext");
     }
-    B.CreateCall(rt.CheckError, {progVal, xDsl.rhat, SiteId, Metric});
+    B.CreateCall(rt.CheckError, {progVal, xDsl.rhat, SiteId});
     // return false;
 }
 
@@ -123,7 +123,6 @@ void insertCheckBranch(IRBuilder<> &B,
                     std::unordered_map<uint32_t, utils::SiteDesc> &SiteDescs) {
     uint32_t id = getSiteId(Site);
     Value *SiteId = ConstantInt::get(rt.I32Ty, id);
-    Value *Metric = ConstantInt::get(rt.I32Ty, DebugMetrics);
 
     recordSiteDesc(id, Site, SiteDescs);
     
@@ -136,7 +135,6 @@ void insertCheckConv(IRBuilder<> &B, DSLValues &xDsl,
                     std::unordered_map<uint32_t, utils::SiteDesc> &SiteDescs) {
     uint32_t id = getSiteId(Site);
     Value *SiteId = ConstantInt::get(rt.I32Ty, id);
-    Value *Metric = ConstantInt::get(rt.I32Ty, DebugMetrics);
 
     recordSiteDesc(id, Site, SiteDescs);
 
