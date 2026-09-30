@@ -44,6 +44,7 @@ double condition_number(uint32_t opraw, double a, double a_Ex, double b, double 
     double Ea = std::fabs(a_Ex);
     double Eb = std::fabs(b_Ex);
     FpOp opcode = (FpOp)opraw;
+    static constexpr double EXACT_THRESH = 0x1p-54;
     switch (opcode) {
         case FpOp::Add:
         case FpOp::Sub: {
@@ -57,8 +58,8 @@ double condition_number(uint32_t opraw, double a, double a_Ex, double b, double 
             double ga = std::fabs(a / denom);
             double gb = std::fabs(b / denom);
             
-            splits[0] = {safe_gamma(ga), ErrKind::Cancellation, a == aVal};
-            splits[1] = {safe_gamma(gb), ErrKind::Cancellation, b == bVal};
+            splits[0] = {safe_gamma(ga), ErrKind::Cancellation, Ea < EXACT_THRESH};
+            splits[1] = {safe_gamma(gb), ErrKind::Cancellation, Eb < EXACT_THRESH};
             n = 2;
             full = std::max(ga, gb);
             Ex = ga * Ea + gb * Eb;
@@ -78,7 +79,7 @@ double condition_number(uint32_t opraw, double a, double a_Ex, double b, double 
 
         case FpOp::Sqrt: {
             double g = .5;
-            splits[0] = {safe_gamma(g), ErrKind::Cancellation, a == aVal};
+            splits[0] = {safe_gamma(g), ErrKind::Cancellation, Ea < EXACT_THRESH};
             n = 0;
             full = g;
             Ex = g * Ea;
@@ -86,7 +87,7 @@ double condition_number(uint32_t opraw, double a, double a_Ex, double b, double 
         }
         case FpOp::Cbrt: {
             double g = 1/3;
-            splits[0] = {safe_gamma(g), ErrKind::Cancellation, a == aVal};
+            splits[0] = {safe_gamma(g), ErrKind::Cancellation, Ea < EXACT_THRESH};
             n = 0;
             full = g;
             Ex = g * Ea;
@@ -101,10 +102,10 @@ double condition_number(uint32_t opraw, double a, double a_Ex, double b, double 
                 return get_g_threshold();
             }
             double g = std::fabs(1.0 / std::log(a));
-            splits[0] = {safe_gamma(g), ErrKind::Cancellation, a == aVal};
+            splits[0] = {safe_gamma(g), ErrKind::Cancellation, Ea < EXACT_THRESH};
             n = 1;
             full = g;
-            if (a == aVal) {
+            if (Ea < EXACT_THRESH) {
                 Ex = 0.0;
             }
             else {
@@ -114,7 +115,7 @@ double condition_number(uint32_t opraw, double a, double a_Ex, double b, double 
         }
         case FpOp::Exp: {
             double g = std::fabs(a);
-            splits[0] = {safe_gamma(g), ErrKind::Sensitivity, a == aVal};
+            splits[0] = {safe_gamma(g), ErrKind::Sensitivity, Ea < EXACT_THRESH};
             n = 1;
             full = g;
             Ex = g * Ea;
@@ -123,8 +124,8 @@ double condition_number(uint32_t opraw, double a, double a_Ex, double b, double 
         case FpOp::Pow: {
             double ga = std::fabs(b);
             double gb = std::fabs(b * std::log(a));
-            splits[0] = {safe_gamma(ga), ErrKind::Sensitivity, a == aVal};
-            splits[1] = {safe_gamma(gb), ErrKind::Sensitivity, b == bVal};
+            splits[0] = {safe_gamma(ga), ErrKind::Sensitivity, Ea < EXACT_THRESH};
+            splits[1] = {safe_gamma(gb), ErrKind::Sensitivity, Eb < EXACT_THRESH};
             n = 2;
             full = std::max(ga, gb);
             Ex = ga * Ea + gb * Eb;
@@ -140,8 +141,8 @@ double condition_number(uint32_t opraw, double a, double a_Ex, double b, double 
             }
             double g1 = std::fabs(1.0 / std::tan(a));
             double g2 = std::fabs(a);
-            splits[0] = {safe_gamma(g1), ErrKind::Cancellation, a == aVal};
-            splits[1] = {safe_gamma(g2), ErrKind::Sensitivity, a == aVal};
+            splits[0] = {safe_gamma(g1), ErrKind::Cancellation, Ea < EXACT_THRESH};
+            splits[1] = {safe_gamma(g2), ErrKind::Sensitivity, Ea < EXACT_THRESH};
             n = 2;
             full = g1 * g2;
             Ex = full * Ea;
@@ -150,8 +151,8 @@ double condition_number(uint32_t opraw, double a, double a_Ex, double b, double 
         case FpOp::Cos: {
             double g1 = std::fabs(std::tan(a));
             double g2 = std::fabs(a);
-            splits[0] = {safe_gamma(g1), ErrKind::Cancellation, a == aVal};
-            splits[1] = {safe_gamma(g2), ErrKind::Sensitivity, a == aVal};
+            splits[0] = {safe_gamma(g1), ErrKind::Cancellation, Ea < EXACT_THRESH};
+            splits[1] = {safe_gamma(g2), ErrKind::Sensitivity, Ea < EXACT_THRESH};
             n = 2;
             full = g1 * g2;
             Ex = full * Ea;
@@ -166,8 +167,8 @@ double condition_number(uint32_t opraw, double a, double a_Ex, double b, double 
             }
             double g1 = std::fabs(std::tan(a) + 1.0 / std::tan(a));
             double g2 = std::fabs(a);
-            splits[0] = {safe_gamma(g1), ErrKind::Cancellation, a == aVal};
-            splits[1] = {safe_gamma(g2), ErrKind::Sensitivity, a == aVal};
+            splits[0] = {safe_gamma(g1), ErrKind::Cancellation, Ea < EXACT_THRESH};
+            splits[1] = {safe_gamma(g2), ErrKind::Sensitivity, Ea < EXACT_THRESH};
             n = 2;
             full = g1 * g2;
             Ex = full * Ea;
@@ -182,7 +183,7 @@ double condition_number(uint32_t opraw, double a, double a_Ex, double b, double 
                 return get_g_threshold();
             }
             double g = std::fabs(a / (std::sqrt(1.0 - a * a) * std::acos(a)));
-            splits[0] = {safe_gamma(g), ErrKind::Cancellation, a == aVal};
+            splits[0] = {safe_gamma(g), ErrKind::Cancellation, Ea < EXACT_THRESH};
             n = 1;
             full = g;
             Ex = g * Ea;
@@ -196,7 +197,7 @@ double condition_number(uint32_t opraw, double a, double a_Ex, double b, double 
                 return get_g_threshold();
             }
             double g = std::fabs(a / (std::sqrt(1.0 - a * a) * std::asin(a)));
-            splits[0] = {safe_gamma(g), ErrKind::Cancellation, a == aVal};
+            splits[0] = {safe_gamma(g), ErrKind::Cancellation, Ea < EXACT_THRESH};
             n = 1;
             full = g;
             Ex = g * Ea;
@@ -210,7 +211,7 @@ double condition_number(uint32_t opraw, double a, double a_Ex, double b, double 
                 return get_g_threshold();
             }
             double g = std::fabs(a / ((1.0 + a * a) * std::atan(a)));
-            splits[0] = {safe_gamma(g), ErrKind::Cancellation, a == aVal};
+            splits[0] = {safe_gamma(g), ErrKind::Cancellation, Ea < EXACT_THRESH};
             n = 1;
             full = g;
             Ex = g * Ea;
@@ -240,7 +241,7 @@ double condition_number(uint32_t opraw, double a, double a_Ex, double b, double 
             bool any_typed = false;
             for (int i = 0; i < n; i++) {
                 if(splits[i].exact) continue;
-                if(splits[i].value > get_g_threshold()) {
+                if(splits[i].value >= get_g_threshold()) {
                     check_cond_error(siteId, (int) splits[i].kind, splits[i].value, a);
                     any_typed = true;
                 }
